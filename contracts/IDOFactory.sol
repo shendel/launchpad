@@ -18,6 +18,8 @@ contract IDOFactory is Ownable {
     uint256 public burnPercent; // use this state only if your token is ERC20Burnable and has burnFrom method
     uint256 public divider;
 
+    address[] public idoPools;
+
     event IDOCreated(
         address indexed owner,
         address idoPool,
@@ -39,6 +41,10 @@ contract IDOFactory is Ownable {
         feeAmount = _feeAmount;
         burnPercent = _burnPercent;
         divider = 100;
+    }
+
+    function setIdoPools(address[] memory _idoPools) public onlyOwner {
+      idoPools = _idoPools;
     }
 
     function setFeeToken(address _newFeeToken) external onlyOwner {
@@ -104,6 +110,8 @@ contract IDOFactory is Ownable {
             address(idoPool),
             transferAmount
         );
+
+        idoPools.push(address(idoPool));
 
         emit IDOCreated(
             msg.sender,
