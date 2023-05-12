@@ -32,6 +32,10 @@ contract TokenLockerFactory is Ownable {
 
     }
 
+    function getLockerAddresses() public view returns (address[] memory) {
+      return lockerAddresses;
+    }
+
     function createLocker(
         ERC20 _tokenAddress,
         string memory _name,
