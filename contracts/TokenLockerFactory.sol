@@ -32,10 +32,6 @@ contract TokenLockerFactory is Ownable {
 
     }
 
-    function setLockerAddresses(address[] memory _lockerAddresses) public onlyOwner {
-      lockerAddresses = _lockerAddresses;
-    }
-
     function createLocker(
         ERC20 _tokenAddress,
         string memory _name,

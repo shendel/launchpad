@@ -43,10 +43,6 @@ contract IDOFactory is Ownable {
         divider = 100;
     }
 
-    function setIdoPools(address[] memory _idoPools) public onlyOwner {
-      idoPools = _idoPools;
-    }
-
     function setFeeToken(address _newFeeToken) external onlyOwner {
         require(isContract(_newFeeToken), "New address is not a token");
         feeToken = ERC20Burnable(_newFeeToken);
