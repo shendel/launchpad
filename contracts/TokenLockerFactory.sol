@@ -23,12 +23,17 @@ contract TokenLockerFactory is Ownable {
         uint256 withdrawTime;
     }
 
+    address[] public lockerAddresses;
 
     event LockerCreated(uint256 lockerId, address indexed lockerAddress, address tokenAddress);
 
     constructor(
     ){
 
+    }
+
+    function getLockerAddresses() public view returns (address[] memory) {
+      return lockerAddresses;
     }
 
     function createLocker(
@@ -48,6 +53,8 @@ contract TokenLockerFactory is Ownable {
                 address(tokenLocker),
                 _lockAmount
             );
+
+        lockerAddresses.push(address(tokenLocker));
 
         emit LockerCreated(lockerCount, address(tokenLocker), address(_tokenAddress));
         lockerCount++;

@@ -91,18 +91,26 @@ export const PoolContextProvider = ({ children }) => {
       setUserPoolAddresses([]);
     }
 
-    setIDOCreatedEvent(
-      contract.IDOFactory.events.IDOCreated(
-        {
-          fromBlock: networks?.[chainId]?.fromBlock || 0,
-        },
-        function (error, event) {
-          if (event) {
-            setAllPoolAddress((p) => [...p, event.returnValues.idoPool]);
+    contract.IDOFactory.methods.getIdoPools().call().then((pools) => {
+      setAllPoolAddress((p) => [...p, ...pools]);
+    }).catch((err) => {
+      // Old contract version
+    })
+
+    contract.web3.eth.getBlockNumber().then((startBlock) => {
+      setIDOCreatedEvent(
+        contract.IDOFactory.events.IDOCreated(
+          {
+            fromBlock: startBlock,
+          },
+          function (error, event) {
+            if (event) {
+              setAllPoolAddress((p) => [...p, event.returnValues.idoPool]);
+            }
           }
-        }
-      )
-    );
+        )
+      );
+    })
   }, [dispatch, contract]);
 
   useEffect(() => {
@@ -110,24 +118,34 @@ export const PoolContextProvider = ({ children }) => {
       return null;
     }
 
+
     if (lockerCreatedEvent) {
       lockerCreatedEvent.unsubscribe();
       setAllLockerAddress([]);
       setUserLockersAddresses([]);
     }
 
-    setLockerCreatedEvent(
-      contract.TokenLockerFactory.events.LockerCreated(
-        {
-          fromBlock: networks?.[chainId]?.fromBlock || 0,
-        },
-        function (error, event) {
-          if (event) {
-            setAllLockerAddress((p) => [...p, event.returnValues.lockerAddress]);
+    contract.TokenLockerFactory.methods.getLockerAddresses().call().then((lockers) => {
+      setAllLockerAddress((p) => [...p, ...lockers]);
+    }).catch((err) => {
+      // Old contract
+    })
+
+    contract.web3.eth.getBlockNumber().then((startBlock) => {
+      setLockerCreatedEvent(
+        contract.TokenLockerFactory.events.LockerCreated(
+          {
+            fromBlock: startBlock,
+          },
+          function (error, event) {
+            if (event) {
+              setAllLockerAddress((p) => [...p, event.returnValues.lockerAddress]);
+            }
           }
-        }
-      )
-    );
+        )
+      );
+    })
+  
   }, [dispatch, contract]);
 
   useEffect(() => {
