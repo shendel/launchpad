@@ -18,7 +18,7 @@ import {
 //   newWalletlink,
   newWalletConnect
 } from '../../connectors';
-import { SUPPORTED_WALLETS, WALLET_NAMES } from '../../constants';
+import { SUPPORTED_WALLETS, WALLET_NAMES, STORAGE_NETWORK_ID } from '../../constants';
 import usePrevious from '../../hooks/usePrevious';
 // import useWindowSize from '../../hooks/useWindowSize';
 // import useWordpressInfo from 'hooks/useWordpressInfo'
@@ -27,6 +27,8 @@ import { networks } from '../../constants/networksInfo';
 import { Dialog, useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { isMobile, switchInjectedNetwork } from '../../utils/utils';
+
+import { useApplicationContext } from '../../context/applicationContext'
 
 import * as s from "../../styles/global";
 import Option from './Option';
@@ -224,6 +226,11 @@ export default function WalletModal(props) {
   } = props;
 //   const { height } = useWindowSize();
 
+  const {
+    isAppConfigured,
+    configuredNetworks,
+  } = useApplicationContext()
+
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -239,12 +246,16 @@ export default function WalletModal(props) {
     //   if (wordpressData?.wpNetworkIds?.length) {
     //     return wordpressData.wpNetworkIds.includes(chainId)
     //   }
-
+      if (!isAppConfigured && configuredNetworks.length == 0) return STORAGE_NETWORK_ID == chainId
+      if (configuredNetworks.length) {
+        return configuredNetworks.indexOf(`${chainId}`) !== -1
+      }
       return true;
     });
 
     setAvailableNetworks(networks);
   }, [
+    configuredNetworks
     // wordpressData
   ]);
 

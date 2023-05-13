@@ -309,7 +309,7 @@ export const addInjectedNetwork = async (chainId) => {
   const { name, baseCurrency, rpc, explorer } = network
 
   const params = {
-    chainId: `0x${chainId.toString(16)}`,
+    chainId: `0x${Number(chainId).toString(16)}`,
     chainName: name,
     nativeCurrency: {
       name: baseCurrency.name,
@@ -345,7 +345,7 @@ export const switchInjectedNetwork = async (chainId) => {
   try {
     const result = await window.ethereum?.request({
       method: 'wallet_switchEthereumChain',
-      params: [{ chainId: `0x${chainId.toString(16)}` }],
+      params: [{ chainId: `0x${Number(chainId).toString(16)}` }],
     })
 
     return result === successfulResult
