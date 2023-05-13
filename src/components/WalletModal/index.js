@@ -18,7 +18,7 @@ import {
 //   newWalletlink,
   newWalletConnect
 } from '../../connectors';
-import { SUPPORTED_WALLETS, WALLET_NAMES } from '../../constants';
+import { SUPPORTED_WALLETS, WALLET_NAMES, STORAGE_NETWORK_ID } from '../../constants';
 import usePrevious from '../../hooks/usePrevious';
 // import useWindowSize from '../../hooks/useWindowSize';
 // import useWordpressInfo from 'hooks/useWordpressInfo'
@@ -246,6 +246,7 @@ export default function WalletModal(props) {
     //   if (wordpressData?.wpNetworkIds?.length) {
     //     return wordpressData.wpNetworkIds.includes(chainId)
     //   }
+      if (!isAppConfigured) return STORAGE_NETWORK_ID == chainId
       if (configuredNetworks.length) {
         return configuredNetworks.indexOf(`${chainId}`) !== -1
       }
