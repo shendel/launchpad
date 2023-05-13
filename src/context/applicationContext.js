@@ -42,6 +42,18 @@ export const ApplicationContextProvider = ({ children }) => {
     && domainSettings?.ipfsInfuraProjectSecret
   ));
 
+  const _checkNetworkIsConfigured = (chainId) => {
+    return domainSettings?.contracts?.[chainId]?.FeeTokenAddress
+      && domainSettings?.contracts?.[chainId]?.IDOFactoryAddress
+      && domainSettings?.contracts?.[chainId]?.TokenLockerFactoryAddress
+      && domainSettings?.networks?.[chainId]?.webSocketRPC
+  }
+
+  const [configuredNetworks, setConfiguredNetworks] = useState(domainSettings?.contracts && domainSettings?.networks
+    ? Object.keys(domainSettings.contracts).filter((chainId) => { return _checkNetworkIsConfigured(chainId) })
+    : []
+  )
+
   useEffect(() => {
     setFeeTokenAddress(domainSettings?.contracts?.[chainId]?.FeeTokenAddress|| '');
     setIDOFactoryAddress(domainSettings?.contracts?.[chainId]?.IDOFactoryAddress|| '');
@@ -57,6 +69,10 @@ export const ApplicationContextProvider = ({ children }) => {
       && domainSettings?.ipfsInfuraProjectId
       && domainSettings?.ipfsInfuraProjectSecret
     ))
+
+    setConfiguredNetworks(domainSettings?.contracts && domainSettings?.networks
+    ? Object.keys(domainSettings.contracts).filter((chainId) => { return _checkNetworkIsConfigured(chainId) })
+    : [])
   }, [domainSettings, chainId])
 
   useEffect(() => {
@@ -165,6 +181,8 @@ export const ApplicationContextProvider = ({ children }) => {
     domainSettings,
     isDomainDataFetching,
     isDomainDataFetched,
+
+    configuredNetworks,
 
     triggerDomainData,
 
