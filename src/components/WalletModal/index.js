@@ -28,6 +28,8 @@ import { Dialog, useMediaQuery } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { isMobile, switchInjectedNetwork } from '../../utils/utils';
 
+import { useApplicationContext } from '../../context/applicationContext'
+
 import * as s from "../../styles/global";
 import Option from './Option';
 import PendingView from './PendingView';
@@ -224,6 +226,11 @@ export default function WalletModal(props) {
   } = props;
 //   const { height } = useWindowSize();
 
+  const {
+    isAppConfigured,
+    configuredNetworks,
+  } = useApplicationContext()
+
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -239,12 +246,15 @@ export default function WalletModal(props) {
     //   if (wordpressData?.wpNetworkIds?.length) {
     //     return wordpressData.wpNetworkIds.includes(chainId)
     //   }
-
+      if (configuredNetworks.length) {
+        return configuredNetworks.indexOf(`${chainId}`) !== -1
+      }
       return true;
     });
 
     setAvailableNetworks(networks);
   }, [
+    configuredNetworks
     // wordpressData
   ]);
 
