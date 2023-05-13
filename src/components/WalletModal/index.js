@@ -246,7 +246,7 @@ export default function WalletModal(props) {
     //   if (wordpressData?.wpNetworkIds?.length) {
     //     return wordpressData.wpNetworkIds.includes(chainId)
     //   }
-      if (!isAppConfigured) return STORAGE_NETWORK_ID == chainId
+      if (!isAppConfigured && configuredNetworks.length == 0) return STORAGE_NETWORK_ID == chainId
       if (configuredNetworks.length) {
         return configuredNetworks.indexOf(`${chainId}`) !== -1
       }
