@@ -83,9 +83,11 @@ const Navigation = () => {
         <Navbar.Toggle aria-controls="responsive-navbar-nav" />
         <Navbar.Collapse id="responsive-navbar-nav">
           <Nav className="me-auto">
+            {/*
             <LinkContainer to="/home">
               <Nav.Link>Home</Nav.Link>
             </LinkContainer>
+            */}
             <LinkContainer to="/launchpad">
               <Nav.Link>Launchpad</Nav.Link>
             </LinkContainer>
