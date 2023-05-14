@@ -11,6 +11,7 @@ export const PoolContextProvider = ({ children }) => {
   const [allPoolAddress, setAllPoolAddress] = useState([]);
   const [userPoolAddresses, setUserPoolAddresses] = useState([]);
   const [allPools, setAllPools] = useState({});
+  const [allPoolsFetching, setAllPoolsFetching] = useState(true)
   const [IDOCreatedEvent, setIDOCreatedEvent] = useState(null);
 
   const [allLockerAddress, setAllLockerAddress] = useState([]);
@@ -91,8 +92,10 @@ export const PoolContextProvider = ({ children }) => {
       setUserPoolAddresses([]);
     }
 
+    setAllPoolsFetching(true)
     contract.IDOFactory.methods.getIdoPools().call().then((pools) => {
       setAllPoolAddress((p) => [...p, ...pools]);
+      setAllPoolsFetching(false)
     }).catch((err) => {
       // Old contract version
     })
@@ -166,6 +169,7 @@ export const PoolContextProvider = ({ children }) => {
 
   const value = {
     allPools,
+    allPoolsFetching,
     allPoolAddress,
     userPoolAddresses,
     allLocker,

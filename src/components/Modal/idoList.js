@@ -10,7 +10,7 @@ const IDOList = (props) => {
   const [limit, setLimit] = useState(5);
   const [loading, setLoading] = useState(false);
 
-  const { allPools } = usePoolContext();
+  const { allPools, allPoolsFetching, allPoolAddress } = usePoolContext();
   // sort IDOs by start time
   const poolKeys = Object.keys(allPools).sort((a, b) => allPools[b]?.start - allPools[a]?.start);
 
@@ -24,7 +24,7 @@ const IDOList = (props) => {
     setLimit((p) => (p < allPools.length ? p + amount : p));
   };
 
-  if (!poolKeys.length || !allPools) {
+  if (allPoolsFetching || (!Object.keys(allPools).length && allPoolAddress.length)) {
     return <s.Container ai="center">
       <s.SpacerSmall />
       <Loader size="2rem" />
@@ -32,6 +32,14 @@ const IDOList = (props) => {
     </s.Container>;
   }
 
+  if (!allPoolAddress.length && !allPoolsFetching) {
+    return <s.Container ai="center">
+      <s.SpacerSmall />
+      <Loader size="2rem" />
+      <Typography>No pools.</Typography>
+    </s.Container>;
+  }
+  
   return (
     <s.Container ai="center">
       <s.Container ai="center">
