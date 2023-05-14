@@ -123,7 +123,7 @@ const WithdrawETH = (props) => {
         <s.Container flex={2}>
           <s.TextID>Total invested</s.TextID>
           <s.TextDescription>
-            {BigNumber(library.web3.utils.fromWei(idoInfo.balance)).toFixed(2) +
+            {BigNumber(BigNumber(library.web3.utils.fromWei(idoInfo.balance)).toFixed(10)).toNumber() +
               " " +
               baseCurrencySymbol}
           </s.TextDescription>
@@ -146,11 +146,15 @@ const WithdrawETH = (props) => {
         <s.Container flex={2}>
           <s.TextID>Unsold token</s.TextID>
           <s.TextDescription>
-            {BigNumber(idoInfo.unsold)
-              .dividedBy(10 ** idoInfo.tokenDecimals)
-              .toFixed(2) +
+            {
+              BigNumber(
+                BigNumber(idoInfo.unsold)
+                .dividedBy(10 ** idoInfo.tokenDecimals)
+                .toFixed(10)
+              ).toNumber() +
               " " +
-              idoInfo.tokenSymbol}
+              idoInfo.tokenSymbol
+            }
           </s.TextDescription>
         </s.Container>
         {BigNumber(idoInfo.totalInvestedETH).lt(BigNumber(idoInfo.softCap)) ? (
