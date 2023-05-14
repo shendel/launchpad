@@ -18,9 +18,9 @@ export const StoreContextProvider = ({ children }) => {
   const [liquidityPercentage, setLiquidityPercentage] = useState("");
   const [listingRate, setListingRate] = useState("");
 
-  const [start, setStart] = useState(Date.now());
-  const [end, setEnd] = useState(Date.now());
-  const [unlock, setUnlock] = useState(Date.now());
+  const [start, setStart] = useState( new Date() );
+  const [end, setEnd] = useState( new Date());
+  const [unlock, setUnlock] = useState(new Date());
   const [website, setWebsite] = useState("");
   const [discord, setDiscord] = useState("");
   const [telegram, setTelegram] = useState("");
@@ -84,11 +84,11 @@ export const StoreContextProvider = ({ children }) => {
       formIsValid = false;
       errors["hardCap"] = "Hard cap cannot be zero";
     }
-    if (BigNumber(start).gte(BigNumber(end))) {
+    if (BigNumber(start.getTime()).gte(BigNumber(end.getTime()))) {
       formIsValid = false;
       errors["start-end"] = "Start date cannot less than End date";
     }
-    if (BigNumber(end).gte(BigNumber(unlock))) {
+    if (BigNumber(end.getTime()).gte(BigNumber(unlock.getTime()))) {
       formIsValid = false;
       errors["unlock"] = "Unlock date cannot less than End date";
     }
