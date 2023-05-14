@@ -108,6 +108,16 @@ const BuyTokenCard = (props) => {
   );
   const lessThanMinAmount = BigNumber(ethAmount).lt(BigNumber(idoInfo.min));
 
+  const formatWei = (weiValue, dp = 10) => {
+    return BigNumber(
+      BigNumber(
+        library.web3.utils.fromWei(
+          weiValue
+        )
+      ).toFormat(dp)
+    ).toNumber()
+  }
+
   return (
     <s.Card
       style={{
@@ -130,13 +140,13 @@ const BuyTokenCard = (props) => {
         <s.Card style={{ padding: 0 }}>
           <s.TextID>{"Minimum " + baseCurrencySymbol}</s.TextID>
           <s.TextDescription>
-            {BigNumber(library.web3.utils.fromWei(idoInfo.min)).toFormat(2)}
+            {formatWei(idoInfo.min)}
           </s.TextDescription>
         </s.Card>
         <s.Card style={{ padding: 0 }}>
           <s.TextID>Maximum {baseCurrencySymbol}</s.TextID>
           <s.TextDescription>
-            {BigNumber(library.web3.utils.fromWei(idoInfo.max)).toFormat(2)}
+            {formatWei(idoInfo.max)}
           </s.TextDescription>
         </s.Card>
       </s.Container>
@@ -171,9 +181,7 @@ const BuyTokenCard = (props) => {
         <s.Container flex={4}>
           <s.TextID>My invested {baseCurrencySymbol}</s.TextID>
           <s.TextDescription>
-            {BigNumber(library.web3.utils.fromWei(idoInfo.userData.totalInvestedETH)).toFormat(
-              2
-            ) + " " + baseCurrencySymbol}
+            {formatWei(idoInfo.userData.totalInvestedETH)+ " " + baseCurrencySymbol}
           </s.TextDescription>
         </s.Container>
         <s.Container flex={1}>
