@@ -34,6 +34,16 @@ const PoolInfoRenderer = (props) => {
 
   const isAddLiquidityEnabled = idoInfo.listingRate > 0 && idoInfo.lpPercentage > 0;
 
+  const formatWei = (weiValue, dp = 10) => {
+    return BigNumber(
+      BigNumber(
+        library.web3.utils.fromWei(
+          weiValue
+        )
+      ).toFormat(dp)
+    ).toNumber() + " " + baseCurrencySymbol
+  }
+
   return (
     <s.Container flex={2} ai="center" style={{ margin: 10, minWidth: 400 }}>
       <s.Card
@@ -71,29 +81,25 @@ const PoolInfoRenderer = (props) => {
           <s.Card ai="center" style={{ padding: 0 }}>
             <s.TextID>Soft Cap</s.TextID>
             <s.TextDescription>
-              {BigNumber(library.web3.utils.fromWei(idoInfo.softCap)).toFormat(2) +
-                " " + baseCurrencySymbol}
+              {formatWei(idoInfo.softCap)}
             </s.TextDescription>
           </s.Card>
           <s.Card ai="center" style={{ padding: 0 }}>
             <s.TextID>Hard Cap</s.TextID>
             <s.TextDescription>
-              {BigNumber(library.web3.utils.fromWei(idoInfo.hardCap)).toFormat(2) +
-                " " + baseCurrencySymbol}
+              {formatWei(idoInfo.hardCap)}
             </s.TextDescription>
           </s.Card>
           <s.Card ai="center" style={{ padding: 0 }}>
             <s.TextID>Minimum Buy</s.TextID>
             <s.TextDescription>
-              {BigNumber(library.web3.utils.fromWei(idoInfo.min)).toFormat(2) +
-                " " + baseCurrencySymbol}
+              {formatWei(idoInfo.min)}
             </s.TextDescription>
           </s.Card>
           <s.Card ai="center" style={{ padding: 0 }}>
             <s.TextID>Maximum Buy</s.TextID>
             <s.TextDescription>
-              {BigNumber(library.web3.utils.fromWei(idoInfo.max)).toFormat(2) +
-                " " + baseCurrencySymbol}
+              {formatWei(idoInfo.max)}
             </s.TextDescription>
           </s.Card>
         </s.Container>
