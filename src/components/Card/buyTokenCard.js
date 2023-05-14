@@ -208,9 +208,9 @@ const BuyTokenCard = (props) => {
               e.preventDefault();
               let val = BigNumber(e.target.value).toFixed(0);
               if (!isNaN(val)) {
-                setTokensToBuy(val);
+                setTokensToBuy(e.target.value);
                 setEthAmount(
-                  BigNumber(idoInfo.tokenRate).times(val)
+                  BigNumber(idoInfo.tokenRate).times(e.target.value)
                 );
               } else {
                 setTokensToBuy(0);
