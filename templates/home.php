@@ -23,9 +23,9 @@
     <script type="text/javascript">
       window.SO_LAUNCHPAD_ROOT = "<?php echo ONOUT_LPWP_URL ?>/";
     </script>
-    <script src="https://unpkg.com/react/umd/react.production.min.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom/umd/react-dom.production.min.js" crossorigin></script>
-    <script src="https://unpkg.com/react-bootstrap@next/dist/react-bootstrap.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react/umd/react.production.min.js" integrity="sha256-S0lp+k7zWUMk2ixteM6HZvu8L9Eh//OVrt+ZfbCpmgY=" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/react-dom/umd/react-dom.production.min.js" integrity="sha256-IXWO0ITNDjfnNXIu5POVfqlgYoop36bDzhodR6LW5Pc=" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/react-bootstrap@next/dist/react-bootstrap.min.js" integrity="sha256-FQUj4FWIUqeZquRw7hj9th+JzyYO5tqO/YaHYhFWrjM=" crossorigin="anonymous"></script>
     <script defer="defer" src="<?php echo ONOUT_LPWP_URL ?>wordpress_vendor/static/js/main.js"></script>
     <link href="<?php echo ONOUT_LPWP_URL ?>wordpress_vendor/static/css/main.css" rel="stylesheet">
     <?php
