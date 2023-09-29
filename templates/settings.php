@@ -64,6 +64,7 @@
                   </div>
                 </td>
               </tr>
+              <!--
               <tr>
                 <th scope="row">
                   <label><?php echo esc_html('Master address'); ?></label>
@@ -80,6 +81,7 @@
                   </p>
                 </td>
               </tr>
+              -->
               <tr>
                 <th scope="row"></th>
                 <td>
