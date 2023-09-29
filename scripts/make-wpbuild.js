@@ -2,7 +2,7 @@ const glob = require('glob')
 const { readFileSync, writeFileSync } = require('fs')
 const fsExtra = require('fs-extra')
 
-const root_folder = './build'
+const root_folder = './wp_temp_build'
 const _extenstions = ['*.js']
 
 

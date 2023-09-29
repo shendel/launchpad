@@ -71,7 +71,7 @@
   "scripts": {
     "start": "react-app-rewired start",
     "build": "react-app-rewired build",
-    "build_wp_vendor": "cross-env PUBLIC_URL=LAUNCHPAD_ROOT_URL react-app-rewired build",
+    "build_wp_vendor": "cross-env PUBLIC_URL=LAUNCHPAD_ROOT_URL BUILD_PATH=./wp_temp_build/ react-app-rewired build",
     "prepare_wp_vendor": "node ./scripts/make-wpbuild.js",
     "build_wp": "npm run build_wp_vendor && npm run prepare_wp_vendor",
     "test": "react-app-rewired test",
