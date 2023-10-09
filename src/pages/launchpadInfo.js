@@ -8,18 +8,25 @@ import { usePoolContext } from "../context/poolContext";
 import { useIDOPoolContract } from "../hooks/useContract";
 import { Typography } from "@mui/material";
 import { isAddress, isValidPool } from "../utils/utils";
+import { useApplicationContext } from "../context/applicationContext";
 
 const LaunchpadInFo = () => {
   const { idoAddress } = useParams();
   const [isLoading, setIsLoading] = useState(true);
   const [prompt, setPromt] = useState('');
+  const {
+    domainSettings: {
+      defaultChain,
+    },
+  } = useApplicationContext();
 
   const idoInfo = usePoolContext().allPools[idoAddress];
-  const IDOPoolContract = useIDOPoolContract(idoAddress);
+  const IDOPoolContract = useIDOPoolContract(idoAddress, false, defaultChain);
 
   useEffect(() => {
     const checkPoolByContract = async () => {
       try {
+        console.log('>>> IDOPoolContract', IDOPoolContract)
         const hasRewardToken = await IDOPoolContract.rewardToken();
         if (isAddress(hasRewardToken)) {
           setPromt('Wait for the pool data is loaded... It may take more than 30 seconds.')

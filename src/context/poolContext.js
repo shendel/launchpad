@@ -25,9 +25,12 @@ export const PoolContextProvider = ({ children }) => {
 
   const {
     domainSettings: {
-      ipfsInfuraDedicatedGateway
+      ipfsInfuraDedicatedGateway,
+      defaultChain,
     }
   } = useApplicationContext();
+
+  const usedChainId = chainId || defaultChain
 
   useEffect(() => {
     if (ipfsInfuraDedicatedGateway) {

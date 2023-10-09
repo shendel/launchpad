@@ -9,6 +9,8 @@ const isValidArray = (arr) => Array.isArray(arr) && !!arr.length
 const defaultSettings = () => ({
   contracts: {},
   networks: {},
+  
+  defaultChain: 97,
 
   ipfsInfuraDedicatedGateway: '',
   ipfsInfuraProjectId: '',
@@ -57,6 +59,8 @@ const parseSettings = (settings) => {
       isLockerEnabled,
     } = parsedSettings;
 
+    appSettings.defaultChain = 97
+    
     appSettings.contracts = contracts
     appSettings.networks = networks
 

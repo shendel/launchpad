@@ -31,18 +31,21 @@ function App() {
     domainSettings: {
       networks,
       contracts,
-      isLockerEnabled
+      isLockerEnabled,
+      defaultChain,
     },
     isDomainDataFetching,
     isDomainDataFetched,
   } = useApplicationContext();
 
+console.log('>>> defaultChain', chainId, defaultChain)
   useEffect(() => {
-    if (chainId && isAppConfigured) {
-      dispatch(fetchContract(chainId, networks, contracts));
+    if ((chainId || defaultChain) && isAppConfigured) {
+      dispatch(fetchContract(chainId || defaultChain, networks, contracts));
     }
-  }, [dispatch, account, chainId, isAppConfigured, networks, contracts]);
+  }, [dispatch, account, chainId, defaultChain, isAppConfigured, networks, contracts]);
 
+console.log('>> isAppConfigured', isAppConfigured, chainId || defaultChain)
   return (
     <Web3ReactManager>
       <s.Screen>
@@ -55,7 +58,7 @@ function App() {
             }}
           />
         </s.Container> */}
-        {!active ?
+        {!active && false ?
           <Connection />
           : (isDomainDataFetching || !isDomainDataFetched) ? (
             <s.LoaderWrapper>

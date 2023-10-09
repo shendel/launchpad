@@ -63,6 +63,7 @@
     "utf-8": "^2.0.0",
     "web-vitals": "^1.0.1",
     "web3": "^1.6.1",
+    "web3-utils": "^4.0.6",
     "yup": "^0.32.11"
   },
   "resolutions": {
@@ -103,7 +104,6 @@
     "@web3-react/core": "6.1.9",
     "@web3-react/injected-connector": "6.0.7",
     "@web3-react/walletconnect-connector": "6.1.4",
-    "ethers": "~4.0.4",
     "react-app-rewired": "^2.2.1",
     "truffle-plugin-verify": "^0.5.27"
   }
