@@ -60,7 +60,7 @@ export default function Contracts() {
 
   const [isLoading, setIsLoading] = useState(false);
 
-
+  
   const [chainIdToSetUp, setChainIdToSetUp] = useState((chainId && !!contracts?.[chainId || 0]) ? chainId : '');
 
   useEffect(() => {
@@ -166,6 +166,35 @@ export default function Contracts() {
 
   }, [contracts, chainIdToSetUp]);
 
+  const [isAllowRemoveChain, setIsAllowRemoveChain] = useState(false)
+  const doRemoveChain = async () => {
+    setIsLoading(true)
+    try {
+      await saveAppData({
+        library,
+        domain,
+        owner: account || '',
+        data: {
+          contracts: {
+            [chainIdToSetUp]: null,
+          },
+        },
+        onReceipt: () => {
+          removeDeployedLaunchpadContracts(chainIdToSetUp);
+          triggerDomainData();
+        },
+        onHash: (hash) => {
+          console.log('saveContractsData hash: ', hash);
+        },
+      })
+    } catch (error) {
+      console.group('%c saveContractsData', 'color: red');
+      console.error(error);
+      console.groupEnd();
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   const isStorageNetwork = chainId === STORAGE_NETWORK_ID;
   const [canSaveNetworksSettings, setCanSaveNetworksSettings] = useState(false);
@@ -345,84 +374,86 @@ export default function Contracts() {
       <s.SpacerSmall />
 
       { chainIdToSetUp ? (
-        <Accordion>
-          <AccordionSummary
-            expandIcon={<FaAngleDown />}
-            aria-controls="deployment-content"
-            id="deployment-header"
-          >
-            <Typography>Deployment</Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            {hasDeployedContract &&
-              <>
+        <>
+          <Accordion>
+            <AccordionSummary
+              expandIcon={<FaAngleDown />}
+              aria-controls="deployment-content"
+              id="deployment-header"
+            >
+              <Typography>Deployment</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              {hasDeployedContract &&
+                <>
+                  <s.Text small warning>
+                    {
+                      `You have already deployed swap contracts.
+                      This means that if you deploy the contracts again, the previous contract addresses will be replaced by the new ones.
+                      The new contracts will not have any previously set IDOPools, Token Lockers or fee configurations`
+                    }
+                  </s.Text>
+
+                  <FormControlLabel
+                    control={<Checkbox
+                      checked={isRedeployAllowed}
+                      onChange={() => {
+                        setIsRedeployAllowed((prevState) => !prevState);
+                      }}
+                    />}
+                    label="Allow re-deploy"
+                  />
+                </>
+              }
+              {chainIdToSetUp !== STORAGE_NETWORK_ID &&
                 <s.Text small warning>
                   {
-                    `You have already deployed swap contracts.
-                    This means that if you deploy the contracts again, the previous contract addresses will be replaced by the new ones.
-                    The new contracts will not have any previously set IDOPools, Token Lockers or fee configurations`
+                    `If you deploy contracts from a network other than the ${STORAGE_NETWORK_NAME} Storage network, you need to save them manually.
+                    Switch to Storage Network, fill in the fields below and save it.
+                    You can also use existing contracts, but only if they are related to the IDOFactory app`
                   }
                 </s.Text>
+              }
+              {!hasDeployedContract && !FeeTokenAddress ? (
+                <s.Text small warning>
+                  The Fee Token Address field is empty.
+                </s.Text>
+              ) : !isAddress(FeeTokenAddress) && (
+                <s.Text small error>
+                  The Fee Token Address is not correct.
+                </s.Text>
+              )}
 
-                <FormControlLabel
-                  control={<Checkbox
-                    checked={isRedeployAllowed}
-                    onChange={() => {
-                      setIsRedeployAllowed((prevState) => !prevState);
-                    }}
-                  />}
-                  label="Allow re-deploy"
-                />
-              </>
-            }
-            {chainIdToSetUp !== STORAGE_NETWORK_ID &&
-              <s.Text small warning>
-                {
-                  `If you deploy contracts from a network other than the ${STORAGE_NETWORK_NAME} Storage network, you need to save them manually.
-                  Switch to Storage Network, fill in the fields below and save it.
-                  You can also use existing contracts, but only if they are related to the IDOFactory app`
-                }
+              <s.Text small>
+                You are going to deploy contracts of the IDOFactory application. You have to confirm these transactions:
+                <br />
+                1. Deploy IDOFactory contract
+                <br />
+                2. Deploy TokenLockerFactory contract
               </s.Text>
-            }
-            {!hasDeployedContract && !FeeTokenAddress ? (
-              <s.Text small warning>
-                The Fee Token Address field is empty.
-              </s.Text>
-            ) : !isAddress(FeeTokenAddress) && (
-              <s.Text small error>
-                The Fee Token Address is not correct.
-              </s.Text>
-            )}
 
-            <s.Text small>
-              You are going to deploy contracts of the IDOFactory application. You have to confirm these transactions:
-              <br />
-              1. Deploy IDOFactory contract
-              <br />
-              2. Deploy TokenLockerFactory contract
-            </s.Text>
-
-            {
-              isChainIdForDeploying ? (
-                <s.button
-                  fullWidth
-                  onClick={onContractsDeployment}
-                  disabled={!canDeploySwapContracts}
-                >
-                  { isDeployingContracts ? <Loader /> : 'Deploy contracts' }
-                </s.button>
-              ) : (
-                <s.button
-                  fullWidth
-                  onClick={() => switchToInjectedNetwork(chainIdToSetUp)}
-                  disabled={!canChangeNetwork}
-                >
-                  { isLoading ? <Loader /> : `Switch to ${SUPPORTED_NETWORKS[chainIdToSetUp].name}` }
-                </s.button>
-              )
-            }
-          </AccordionDetails>
-        </Accordion>
+              {
+                isChainIdForDeploying ? (
+                  <s.button
+                    fullWidth
+                    onClick={onContractsDeployment}
+                    disabled={!canDeploySwapContracts}
+                  >
+                    { isDeployingContracts ? <Loader /> : 'Deploy contracts' }
+                  </s.button>
+                ) : (
+                  <s.button
+                    fullWidth
+                    onClick={() => switchToInjectedNetwork(chainIdToSetUp)}
+                    disabled={!canChangeNetwork}
+                  >
+                    { isLoading ? <Loader /> : `Switch to ${SUPPORTED_NETWORKS[chainIdToSetUp].name}` }
+                  </s.button>
+                )
+              }
+            </AccordionDetails>
+          </Accordion>
+        </>
       ) : (
         <s.Text small warning>
           Please, select the Network
@@ -475,7 +506,55 @@ export default function Contracts() {
         }}
         error={Boolean(TokenLockerFactoryAddress && !isAddress(TokenLockerFactoryAddress))}
       />
+      <s.SpacerSmall />
+      {hasDeployedContract &&
+        <Accordion>
+          <AccordionSummary
+            expandIcon={<FaAngleDown />}
+            aria-controls="deployment-content"
+            id="deployment-header"
+          >
+            <Typography>Deleting a network</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <s.Text small warning>
+              {
+                `Are you sure you want to delete the settings for selected network?`
+              }
+            </s.Text>
 
+            <FormControlLabel
+              control={<Checkbox
+                checked={isAllowRemoveChain}
+                onChange={() => {
+                  setIsAllowRemoveChain((prevState) => !prevState);
+                }}
+              />}
+              label="Allow remove contracts"
+            />
+            <s.SpacerSmall />
+            {
+              isStorageNetwork ? (
+                <s.button
+                  onClick={doRemoveChain}
+                  disabled={!isAllowRemoveChain}
+                >
+                  { isLoading ? <Loader /> : 'Remove network settings' }
+                </s.button>
+              ) : (
+                <s.button
+                  onClick={() => switchToInjectedNetwork(STORAGE_NETWORK_ID)}
+                  disabled={!isAllowRemoveChain}
+                >
+                  { isLoading ? <Loader /> : `Switch to ${STORAGE_NETWORK_NAME}` }
+                </s.button>
+              )
+
+            }
+            
+          </AccordionDetails>
+        </Accordion>
+      }
       <s.SpacerSmall />
 
       {
