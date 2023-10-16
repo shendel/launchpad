@@ -28,6 +28,7 @@ export const ApplicationContextProvider = ({ children }) => {
     
   } = useDomainData();
 
+console.log('>>>> app contect', defaultChain, domainSettings)
   const usedChainId = chainId || defaultChain
   
   const chainName = networks[usedChainId]?.name;

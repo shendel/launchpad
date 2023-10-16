@@ -10,7 +10,7 @@ const defaultSettings = () => ({
   contracts: {},
   networks: {},
   
-  defaultChain: 97,
+  defaultChain: undefined,
 
   ipfsInfuraDedicatedGateway: '',
   ipfsInfuraProjectId: '',
@@ -31,7 +31,7 @@ const parseSettings = (settings) => {
 
   try {
     const settingsJSON = JSON.parse(settings);
-
+console.log('>>> settingsJSON', settingsJSON)
     if (!settingsJSON?.[STORAGE_APP_KEY]) {
       settingsJSON[STORAGE_APP_KEY] = {};
     }
@@ -47,6 +47,7 @@ const parseSettings = (settings) => {
     const {
       contracts,
       networks,
+      defaultChain,
 
       ipfsInfuraDedicatedGateway,
       ipfsInfuraProjectId,
@@ -59,8 +60,12 @@ const parseSettings = (settings) => {
       isLockerEnabled,
     } = parsedSettings;
 
-    appSettings.defaultChain = 97
+    console.log('>>> networks',defaultChain, networks)
     
+    const configuredChainsIds = Object.keys(networks)
+    appSettings.defaultChain = defaultChain !== undefined ? defaultChain : (configuredChainsIds.length ? Number(configuredChainsIds[0]) : undefined)
+
+    console.log('>>> defaultChain',appSettings.defaultChain, defaultChain)
     appSettings.contracts = contracts
     appSettings.networks = networks
 
@@ -80,7 +85,7 @@ const parseSettings = (settings) => {
     console.log('source settings: ', settings)
     console.groupEnd()
   }
-
+console.log('>>>>> appSettings', appSettings)
   return appSettings
 };
 
