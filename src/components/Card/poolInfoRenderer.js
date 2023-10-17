@@ -9,14 +9,18 @@ import * as s from "../../styles/global";
 import { utils } from "../../utils";
 // import { getRouterName } from "../../utils/utils";
 import TokenInfo from "./tokenInfo";
+import * as Web3Utils from "web3-utils";
+import { networks } from '../../constants/networksInfo';
 
 const PoolInfoRenderer = (props) => {
   const { idoAddress } = props;
-
-  const { library } = useWeb3React();
+  const { library, chainId } = useWeb3React();
 
   const {
-    baseCurrencySymbol
+    baseCurrencySymbol,
+    domainSettings: {
+      defaultChain,
+    },
   } = useApplicationContext();
 
   const poolContext = usePoolContext();
@@ -37,8 +41,8 @@ const PoolInfoRenderer = (props) => {
   const formatWei = (weiValue, dp = 10) => {
     return BigNumber(
       BigNumber(
-        library.web3.utils.fromWei(
-          weiValue
+        Web3Utils.fromWei(
+          weiValue, "ether"
         )
       ).toFormat(dp)
     ).toNumber() + " " + baseCurrencySymbol

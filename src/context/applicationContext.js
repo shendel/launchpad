@@ -11,9 +11,7 @@ export const ApplicationContextProvider = ({ children }) => {
   const { account, chainId, library, error } = useWeb3React();
 
 
-  const chainName = networks[chainId]?.name;
-  const baseCurrencySymbol = networks[chainId]?.baseCurrency?.symbol;
-  const networkExplorer = networks[chainId]?.explorer;
+  
 
   const [isAvailableNetwork, setIsAvailableNetwork] = useState(true);
 
@@ -21,21 +19,30 @@ export const ApplicationContextProvider = ({ children }) => {
     domain,
     isAdmin,
     domainSettings,
+    domainSettings: {
+      defaultChain,
+    },
     isDomainDataFetching,
     isDomainDataFetched,
     triggerDomainData,
+    
   } = useDomainData();
 
-
-  const [FeeTokenAddress, setFeeTokenAddress] = useState(domainSettings?.contracts?.[chainId]?.FeeTokenAddress|| '');
-  const [IDOFactoryAddress, setIDOFactoryAddress] = useState(domainSettings?.contracts?.[chainId]?.IDOFactoryAddress|| '');
-  const [TokenLockerFactoryAddress, setTokenLockerFactoryAddress] = useState(domainSettings?.contracts?.[chainId]?.TokenLockerFactoryAddress || '');
+  const usedChainId = chainId || defaultChain
+  
+  const chainName = networks[usedChainId]?.name;
+  const baseCurrencySymbol = networks[usedChainId]?.baseCurrency?.symbol;
+  const networkExplorer = networks[usedChainId]?.explorer;
+  
+  const [FeeTokenAddress, setFeeTokenAddress] = useState(domainSettings?.contracts?.[usedChainId]?.FeeTokenAddress|| '');
+  const [IDOFactoryAddress, setIDOFactoryAddress] = useState(domainSettings?.contracts?.[usedChainId]?.IDOFactoryAddress|| '');
+  const [TokenLockerFactoryAddress, setTokenLockerFactoryAddress] = useState(domainSettings?.contracts?.[usedChainId]?.TokenLockerFactoryAddress || '');
 
   const [isAppConfigured, setIsAppConfigured] = useState(Boolean(
-    domainSettings?.contracts?.[chainId]?.FeeTokenAddress
-    && domainSettings?.contracts?.[chainId]?.IDOFactoryAddress
-    && domainSettings?.contracts?.[chainId]?.TokenLockerFactoryAddress
-    && domainSettings?.networks?.[chainId]?.webSocketRPC
+    domainSettings?.contracts?.[usedChainId]?.FeeTokenAddress
+    && domainSettings?.contracts?.[usedChainId]?.IDOFactoryAddress
+    && domainSettings?.contracts?.[usedChainId]?.TokenLockerFactoryAddress
+    && domainSettings?.networks?.[usedChainId]?.webSocketRPC
     && domainSettings?.admin
     && domainSettings?.ipfsInfuraDedicatedGateway
     && domainSettings?.ipfsInfuraProjectId
@@ -55,15 +62,15 @@ export const ApplicationContextProvider = ({ children }) => {
   )
 
   useEffect(() => {
-    setFeeTokenAddress(domainSettings?.contracts?.[chainId]?.FeeTokenAddress|| '');
-    setIDOFactoryAddress(domainSettings?.contracts?.[chainId]?.IDOFactoryAddress|| '');
-    setTokenLockerFactoryAddress(domainSettings?.contracts?.[chainId]?.TokenLockerFactoryAddress || '');
+    setFeeTokenAddress(domainSettings?.contracts?.[usedChainId]?.FeeTokenAddress|| '');
+    setIDOFactoryAddress(domainSettings?.contracts?.[usedChainId]?.IDOFactoryAddress|| '');
+    setTokenLockerFactoryAddress(domainSettings?.contracts?.[usedChainId]?.TokenLockerFactoryAddress || '');
 
     setIsAppConfigured(Boolean(
-      domainSettings?.contracts?.[chainId]?.FeeTokenAddress
-      && domainSettings?.contracts?.[chainId]?.IDOFactoryAddress
-      && domainSettings?.contracts?.[chainId]?.TokenLockerFactoryAddress
-      && domainSettings?.networks?.[chainId]?.webSocketRPC
+      domainSettings?.contracts?.[usedChainId]?.FeeTokenAddress
+      && domainSettings?.contracts?.[usedChainId]?.IDOFactoryAddress
+      && domainSettings?.contracts?.[usedChainId]?.TokenLockerFactoryAddress
+      && domainSettings?.networks?.[usedChainId]?.webSocketRPC
       && domainSettings?.admin
       && domainSettings?.ipfsInfuraDedicatedGateway
       && domainSettings?.ipfsInfuraProjectId
@@ -73,14 +80,14 @@ export const ApplicationContextProvider = ({ children }) => {
     setConfiguredNetworks(domainSettings?.contracts && domainSettings?.networks
     ? Object.keys(domainSettings.contracts).filter((chainId) => { return _checkNetworkIsConfigured(chainId) })
     : [])
-  }, [domainSettings, chainId])
+  }, [domainSettings, usedChainId])
 
   useEffect(() => {
     if (error && error instanceof UnsupportedChainIdError) {
       return setIsAvailableNetwork(false);
     }
 
-    if (chainId) {
+    if (usedChainId) {
       // const lowerAcc = account?.toLowerCase()
       // const appAdmin = wordpressData?.wpAdmin
       //   ? wordpressData?.wpAdmin?.toLowerCase() === lowerAcc
@@ -96,12 +103,12 @@ export const ApplicationContextProvider = ({ children }) => {
       //   || wordpressData.wpNetworkIds.includes(chainId);
 
       setIsAvailableNetwork(
-        Boolean(SUPPORTED_CHAIN_IDS.includes(Number(chainId))
+        Boolean(SUPPORTED_CHAIN_IDS.includes(Number(usedChainId))
         // && networkIsFine
       ))
     }
   }, [
-    chainId,
+    usedChainId,
     // domainDataTrigger,
     // wordpressData,
     // admin,
@@ -134,12 +141,12 @@ export const ApplicationContextProvider = ({ children }) => {
       }
     }
 
-    if (account && library && chainId) {
+    if (account && library && usedChainId) {
       fetchNativeCoinBalance()
     } else {
       setNativeCoinBalance(0);
     }
-  }, [account, library, chainId, shouldUpdateAccountData])
+  }, [account, library, usedChainId, shouldUpdateAccountData])
 
   const FeeTokenContract = useTokenContract(FeeTokenAddress, true);
 

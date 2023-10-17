@@ -10,6 +10,7 @@ import { STORAGE_NETWORK_ID } from '../constants';
 import { networks } from '../constants/networksInfo';
 import { getContract, isAddress } from '../utils/utils';
 import { useActiveWeb3React } from './index';
+import { JsonRpcProvider } from '@ethersproject/providers'
 
 export function useStorageContract() {
   const { storage, rpc } = networks[STORAGE_NETWORK_ID];
@@ -29,11 +30,16 @@ export function useStorageContract() {
 }
 
 // returns null on errors
-function useContract(address, ABI, withSignerIfPossible = true) {
-  const { library, account } = useActiveWeb3React()
+function useContract(address, ABI, withSignerIfPossible = true, customChainId = 97) {
+  let { library, account } = useActiveWeb3React()
 
+  if (!account && customChainId) {
+    library = new JsonRpcProvider(networks[customChainId].rpc)
+  }
   return useMemo(() => {
-    if (!address || !isAddress(address) || !ABI || !library) return null
+    if (!address || !isAddress(address) || !ABI || !library) {
+      return null
+    }
     try {
       return getContract(address, ABI, library, withSignerIfPossible && account ? account : undefined)
     } catch (error) {
@@ -43,22 +49,22 @@ function useContract(address, ABI, withSignerIfPossible = true) {
   }, [address, ABI, library, withSignerIfPossible, account])
 }
 
-export function useLockerFactoryContract(address, withSignerIfPossible) {
-  return useContract(address, TokenLockerFactory.abi, withSignerIfPossible)
+export function useLockerFactoryContract(address, withSignerIfPossible, customChainId) {
+  return useContract(address, TokenLockerFactory.abi, withSignerIfPossible, customChainId)
 }
 
-export function useLockerContract(address, withSignerIfPossible) {
-  return useContract(address, Locker.abi, withSignerIfPossible)
+export function useLockerContract(address, withSignerIfPossible, customChainId) {
+  return useContract(address, Locker.abi, withSignerIfPossible, customChainId)
 }
 
-export function useIDOFactoryContract(address, withSignerIfPossible) {
-  return useContract(address, IDOFactory.abi, withSignerIfPossible)
+export function useIDOFactoryContract(address, withSignerIfPossible, customChainId) {
+  return useContract(address, IDOFactory.abi, withSignerIfPossible, customChainId)
 }
 
-export function useTokenContract(tokenAddress, withSignerIfPossible) {
-  return useContract(tokenAddress, ERC20.abi, withSignerIfPossible)
+export function useTokenContract(tokenAddress, withSignerIfPossible, customChainId) {
+  return useContract(tokenAddress, ERC20.abi, withSignerIfPossible, customChainId)
 }
 
-export function useIDOPoolContract(IDOAddress, withSignerIfPossible) {
-  return useContract(IDOAddress, IDOPool.abi, withSignerIfPossible)
+export function useIDOPoolContract(IDOAddress, withSignerIfPossible, customChainId) {
+  return useContract(IDOAddress, IDOPool.abi, withSignerIfPossible, customChainId)
 }

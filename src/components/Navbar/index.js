@@ -92,14 +92,17 @@ const Navigation = () => {
               <Nav.Link>Launchpad</Nav.Link>
             </LinkContainer>
             {
-              isLockerEnabled &&
+              isLockerEnabled && chainId &&
               <LinkContainer to="/locker">
                 <Nav.Link>Locker</Nav.Link>
               </LinkContainer>
             }
-            <LinkContainer to="/account">
-              <Nav.Link>Account</Nav.Link>
-            </LinkContainer>
+            {
+              chainId &&
+              <LinkContainer to="/account">
+                <Nav.Link>Account</Nav.Link>
+              </LinkContainer>
+            }
             {
               isAdmin &&
               <LinkContainer to="/manage">
@@ -109,49 +112,52 @@ const Navigation = () => {
           </Nav>
           <Nav>
             <Nav.Link>{getNetworkInfo()}</Nav.Link>
-
-            {
-              !hasFeeToken ? (
-                <Nav.Link>
-                  {
-                    isNativeCoinBalanceFetching ?
-                      <Loader/> :
-                      `$${baseCurrencySymbol} ` +
-                        BigNumber(ETHamount)
-                          .dividedBy(10 ** 18)
-                          .toFormat(2)
-                  }
-                </Nav.Link>
-              ) : (
-                <NavDropdown
-                  title={
-                    isNativeCoinBalanceFetching ?
-                      <Loader/> :
-                      `$${baseCurrencySymbol} ` +
-                        BigNumber(ETHamount)
-                          .dividedBy(10 ** 18)
-                          .toFormat(2)
-                  }
-                  id="collasible-nav-dropdown"
-                >
-                  <Nav.Link
-                    href={`${networkExplorer}/address/${FeeTokenAddress}`}
-                    target="_blank"
-                  >
-                    {
-                      isFeeTokenDataFetching ?
-                        <Loader /> :
-                        `$${FeeTokenSymbol} ` +
-                          BigNumber(FeeTokenamount)
-                            .dividedBy(10 ** 18)
-                            .toFormat(0)
-                    }
-                  </Nav.Link>
-                  {/* <NavDropdown.Item href="#action/3.3"></NavDropdown.Item> */}
-                  <NavDropdown.Divider />
-                </NavDropdown>
-              )
-            }
+            {chainId && (
+              <>
+                {
+                  !hasFeeToken ? (
+                    <Nav.Link>
+                      {
+                        isNativeCoinBalanceFetching ?
+                          <Loader/> :
+                          `$${baseCurrencySymbol} ` +
+                            BigNumber(ETHamount)
+                              .dividedBy(10 ** 18)
+                              .toFormat(2)
+                      }
+                    </Nav.Link>
+                  ) : (
+                    <NavDropdown
+                      title={
+                        isNativeCoinBalanceFetching ?
+                          <Loader/> :
+                          `$${baseCurrencySymbol} ` +
+                            BigNumber(ETHamount)
+                              .dividedBy(10 ** 18)
+                              .toFormat(2)
+                      }
+                      id="collasible-nav-dropdown"
+                    >
+                      <Nav.Link
+                        href={`${networkExplorer}/address/${FeeTokenAddress}`}
+                        target="_blank"
+                      >
+                        {
+                          isFeeTokenDataFetching ?
+                            <Loader /> :
+                            `$${FeeTokenSymbol} ` +
+                              BigNumber(FeeTokenamount)
+                                .dividedBy(10 ** 18)
+                                .toFormat(0)
+                        }
+                      </Nav.Link>
+                      {/* <NavDropdown.Item href="#action/3.3"></NavDropdown.Item> */}
+                      <NavDropdown.Divider />
+                    </NavDropdown>
+                  )
+                }
+              </>
+            )}
           </Nav>
           <Web3Status />
         </Navbar.Collapse>

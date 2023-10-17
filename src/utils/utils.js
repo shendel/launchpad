@@ -381,7 +381,7 @@ export function getContract(address, ABI, library, account = '') {
 }
 
 export const getCurrentDomain = () => {
-  return window.location.hostname || document.location.host || ''; // 'dev-launchpad'
+  return 'eneeseene-launchpad'// window.location.hostname || document.location.host || ''; // 'dev-launchpad'
 }
 
 export const validateArray = arr => Array.isArray(arr) && !!arr.length;

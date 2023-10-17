@@ -29,7 +29,8 @@ export default function Networks() {
   const {
     domain,
     domainSettings: {
-      networks
+      networks,
+      defaultChain
     },
     triggerDomainData,
   } = useApplicationContext();
@@ -39,6 +40,8 @@ export default function Networks() {
   const [chainIdToSetUp, setChainIdToSetUp] = useState((chainId && !!networks?.[chainId || 0]) ? chainId : '');
   const [webSocketRPC, setWebSocketRPC] = useState(networks?.[chainId || 0]?.webSocketRPC || '');
   const [canSaveNetworksSettings, setCanSaveNetworksSettings] = useState(false);
+
+  const [defaultNetwork, setDefaultNetwork ] = useState(defaultChain)
 
   const isStorageNetwork = chainId === STORAGE_NETWORK_ID;
   const canChangeNetwork = (connector instanceof InjectedConnector);
@@ -60,6 +63,33 @@ export default function Networks() {
     setWebSocketRPC(networks?.[chainIdToSetUp || 0]?.webSocketRPC || '');
   }, [networks, chainIdToSetUp])
 
+
+  const saveDefaultNetwork = async () => {
+    setIsLoading(true);
+
+    try {
+      await saveAppData({
+        library,
+        domain,
+        owner: account || '',
+        data: {
+          defaultChain: defaultNetwork
+        },
+        onReceipt: () => {
+            triggerDomainData();
+          },
+        onHash: (hash) => {
+          console.log('saveNetworksData hash: ', hash);
+        },
+      })
+    } catch (error) {
+      console.group('%c saveNetworksData', 'color: red');
+      console.error(error);
+      console.groupEnd();
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   const saveNetworksData = async () => {
     setIsLoading(true);
@@ -106,8 +136,42 @@ export default function Networks() {
 
   return (
     <ContentWrapper disabled={isLoading}>
-      <Typography variant="h6">Networks</Typography>
+      <Typography variant="h6">Default Network</Typography>
+      <s.SpacerSmall />
+      <Select
+        labelId="selectedDefaultNetworkLabel"
+        id="selectedDefaultNetwork"
+        value={defaultNetwork}
+        label="Default Network"
+        onChange={(e) => {
+          setDefaultNetwork(e.target.value)
+        }}
+      >
+        {SUPPORTED_CHAIN_IDS.map((chainId) => (
+          <MenuItem key={chainId} value={chainId}>{SUPPORTED_NETWORKS[chainId].name}</MenuItem>
+        ))}
+      </Select>
+      <s.SpacerSmall />
+      {
+        isStorageNetwork ? (
+          <s.button
+            onClick={saveDefaultNetwork}
+          >
+            { isLoading ? <Loader /> : 'Save default network' }
+          </s.button>
+        ) : (
+          <s.button
+            onClick={switchToStorage}
+            disabled={!canChangeNetwork}
+          >
+            { isLoading ? <Loader /> : `Switch to ${STORAGE_NETWORK_NAME}` }
+          </s.button>
+        )
 
+      }
+      <s.SpacerSmall />
+      <Typography variant="h6">Networks</Typography>
+      
       <s.SpacerSmall />
 
       <InputLabel id="selectedNetworkLablel">Selected Network</InputLabel>
@@ -128,7 +192,7 @@ export default function Networks() {
       <s.SpacerSmall />
 
       <TextField
-        label="Web Socket RPC"
+        label="Web Socket RPC / HTTPS RPC"
         value={webSocketRPC}
         onChange={(e) => {
           setWebSocketRPC(e.target.value);

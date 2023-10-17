@@ -8,18 +8,27 @@ import { usePoolContext } from "../context/poolContext";
 import { useIDOPoolContract } from "../hooks/useContract";
 import { Typography } from "@mui/material";
 import { isAddress, isValidPool } from "../utils/utils";
+import { useApplicationContext } from "../context/applicationContext";
 
 const LaunchpadInFo = () => {
   const { idoAddress } = useParams();
   const [isLoading, setIsLoading] = useState(true);
-  const [prompt, setPromt] = useState('');
+  const [prompt, setPromt] = useState('Wait for the pool data is loaded... It may take more than 30 seconds.');
+  const {
+    domainSettings: {
+      defaultChain,
+    },
+  } = useApplicationContext();
 
   const idoInfo = usePoolContext().allPools[idoAddress];
-  const IDOPoolContract = useIDOPoolContract(idoAddress);
+  const IDOPoolContract = useIDOPoolContract(idoAddress, false, defaultChain);
 
   useEffect(() => {
+    /*
     const checkPoolByContract = async () => {
+      
       try {
+        console.log('>>> IDOPoolContract', IDOPoolContract)
         const hasRewardToken = await IDOPoolContract.rewardToken();
         if (isAddress(hasRewardToken)) {
           setPromt('Wait for the pool data is loaded... It may take more than 30 seconds.')
@@ -30,18 +39,21 @@ const LaunchpadInFo = () => {
       } catch (error) {
         console.log('CheckPoolByContract Error:', error)
         setIsLoading(false);
-        return setPromt('Address is not valid...');
+        return setPromt('Wait for the pool data is loaded... It may take more than 30 seconds.');
       }
     }
+    */
 
     if (IDOPoolContract === null) {
       setIsLoading(false);
       return setPromt('Address is not valid...');
     }
 
+    /*
     if (!idoInfo && IDOPoolContract) {
       return checkPoolByContract();
     }
+    */
 
     const isValidPoolData = !!idoInfo && isValidPool(idoInfo);
 
@@ -49,8 +61,10 @@ const LaunchpadInFo = () => {
       setIsLoading(false);
       return setPromt('');
     } else {
+      /*
       setIsLoading(false);
       return setPromt('Pool is not valid...');
+      */
     }
 
 
