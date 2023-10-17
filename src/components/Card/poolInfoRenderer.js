@@ -24,7 +24,7 @@ const PoolInfoRenderer = (props) => {
   } = useApplicationContext();
 
   const poolContext = usePoolContext();
-console.log('baseCurrencySymbol', baseCurrencySymbol)
+
   let idoInfo = poolContext.allPools[idoAddress];
 
   if (!utils.isValidPool(idoInfo)) {

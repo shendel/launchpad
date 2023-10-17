@@ -32,7 +32,7 @@ export const NETWORKS_RPC_BY_ID = Object.values(SUPPORTED_NETWORKS).reduce(
   (acc, { chainId, rpc }) => ({ ...acc, [chainId]: rpc }),
   {}
 );
-console.log('>>> NETWORKS_RPC_BY_ID', NETWORKS_RPC_BY_ID)
+
 export const network = new NetworkConnector({
   urls: NETWORKS_RPC_BY_ID,
   defaultChainId: 5, // goerli testnet

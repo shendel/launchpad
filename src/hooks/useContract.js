@@ -34,13 +34,10 @@ function useContract(address, ABI, withSignerIfPossible = true, customChainId = 
   let { library, account } = useActiveWeb3React()
 
   if (!account && customChainId) {
-    console.log('>>> networks[customChainId].rpc', networks[customChainId].rpc)
-    const library = new JsonRpcProvider(networks[customChainId].rpc)
-    console.log('>>> new lib', library)
+    library = new JsonRpcProvider(networks[customChainId].rpc)
   }
   return useMemo(() => {
     if (!address || !isAddress(address) || !ABI || !library) {
-      console.log('>>> no address')
       return null
     }
     try {
@@ -69,6 +66,5 @@ export function useTokenContract(tokenAddress, withSignerIfPossible, customChain
 }
 
 export function useIDOPoolContract(IDOAddress, withSignerIfPossible, customChainId) {
-  console.log('>>> useIDOFactoryContract', customChainId)
   return useContract(IDOAddress, IDOPool.abi, withSignerIfPossible, customChainId)
 }

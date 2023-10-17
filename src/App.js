@@ -38,14 +38,12 @@ function App() {
     isDomainDataFetched,
   } = useApplicationContext();
 
-console.log('>>> defaultChain', chainId, defaultChain)
   useEffect(() => {
     if ((chainId || defaultChain) && isAppConfigured) {
       dispatch(fetchContract(chainId || defaultChain, networks, contracts));
     }
   }, [dispatch, account, chainId, defaultChain, isAppConfigured, networks, contracts]);
 
-console.log('>> isAppConfigured', isAppConfigured, chainId || defaultChain)
   return (
     <Web3ReactManager>
       <s.Screen>

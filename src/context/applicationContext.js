@@ -28,14 +28,11 @@ export const ApplicationContextProvider = ({ children }) => {
     
   } = useDomainData();
 
-console.log('>>>> app contect', defaultChain, domainSettings)
   const usedChainId = chainId || defaultChain
   
   const chainName = networks[usedChainId]?.name;
   const baseCurrencySymbol = networks[usedChainId]?.baseCurrency?.symbol;
   const networkExplorer = networks[usedChainId]?.explorer;
-  
-  console.log('>>> appContext', usedChainId)
   
   const [FeeTokenAddress, setFeeTokenAddress] = useState(domainSettings?.contracts?.[usedChainId]?.FeeTokenAddress|| '');
   const [IDOFactoryAddress, setIDOFactoryAddress] = useState(domainSettings?.contracts?.[usedChainId]?.IDOFactoryAddress|| '');

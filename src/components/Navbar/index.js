@@ -56,7 +56,6 @@ const Navigation = () => {
 
   const hasFeeToken = !isFeeTokenDataFetching && FeeTokenSymbol && FeeTokenAddress;
 
-console.log('>>> NAV', hasFeeToken, isFeeTokenDataFetching, FeeTokenSymbol, FeeTokenAddress)
   const getNetworkInfo = () => {
     if (!chainId) return null;
 

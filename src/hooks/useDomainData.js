@@ -31,7 +31,6 @@ const parseSettings = (settings) => {
 
   try {
     const settingsJSON = JSON.parse(settings);
-console.log('>>> settingsJSON', settingsJSON)
     if (!settingsJSON?.[STORAGE_APP_KEY]) {
       settingsJSON[STORAGE_APP_KEY] = {};
     }
@@ -60,12 +59,9 @@ console.log('>>> settingsJSON', settingsJSON)
       isLockerEnabled,
     } = parsedSettings;
 
-    console.log('>>> networks',defaultChain, networks)
-    
     const configuredChainsIds = Object.keys(networks)
     appSettings.defaultChain = defaultChain !== undefined ? defaultChain : (configuredChainsIds.length ? Number(configuredChainsIds[0]) : undefined)
 
-    console.log('>>> defaultChain',appSettings.defaultChain, defaultChain)
     appSettings.contracts = contracts
     appSettings.networks = networks
 
@@ -85,7 +81,6 @@ console.log('>>> settingsJSON', settingsJSON)
     console.log('source settings: ', settings)
     console.groupEnd()
   }
-console.log('>>>>> appSettings', appSettings)
   return appSettings
 };
 
