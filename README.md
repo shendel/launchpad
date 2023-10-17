@@ -18,6 +18,21 @@ White-label Decentralized IDO Launchpad Platform
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## Devops
+
+### Build static version
+
+```
+yarn build
+```
+Static build will be at `build` folder
+
+### Build (update) vendor for Wordpress
+
+```
+yarn build_wp
+```
+
 ## Launch and Setting Up Application
 
 [Read](./docs/launchAndSettingUp.md)
