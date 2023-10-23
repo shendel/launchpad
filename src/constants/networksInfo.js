@@ -79,8 +79,7 @@ export const networks = {
       symbol: "WBNB"
     }
   },
-
-   534352: {
+  534352: {
     name: "Scroll.io Mainnet",
     rpc: "https://rpc.scroll.io/",
     chainId: 534352,
@@ -98,7 +97,7 @@ export const networks = {
       symbol: "WETH"
     }
   },
-534351: {
+ 534351: {
     name: "Scroll.io Testnet",
     rpc: "https://sepolia-rpc.scroll.io/",
     chainId: 534351	,
