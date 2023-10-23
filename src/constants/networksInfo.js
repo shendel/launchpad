@@ -152,6 +152,15 @@ export const chainRouter = {
       ROUTER: "0xD99D1c33F9fC3444f8101754aBC46c52416550D1",
     },
   ],
+
+    534352: [
+    {
+      name: "Punkswap",
+      FACTORY: "0x5640113EA7F369E6DAFbe54cBb1406E5BF153E90",
+      WETH: "0x5300000000000000000000000000000000000004",
+      ROUTER: "0x26cB8660EeFCB2F7652e7796ed713c9fB8373f8e",
+    },
+  ],
 };
 
 
