@@ -115,6 +115,7 @@ export const networks = {
       address: "0x5300000000000000000000000000000000000004",
       name: "Wrapped ETH",
       symbol: "WETH"
+     }
     },
 }
 
