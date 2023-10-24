@@ -6,21 +6,21 @@
 :root {
   --clr-neon: hsl(56, 100%, 52%, 1);
   --clr-bg: hsl(56, 100%, 40%);
-  --primary: #27C498;
+  --primary: #462301;
   --secondary: #004e38;
   --warning: #ff9c0840;
   --success: #27ae5f54;
   --error: #dc354570;
   --search: #2D2D2D;
-  --card: #232227;
-  --upper-card: #151516;
+  --card: #FCDCBC;
+  --upper-card: #FCDCBC;
   --unfocus: #6F2232;
   --disable: #6D6E71;
-  --background: #EDE3CE;
-  /* --background: #EDE3CE */
+  --background: #FFF6ED;
+  /* --background: #FFF6ED */
   --blue: #1e90ff;
   --white: #ffffff;
-  --text: #FFFFFF;
+  --text: #462301;
   --secondary-color: #989b9c;
   --text-secondary: #232227;
   --button: #005987;
