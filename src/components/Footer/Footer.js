@@ -53,10 +53,10 @@ const Footer = () => {
     <Box>
       <hr
         style={{
-          color: "#ffffff",
-          backgroundColor: "#ffffff",
+          color: "#000000",
+          backgroundColor: "#000000",
           height: 1,
-          borderColor: "#ffffff",
+          borderColor: "#000000",
         }}
       />
       <Container style={{ padding: 30 }}>
