@@ -123,7 +123,7 @@ export const networks = {
     rpc: "https://zetachain-athens-evm.blockpi.network/v1/rpc/public",
     chainId: 7001  ,
     explorer: "https://zetachain-athens-3.blockscout.com/",
-    color: "##2A8958",
+    color: "#2A8958",
     multicall: "0x606C2Dd168440Fcf4Cb4AE30647c2295CB95BBca",
     storage: "0x095a03c6a68137fE9a566bBc3e552F299d8b886",
     exstorage: "0x2f87D23cd8d788bC9a32E540cdd8253F9b1F54CF",
