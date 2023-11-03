@@ -6,6 +6,36 @@ import { networks } from '../constants/networksInfo'
 
 console.log('>>> utils', networks)
 
+export const callIDOFactoryContract = (options) => {
+  const {
+    library,
+    account,
+    address,
+    method,
+    params,
+    onHash,
+    onReceipt,
+  } = options
+
+  try {
+    const contract = getContractInstance(library.web3, address, IDOFactory.abi)
+    return new Promise(async (resolve, reject) => {
+      contract.methods[method](...params)
+        .send({ from: account })
+        .on('transactionHash', (hash) => {
+          if (typeof onHash === 'function') onHash(hash)
+        })
+        .on('receipt', (receipt) => {
+          if (typeof onReceipt === 'function') onReceipt(receipt, receipt?.status)
+        })
+        .then(resolve)
+        .catch(reject)
+    });
+  } catch (error) {
+    throw error
+  }
+}
+
 export const fetchIDOFactoryInfo = (chainId, address) => {
   return new Promise(async (resolve, reject) => {
     const web3 = getWeb3Library(networks[chainId].rpc)
