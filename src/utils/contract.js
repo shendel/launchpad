@@ -4,7 +4,35 @@ import ERC20 from '../contracts/ERC20.json'
 import { getWeb3Library } from './getLibrary'
 import { networks } from '../constants/networksInfo'
 
-console.log('>>> utils', networks)
+export const callTokenLockerFactoryContract = (options) => {
+  const {
+    library,
+    account,
+    address,
+    method,
+    params,
+    onHash,
+    onReceipt,
+  } = options
+
+  try {
+    const contract = getContractInstance(library.web3, address, TokenLockerFactory.abi)
+    return new Promise(async (resolve, reject) => {
+      contract.methods[method](...params)
+        .send({ from: account })
+        .on('transactionHash', (hash) => {
+          if (typeof onHash === 'function') onHash(hash)
+        })
+        .on('receipt', (receipt) => {
+          if (typeof onReceipt === 'function') onReceipt(receipt, receipt?.status)
+        })
+        .then(resolve)
+        .catch(reject)
+    });
+  } catch (error) {
+    throw error
+  }
+}
 
 export const callIDOFactoryContract = (options) => {
   const {
@@ -34,6 +62,23 @@ export const callIDOFactoryContract = (options) => {
   } catch (error) {
     throw error
   }
+}
+
+
+export const fetchLockerFactoryInfo = (chainId, address) => {
+  return new Promise(async (resolve, reject) => {
+    const web3 = getWeb3Library(networks[chainId].rpc)
+    const contract = getContractInstance(web3, address, TokenLockerFactory.abi)
+    
+    const owner = await contract.methods.owner().call()
+    const feeAmount = await contract.methods.fee().call()
+
+    const lockerInfo = {
+      owner,
+      feeAmount,
+    }
+    resolve(lockerInfo)
+  })
 }
 
 export const fetchIDOFactoryInfo = (chainId, address) => {

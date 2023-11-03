@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useWeb3React } from '@web3-react/core'
 import { useApplicationContext } from '../../../context/applicationContext'
 import { SUPPORTED_NETWORKS, SUPPORTED_CHAIN_IDS } from '../../../connectors'
+import { networks } from '../../../constants/networksInfo'
 import styled from 'styled-components'
 import {
   TextField,
@@ -21,7 +22,9 @@ import Loader from '../../../components/Loader'
 
 import {
   fetchIDOFactoryInfo,
+  fetchLockerFactoryInfo,
   callIDOFactoryContract,
+  callTokenLockerFactoryContract,
 } from '../../../utils/contract'
 
 import {
@@ -46,6 +49,35 @@ const ContentWrapper = styled.div`
 `
 
 
+const Tabs = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  border-radius: 0.5rem;
+  border: 1px solid #3a3d47;
+  width: 100%;
+`;
+
+const Tab = styled.button`
+  flex: 1;
+  cursor: pointer;
+  padding: 0.4rem 0.7rem;
+  font-size: 1em;
+  border: none;
+  background-color: ${({ active }) => (active ? "#424149" : 'transparent')};
+  color: #fff;
+
+  :first-child {
+    border-top-left-radius: inherit;
+    border-bottom-left-radius: inherit;
+  }
+
+  :last-child {
+    border-top-right-radius: inherit;
+    border-bottom-right-radius: inherit;
+  }
+`;
+
+
 export default function Contracts() {
   const { library, chainId, account, connector } = useWeb3React()
   const {
@@ -63,6 +95,56 @@ export default function Contracts() {
   
   const [ hasChainContracts, setHasChainContracts ] = useState(false)
 
+  const [tab, setTab] = useState('LockerFactory') //('IDOFactory')
+
+  const [ isLockerInfoFetching, setIsLockerInfoFetching ] = useState(false)
+  const [ isLockerInfoError, setIsLockerInfoError ] = useState(false)
+  const [ lockerInfo, setLockerInfo ] = useState(false)
+  const [ lockerFeeAmount, setLockerFeeAmount ] = useState(``)
+  const [ lockerFeeAmountSaving, setLockerFeeAmountSaving ] = useState(false)
+  
+  const fetchLockerInfo = () => {
+    setIsLockerInfoFetching(true)
+    setIsLockerInfoError(false)
+    setLockerInfo(false)
+    fetchLockerFactoryInfo(chainIdToManage, contracts[chainIdToManage].TokenLockerFactoryAddress).then((lockerInfo) => {
+      setLockerInfo(lockerInfo)
+      setLockerFeeAmount(tokenAmountFromWei(lockerInfo.feeAmount, networks[chainIdToManage].baseCurrency.decimals))
+      setIsLockerInfoFetching(false)
+    }).catch((err) => {
+      setIsLockerInfoError(true)
+      setIsLockerInfoFetching(false)
+    })
+  }
+  
+  const saveLockerFeeAmount = () => {
+    setIsLoading(true)
+    setLockerFeeAmountSaving(true)
+    callTokenLockerFactoryContract({
+      library,
+      address: contracts[chainIdToManage].TokenLockerFactoryAddress,
+      account,
+      method: `setFee`,
+      params: [tokenAmountToWei(lockerFeeAmount, networks[chainIdToManage].baseCurrency.decimals)],
+      onReceipt: () => {
+        setLockerInfo({
+          ...lockerInfo,
+          feeAmount: tokenAmountToWei(lockerFeeAmount, networks[chainIdToManage].baseCurrency.decimals)
+        })
+      },
+      onHash: (hash) => {
+        console.log('saveContractsData hash: ', hash);
+      },
+    }).then(() => {
+      setIsLoading(false)
+      setLockerFeeAmountSaving(false)
+    }).catch((err) => {
+      console.log('Fail save locker fee ammount', err)
+      setIsLoading(false)
+      setLockerFeeAmountSaving(false)
+    })
+  }
+  
   const [ isIdoInfoFetching, setIsIdoInfoFetching ] = useState(false)
   const [ isIdoInfoError, setIsIdoInfoError ] = useState(false)
   const [ idoInfo, setIdoInfo ] = useState(false)
@@ -87,10 +169,10 @@ export default function Contracts() {
   }
   
   useEffect(() => {
-    console.log(contracts, domainSettings)
     if (contracts[chainIdToManage] && contracts[chainIdToManage].IDOFactoryAddress && contracts[chainIdToManage].TokenLockerFactoryAddress) {
       setHasChainContracts(true)
       fetchIdoInfo()
+      fetchLockerInfo()
     } else {
       setHasChainContracts(false)
     }
@@ -192,46 +274,42 @@ export default function Contracts() {
         )}
         {chainIdToManage !== 0 && hasChainContracts && (
           <>
+            <Tabs>
+              <Tab active={tab === `IDOFactory`} onClick={() => setTab(`IDOFactory`)}>{`IDOFactory`}</Tab>
+              <Tab active={tab === `LockerFactory`} onClick={() => setTab(`LockerFactory`)}>{`LockerFactory`}</Tab>
+            </Tabs>
             {/* IDOFactory */}
-            {isIdoInfoFetching ? (
-              <s.Text small info>
-                {`Fetching IDOFactory settings...`}
-                {` `}
-                <Loader />
-              </s.Text>
-            ) : (
+            {tab === 'IDOFactory' && (
               <>
-                {isIdoInfoError ? (
-                  <s.Text small error>{`Fail fetch IDOFactory settings`}</s.Text>
+                {isIdoInfoFetching ? (
+                  <s.Text small info>
+                    {`Fetching IDOFactory settings...`}
+                    {` `}
+                    <Loader />
+                  </s.Text>
                 ) : (
                   <>
-                    {chainId !== chainIdToManage ? (
-                      <>
-                        <s.Text small warning>{`Switch network for manage contracts`}</s.Text>
-                        <s.SpacerSmall />
-                        <s.button
-                          fullWidth
-                          onClick={() => switchToNetwork(chainIdToManage)}
-                        >
-                          { isLoading ? <Loader /> : `Switch to ${SUPPORTED_NETWORKS[chainIdToManage].name}` }
-                        </s.button>
-                      </>
+                    {isIdoInfoError ? (
+                      <s.Text small error>{`Fail fetch IDOFactory settings`}</s.Text>
                     ) : (
                       <>
-                        {idoInfo !== false && (
+                        {chainId !== chainIdToManage ? (
                           <>
-                            <Typography variant="h8">IDO Factory</Typography>
-                            {idoInfo.owner.toLowerCase() != account.toLowerCase() ? (
-                              <s.Text small error>{`You are not owner of IDOFactory contract`}</s.Text>
-                            ) : (
+                            <s.Text small warning>{`Switch network for manage contracts`}</s.Text>
+                            <s.SpacerSmall />
+                            <s.button
+                              fullWidth
+                              onClick={() => switchToNetwork(chainIdToManage)}
+                            >
+                              { isLoading ? <Loader /> : `Switch to ${SUPPORTED_NETWORKS[chainIdToManage].name}` }
+                            </s.button>
+                          </>
+                        ) : (
+                          <>
+                            {idoInfo !== false && (
                               <>
-                                {chainId !== chainIdToManage ? (
-                                  <s.button
-                                    fullWidth
-                                    onClick={() => switchToNetwork(chainIdToManage)}
-                                  >
-                                    { isLoading ? <Loader /> : `Switch to ${SUPPORTED_NETWORKS[chainIdToManage].name}` }
-                                  </s.button>
+                                {idoInfo.owner.toLowerCase() != account.toLowerCase() ? (
+                                  <s.Text small error>{`You are not owner of IDOFactory contract`}</s.Text>
                                 ) : (
                                   <>
                                     <s.SpacerSmall />
@@ -258,7 +336,7 @@ export default function Contracts() {
                                       <>
                                         <NumberField
                                           value={IDOFeeAmount}
-                                          label={`Fee for create IDO`}
+                                          label={`Create IDO fee`}
                                           adornment={idoInfo.feeTokenSymbol}
                                           error={Boolean(IDOFeeAmount < 0)}
                                           onChange={async (e) => {
@@ -287,6 +365,77 @@ export default function Contracts() {
               </>
             )}
             {/* LockerFactory */}
+            {tab === `LockerFactory` && (
+              <>
+                {isLockerInfoFetching ? (
+                  <s.Text small info>
+                    {`Fetching TokenLockerFactory settings...`}
+                    {` `}
+                    <Loader />
+                  </s.Text>
+                ) : (
+                  <>
+                    {isLockerInfoError ? (
+                      <s.Text small error>{`Fail fetch TokenLockerFactory settings`}</s.Text>
+                    ) : (
+                      <>
+                        {chainId !== chainIdToManage ? (
+                          <>
+                            <s.Text small warning>{`Switch network for manage contracts`}</s.Text>
+                            <s.SpacerSmall />
+                            <s.button
+                              fullWidth
+                              onClick={() => switchToNetwork(chainIdToManage)}
+                            >
+                              { isLoading ? <Loader /> : `Switch to ${SUPPORTED_NETWORKS[chainIdToManage].name}` }
+                            </s.button>
+                          </>
+                        ) : (
+                          <>
+                            {lockerInfo !== false && (
+                              <>
+                                {lockerInfo.owner.toLowerCase() != account.toLowerCase() ? (
+                                  <s.Text small error>{`You are not owner of TokenLockerFactory contract`}</s.Text>
+                                ) : (
+                                  <>
+                                    <s.SpacerSmall />
+                                    <TextField
+                                      label="Wallet for recieve fee (owner)"
+                                      value={lockerInfo.owner}
+                                    />
+                                    <s.SpacerSmall />
+                                    <NumberField
+                                      value={lockerFeeAmount}
+                                      label={`Lock tokens fee`}
+                                      adornment={networks[chainIdToManage].baseCurrency.symbol}
+                                      error={Boolean(lockerFeeAmount < 0)}
+                                      onChange={async (e) => {
+                                        setLockerFeeAmount(e.target.value)
+                                      }}
+                                    />
+                                    <s.SpacerSmall />
+                                    <s.button fullWidth
+                                      onClick={() => { saveLockerFeeAmount() }}
+                                      disabled={
+                                        isLoading
+                                        || lockerFeeAmountSaving 
+                                        || lockerInfo.feeAmount == tokenAmountToWei(lockerFeeAmount, networks[chainIdToManage].baseCurrency.decimals)
+                                      }
+                                    >
+                                      { lockerFeeAmountSaving ? <Loader /> : `Save Fee amount`}
+                                    </s.button>
+                                  </>
+                                )}
+                              </>
+                            )}
+                          </>
+                        )}
+                      </>
+                    )}
+                  </>
+                )}
+              </>
+            )}
           </>
         )}
       </ContentWrapper>
