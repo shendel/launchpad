@@ -95,7 +95,7 @@ export default function Contracts() {
   
   const [ hasChainContracts, setHasChainContracts ] = useState(false)
 
-  const [tab, setTab] = useState('LockerFactory') //('IDOFactory')
+  const [tab, setTab] = useState('IDOFactory')
 
   const [ isLockerInfoFetching, setIsLockerInfoFetching ] = useState(false)
   const [ isLockerInfoError, setIsLockerInfoError ] = useState(false)
