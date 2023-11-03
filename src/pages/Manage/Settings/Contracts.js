@@ -16,6 +16,11 @@ import {
   Checkbox,
 } from '@mui/material'
 import * as s from "../../../styles/global"
+import Loader from '../../../components/Loader'
+
+import { fetchIDOFactoryInfo } from '../../../utils/contract'
+
+
 const ContentWrapper = styled.div`
   display: flex;
   width: 100%;
@@ -28,6 +33,8 @@ const ContentWrapper = styled.div`
     ` : ''
   )};
 `
+
+
 export default function Contracts() {
   const { library, chainId, account, connector } = useWeb3React()
   const {
@@ -43,9 +50,29 @@ export default function Contracts() {
   
   const [ chainIdToManage, setChainIdToManage ] = useState(0)
   
+  const [ hasChainContracts, setHasChainContracts ] = useState(false)
+
+  const [ isContractsInfoFetching, setIsContractsInfoFetching ] = useState(false)
+
+  const fetchContractsInfo = () => {
+    setIsContractsInfoFetching(true)
+    fetchIDOFactoryInfo(chainIdToManage, contracts[chainIdToManage].IDOFactoryAddress).then((idoInfo) => {
+      console.log('idoInfo', idoInfo)
+    }).catch((err) => {
+    })
+  }
+  
   useEffect(() => {
     console.log(contracts, domainSettings)
+    if (contracts[chainIdToManage] && contracts[chainIdToManage].IDOFactoryAddress && contracts[chainIdToManage].TokenLockerFactoryAddress) {
+      setHasChainContracts(true)
+      fetchContractsInfo()
+    } else {
+      setHasChainContracts(false)
+    }
   }, [ chainIdToManage ])
+
+
   return (
     <>
       <ContentWrapper disabled={isLoading}>
@@ -70,6 +97,27 @@ export default function Contracts() {
         </Select>
 
         <s.SpacerSmall />
+        {chainIdToManage !== 0 && !hasChainContracts && (
+          <>
+            <s.Text small warning>
+              {`This blockchain not configured. Deploy contracts first`}
+            </s.Text>
+          </>
+        )}
+        {chainIdToManage !== 0 && hasChainContracts && (
+          <>
+            {isContractsInfoFetching ? (
+              <s.Text small info>
+                {`Fetching contracts settings...`}
+                {` `}
+                <Loader />
+              </s.Text>
+            ) : (
+              <>
+              </>
+            )}
+          </>
+        )}
       </ContentWrapper>
     </>
   )

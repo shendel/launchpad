@@ -199,6 +199,10 @@ export const Text = styled.div`
   ${({ warning }) =>
     warning ? `padding: .6rem; border-radius: .3rem; background-color: var(--warning);` : ''
   }
+  
+  ${({ info }) =>
+    info ? `padding: .6rem; border-radius: .3rem; background-color: var(--info);` : ''
+  }
 
   ${({ success }) =>
     success ? `padding: .6rem; border-radius: .3rem; background-color: var(--success);` : ''
