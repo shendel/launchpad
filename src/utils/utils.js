@@ -31,7 +31,7 @@ export function isZeroAddress(address) {
 }
 
 export function tokenAmountToWei(amount, decimals) {
-  
+  return new BigNumber(amount).multipliedBy(10 ** decimals).toString()
 }
 
 export function tokenAmountFromWei(amount, decimals) {

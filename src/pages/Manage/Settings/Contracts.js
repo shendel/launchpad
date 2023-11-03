@@ -124,6 +124,31 @@ export default function Contracts() {
     })
   }
   const saveFeeAmount = async () => {
+    setIsLoading(true)
+    setIDOFeeAmountSaving(true)
+    callIDOFactoryContract({
+      library,
+      address: contracts[chainIdToManage].IDOFactoryAddress,
+      account,
+      method: `setFeeAmount`,
+      params: [tokenAmountToWei(IDOFeeAmount, idoInfo.feeTokenDecimals)],
+      onReceipt: () => {
+        setIdoInfo({
+          ...idoInfo,
+          feeAmount: tokenAmountToWei(IDOFeeAmount, idoInfo.feeTokenDecimals),
+        })
+      },
+      onHash: (hash) => {
+        console.log('saveContractsData hash: ', hash);
+      },
+    }).then(() => {
+      setIsLoading(false)
+      setIDOFeeAmountSaving(false)
+    }).catch((err) => {
+      console.log('Fail save fee amount', err)
+      setIsLoading(false)
+      setIDOFeeAmountSaving(false)
+    })
   }
   
   const switchToNetwork = async (switchToId) => {
@@ -140,11 +165,8 @@ export default function Contracts() {
   return (
     <>
       <ContentWrapper disabled={isLoading}>
-        <Typography variant="h6">Manage contracts</Typography>
+        <Typography variant="h8">{`Select blockchain for manage`}</Typography>
 
-        <s.SpacerSmall />
-
-        <InputLabel id="selectedNetworkLablel">Blockchain</InputLabel>
         <Select
           labelId="selectedNetworkLable"
           id="selectedNetwork"
@@ -225,7 +247,7 @@ export default function Contracts() {
                                     <s.SpacerSmall />
                                     <s.button fullWidth
                                       onClick={() => { saveFeeWallet() }}
-                                      disabled={isLoading || !isAddress(IDOFeeWallet) || isZeroAddress(IDOFeeWallet)}
+                                      disabled={isLoading || !isAddress(IDOFeeWallet) || isZeroAddress(IDOFeeWallet) || IDOFeeWallet.toLowerCase() == idoInfo.feeWallet.toLowerCase()}
                                     >
                                       { IDOFeeWalletSaving ? <Loader /> : `Save wallet for fee`}
                                     </s.button>
@@ -243,15 +265,15 @@ export default function Contracts() {
                                             setIDOFeeAmount(e.target.value)
                                           }}
                                         />
+                                        <s.SpacerSmall />
+                                        <s.button fullWidth
+                                          onClick={() => { saveFeeAmount() }}
+                                          disabled={isLoading || Boolean(IDOFeeAmount < 0) || tokenAmountToWei(IDOFeeAmount, idoInfo.feeTokenDecimals) == idoInfo.feeAmount}
+                                        >
+                                          { IDOFeeAmountSaving ? <Loader /> : `Save Fee amount`}
+                                        </s.button>
                                       </>
                                     )}
-                                    <s.SpacerSmall />
-                                    <s.button fullWidth
-                                      onClick={() => { saveFeeAmount() }}
-                                      disabled={isLoading || Boolean(IDOFeeAmount < 0)}
-                                    >
-                                      { IDOFeeAmountSaving ? <Loader /> : `Save Fee amount`}
-                                    </s.button>
                                   </>
                                 )}
                               </>
