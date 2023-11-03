@@ -26,6 +26,14 @@ export function timeout(delay) {
   return new Promise((res) => setTimeout(res, delay));
 }
 
+export function tokenAmountToWei(amount, decimals) {
+  
+}
+
+export function tokenAmountFromWei(amount, decimals) {
+  return new BigNumber(amount).div(new BigNumber(10).pow(decimals)).toNumber()
+}
+
 export var typewatch = (function () {
   var timer = 0;
   return function (callback, ms) {

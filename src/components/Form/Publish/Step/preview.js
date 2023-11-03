@@ -10,7 +10,10 @@ import SocialMediaModal from "../../../Modal/socialmediaModal";
 import { useApplicationContext } from "../../../../context/applicationContext";
 import { useTokenContract } from "../../../../hooks/useContract";
 import ReadMore from "../../readMore";
-import { isAddress } from "../../../../utils/utils";
+import {
+  isAddress,
+  tokenAmountFromWei
+} from "../../../../utils/utils";
 import { useIPFS } from "../../../../hooks/useIPFS";
 import { ETHER } from "../../../../constants";
 
@@ -23,6 +26,7 @@ export default function Preview() {
     TokenLockerFactoryAddress,
     FeeTokenContract,
     FeeTokenSymbol,
+    FeeTokenDecimals,
     FeeTokenApproveToFactory,
     triggerUpdateAccountData,
     isFeeTokenDataFetching,
@@ -398,7 +402,14 @@ export default function Preview() {
         )}
       </s.Container>
 
-      {IDOFactoryFee && IDOFactoryFee !== "0" && `Create IDO fee : ${library.web3.utils.fromWei(IDOFactoryFee)} ${FeeTokenSymbol}`}
+      {IDOFactoryFee && IDOFactoryFee !== "0" && (
+        <>
+          {`Create IDO fee: `}
+          {tokenAmountFromWei(IDOFactoryFee, FeeTokenDecimals)}
+          {` `}
+          {FeeTokenSymbol}
+        </>
+      )}
     </s.Container>
   );
 }

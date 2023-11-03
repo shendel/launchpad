@@ -120,6 +120,7 @@ export const ApplicationContextProvider = ({ children }) => {
   const triggerUpdateAccountData = () => setShouldUpdateAccountData(!shouldUpdateAccountData);
 
   const [feeTokenSymbol, setFeeTokenSymbol] = useState('');
+  const [feeTokenDecimals, setFeeTokenDecimals] = useState(0)
   const [feeTokenBalance, setFeeTokenBalance] = useState(0);
   const [feeTokenApproveToFactory, setFeeTokenApproveToFactory] = useState(0);
   const [isFeeTokenDataFetching, setIsFeeTokenDataFetching] = useState(false);
@@ -157,9 +158,12 @@ export const ApplicationContextProvider = ({ children }) => {
       try {
         const symbol = await FeeTokenContract.symbol();
         const balance = await FeeTokenContract.balanceOf(account);
+        const decimals = await FeeTokenContract.decimals()
         const approveToFactory = await FeeTokenContract.allowance(account, IDOFactoryAddress);
         setFeeTokenSymbol(symbol);
         setFeeTokenBalance(Number(balance));
+        setFeeTokenDecimals(Number(decimals))
+        console.log('>>> Fee token decimals', decimals)
         setFeeTokenApproveToFactory(Number(approveToFactory));
       } catch (error) {
         console.log('fetchTokenFeeData error: ', error);
@@ -173,6 +177,7 @@ export const ApplicationContextProvider = ({ children }) => {
     } else {
       setFeeTokenSymbol('');
       setFeeTokenBalance(0);
+      setFeeTokenDecimals(0)
       setFeeTokenApproveToFactory(0);
     }
   }, [account, FeeTokenContract, IDOFactoryAddress, shouldUpdateAccountData]);
@@ -204,6 +209,7 @@ export const ApplicationContextProvider = ({ children }) => {
 
     FeeTokenamount: feeTokenBalance,
     FeeTokenSymbol: feeTokenSymbol,
+    FeeTokenDecimals: feeTokenDecimals,
     FeeTokenApproveToFactory: feeTokenApproveToFactory,
     isFeeTokenDataFetching,
 
