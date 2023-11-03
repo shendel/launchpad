@@ -23,7 +23,6 @@ import Loader from "./components/Loader";
 import Manage from "./pages/Manage";
 
 function App() {
-  console.log(process.env)
   const dispatch = useDispatch();
   const { active, chainId, account } = useWeb3React();
 

@@ -104,7 +104,6 @@ export const fetchIDOFactoryInfo = (chainId, address) => {
       feeTokenDecimals,
       feeTokenSymbol
     }
-    console.log('>>> contract', web3, contract, idoInfo)
     resolve(idoInfo)
   })
 }

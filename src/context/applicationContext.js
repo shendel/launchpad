@@ -163,7 +163,6 @@ export const ApplicationContextProvider = ({ children }) => {
         setFeeTokenSymbol(symbol);
         setFeeTokenBalance(Number(balance));
         setFeeTokenDecimals(Number(decimals))
-        console.log('>>> Fee token decimals', decimals)
         setFeeTokenApproveToFactory(Number(approveToFactory));
       } catch (error) {
         console.log('fetchTokenFeeData error: ', error);
