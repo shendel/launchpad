@@ -381,7 +381,7 @@ export function getContract(address, ABI, library, account = '') {
 }
 
 export const getCurrentDomain = () => {
-  //return 'eneeseene-launchpad'// 
+  if (process.env.REACT_APP_DEV_DOMAIN) return process.env.REACT_APP_DEV_DOMAIN
   return window.location.hostname || document.location.host || ''; // 'dev-launchpad'
 }
 
