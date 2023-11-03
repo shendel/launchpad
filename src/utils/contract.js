@@ -1,5 +1,39 @@
 import TokenLockerFactory from '../contracts/TokenLockerFactory.json';
 import IDOFactory from '../contracts/IDOFactory.json';
+import ERC20 from '../contracts/ERC20.json'
+import { getWeb3Library } from './getLibrary'
+import { networks } from '../constants/networksInfo'
+
+console.log('>>> utils', networks)
+
+export const fetchIDOFactoryInfo = (chainId, address) => {
+  return new Promise(async (resolve, reject) => {
+    const web3 = getWeb3Library(networks[chainId].rpc)
+    const contract = getContractInstance(web3, address, IDOFactory.abi)
+    
+    const owner = await contract.methods.owner().call()
+    const feeWallet = await contract.methods.feeWallet().call()
+    const feeAmount = await contract.methods.feeAmount().call()
+    const feeToken = await contract.methods.feeToken().call()
+    
+    const feeTokenContract = getContractInstance(web3, feeToken, ERC20.abi)
+    
+    const feeTokenSymbol = await feeTokenContract.methods.symbol().call()
+    const feeTokenDecimals = await feeTokenContract.methods.decimals().call()
+    
+    const idoInfo = {
+      owner,
+      feeWallet,
+      feeAmount,
+      feeToken,
+      feeTokenDecimals,
+      feeTokenSymbol
+    }
+    console.log('>>> contract', web3, contract, idoInfo)
+    resolve(idoInfo)
+  })
+}
+
 
 export const getContractInstance = (web3, address, abi) => {
   return new web3.eth.Contract(abi, address)

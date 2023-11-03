@@ -21,7 +21,7 @@ export const networks = {
   },
   5: {
     name: "Görli",
-    rpc: "https://rpc.ankr.com/eth_goerli",
+    rpc: "https://eth-goerli.g.alchemy.com/v2/wNvkA78LYEG7fb5S5z4nJIfB22dAcvuH", //"https://rpc.ankr.com/eth_goerli",
     chainId: 5,
     explorer: "https://goerli.etherscan.io",
     color: "#f6c343",
