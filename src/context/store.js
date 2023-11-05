@@ -13,6 +13,11 @@ export const StoreContextProvider = ({ children }) => {
   const [router, setRouter] = useState(-1);
   const [minETH, setMinETH] = useState("");
   const [maxETH, setMaxETH] = useState("");
+  // v2 - erc20-erc20 pool
+  const [useERC20ForBuy, setUseERC20ForBuy] = useState(false)
+  const [erc20ForBuyAddress, setErc20ForBuyAddress] = useState('')
+  const [erc20ForBuyInfo, setErc20ForBuyInfo] = useState(null)
+  // -----
 
   const [isAddLiquidityEnabled, setIsAddLiquidityEnabled] = useState(false);
   const [liquidityPercentage, setLiquidityPercentage] = useState("");
@@ -147,6 +152,11 @@ export const StoreContextProvider = ({ children }) => {
   const store = {
     address: [address, setAddress],
     tokenRate: [tokenRate, setTokenRate],
+    // erc20-erc20 pool
+    useERC20ForBuy: [useERC20ForBuy, setUseERC20ForBuy],
+    erc20ForBuyAddress: [erc20ForBuyAddress, setErc20ForBuyAddress],
+    erc20ForBuyInfo: [erc20ForBuyInfo, setErc20ForBuyInfo],
+    // ----
     softCap: [softCap, setSoftCap],
     hardCap: [hardCap, setHardCap],
     router: [router, setRouter],

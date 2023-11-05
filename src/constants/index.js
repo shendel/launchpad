@@ -5,7 +5,7 @@ import { networks } from '../constants/networksInfo';
 const BSC_ID = 56;
 const GOERLI_ID = 5;
 
-export const STORAGE_NETWORK_ID = process.env.NODE_ENV === 'production' ? BSC_ID : GOERLI_ID;
+export const STORAGE_NETWORK_ID = GOERLI_ID//process.env.NODE_ENV === 'production' ? BSC_ID : GOERLI_ID;
 export const STORAGE_NETWORK_NAME = networks[STORAGE_NETWORK_ID.toString()].name;
 export const STORAGE = networks[STORAGE_NETWORK_ID.toString()].storage;
 
