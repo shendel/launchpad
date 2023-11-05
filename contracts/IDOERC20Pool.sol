@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.18;
 
 import "./openzeppelin/contracts/access/Ownable.sol";
 import "./openzeppelin/contracts/security/ReentrancyGuard.sol";
@@ -17,6 +17,8 @@ contract IDOERC20Pool is Ownable, ReentrancyGuard {
         uint256 hardCap;
         uint256 minPayment;
         uint256 maxPayment;
+        uint256 listingPrice; // one token in WEI
+        uint256 lpInterestRate;
     }
 
     struct Timestamps {
