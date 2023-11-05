@@ -52,6 +52,8 @@ contract IDOERC20Pool is Ownable, ReentrancyGuard {
 
     mapping(address => UserInfo) public userInfo;
 
+    uint256 public contractType = 2;
+    
     event TokensDebt(
         address indexed holder,
         uint256 payAmount,

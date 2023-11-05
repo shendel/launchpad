@@ -3,6 +3,7 @@ import { getAddress } from '@ethersproject/address';
 import { Contract } from '@ethersproject/contracts';
 import ERC20 from "../contracts/ERC20.json";
 import IDOPool from "../contracts/IDOPool.json";
+import IDOPoolERC20 from "../contracts/IDOERC20Pool.json";
 import Locker from "../contracts/TokenLocker.json";
 import { networks, chainRouter } from '../constants/networksInfo';
 import { ZERO_ADDRESS } from '../constants';
@@ -111,6 +112,11 @@ export const isValidToken = (_tokenInfo) => {
 export const loadPoolData = async (idoAddress, web3, account, infuraDedicatedGateway) => {
   try {
     const idoPool = await new web3.eth.Contract(IDOPool.abi, idoAddress);
+    const idoPoolErc20 = await  new web3.eth.Contract(IDOPoolERC20.abi, idoAddress)
+    
+    let poolType = await idoPool.methods.contractType().call()
+    
+    console.log('>>> loadPoolData', idoAddress, poolType)
     let metadataURL = await idoPool.methods.metadataURL().call();
     let balance = await web3.eth.getBalance(idoAddress);
     let tokenAddress = await idoPool.methods.rewardToken().call();
@@ -132,9 +138,13 @@ export const loadPoolData = async (idoAddress, web3, account, infuraDedicatedGat
     catch (e) { console.log(e); }
 
     const timestamps = await idoPool.methods.timestamps().call();
-    const dexInfo = await idoPool.methods.dexInfo().call();
-    const totalInvestedETH = await idoPool.methods.totalInvestedETH().call();
+    const dexInfo = (poolType == 1) ? await idoPool.methods.dexInfo().call() : {}
+    const totalInvestedETH = (poolType == 1)
+      ? await idoPool.methods.totalInvestedETH().call()
+      : await idoPoolErc20.methods.totalInvested().call()
 
+    console.log('>>> total invested', totalInvestedETH)
+    
     const {
       startTimestamp,
       endTimestamp,
@@ -158,6 +168,7 @@ export const loadPoolData = async (idoAddress, web3, account, infuraDedicatedGat
     );
 
     let result = {
+      idoType: (poolType == 1) ? 'Native' : 'ERC20',
       tokenAddress: tokenAddress,
       metadata: metadata,
       tokenName: tokenName,
@@ -184,6 +195,23 @@ export const loadPoolData = async (idoAddress, web3, account, infuraDedicatedGat
       metadataURL,
       userData: userData,
     };
+    if (poolType == 2) {
+      let payTokenAddress = await idoPoolErc20.methods.payToken().call()
+      const payToken = new web3.eth.Contract(ERC20.abi, payTokenAddress)
+      const payTokenName = await payToken.methods.name().call()
+      const payTokenSymbol = await payToken.methods.symbol().call()
+      const payTokenDecimals = await payToken.methods.decimals().call()
+      result = {
+        ...result,
+        payToken: {
+          address: payTokenAddress,
+          symbol: payTokenSymbol,
+          name: payTokenName,
+          decimals: payTokenDecimals
+        }
+      }
+    }
+    console.log('>>> IDO INFO', idoAddress, result)
     return result;
   } catch (e) {
     console.log(e);

@@ -1,183 +1,4 @@
 
-// File: IUniswapV2Factory.sol
-
-pragma solidity >=0.6.12;
-
-interface IUniswapV2Factory {
-    event PairCreated(
-        address indexed token0,
-        address indexed token1,
-        address pair,
-        uint256
-    );
-
-    function feeTo() external view returns (address);
-
-    function feeToSetter() external view returns (address);
-
-    function migrator() external view returns (address);
-
-    function getPair(address tokenA, address tokenB)
-        external
-        view
-        returns (address pair);
-
-    function allPairs(uint256) external view returns (address pair);
-
-    function allPairsLength() external view returns (uint256);
-
-    function createPair(address tokenA, address tokenB)
-        external
-        returns (address pair);
-
-    function setFeeTo(address) external;
-
-    function setFeeToSetter(address) external;
-
-    function setMigrator(address) external;
-}
-// File: IUniswapV2Router01.sol
-
-pragma solidity >=0.6.2;
-
-interface IUniswapV2Router01 {
-    function factory() external pure returns (address);
-    function WETH() external pure returns (address);
-
-    function addLiquidity(
-        address tokenA,
-        address tokenB,
-        uint amountADesired,
-        uint amountBDesired,
-        uint amountAMin,
-        uint amountBMin,
-        address to,
-        uint deadline
-    ) external returns (uint amountA, uint amountB, uint liquidity);
-    function addLiquidityETH(
-        address token,
-        uint amountTokenDesired,
-        uint amountTokenMin,
-        uint amountETHMin,
-        address to,
-        uint deadline
-    ) external payable returns (uint amountToken, uint amountETH, uint liquidity);
-    function removeLiquidity(
-        address tokenA,
-        address tokenB,
-        uint liquidity,
-        uint amountAMin,
-        uint amountBMin,
-        address to,
-        uint deadline
-    ) external returns (uint amountA, uint amountB);
-    function removeLiquidityETH(
-        address token,
-        uint liquidity,
-        uint amountTokenMin,
-        uint amountETHMin,
-        address to,
-        uint deadline
-    ) external returns (uint amountToken, uint amountETH);
-    function removeLiquidityWithPermit(
-        address tokenA,
-        address tokenB,
-        uint liquidity,
-        uint amountAMin,
-        uint amountBMin,
-        address to,
-        uint deadline,
-        bool approveMax, uint8 v, bytes32 r, bytes32 s
-    ) external returns (uint amountA, uint amountB);
-    function removeLiquidityETHWithPermit(
-        address token,
-        uint liquidity,
-        uint amountTokenMin,
-        uint amountETHMin,
-        address to,
-        uint deadline,
-        bool approveMax, uint8 v, bytes32 r, bytes32 s
-    ) external returns (uint amountToken, uint amountETH);
-    function swapExactTokensForTokens(
-        uint amountIn,
-        uint amountOutMin,
-        address[] calldata path,
-        address to,
-        uint deadline
-    ) external returns (uint[] memory amounts);
-    function swapTokensForExactTokens(
-        uint amountOut,
-        uint amountInMax,
-        address[] calldata path,
-        address to,
-        uint deadline
-    ) external returns (uint[] memory amounts);
-    function swapExactETHForTokens(uint amountOutMin, address[] calldata path, address to, uint deadline)
-        external
-        payable
-        returns (uint[] memory amounts);
-    function swapTokensForExactETH(uint amountOut, uint amountInMax, address[] calldata path, address to, uint deadline)
-        external
-        returns (uint[] memory amounts);
-    function swapExactTokensForETH(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline)
-        external
-        returns (uint[] memory amounts);
-    function swapETHForExactTokens(uint amountOut, address[] calldata path, address to, uint deadline)
-        external
-        payable
-        returns (uint[] memory amounts);
-
-    function quote(uint amountA, uint reserveA, uint reserveB) external pure returns (uint amountB);
-    function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut) external pure returns (uint amountOut);
-    function getAmountIn(uint amountOut, uint reserveIn, uint reserveOut) external pure returns (uint amountIn);
-    function getAmountsOut(uint amountIn, address[] calldata path) external view returns (uint[] memory amounts);
-    function getAmountsIn(uint amountOut, address[] calldata path) external view returns (uint[] memory amounts);
-}
-// File: IUniswapV2Router02.sol
-
-pragma solidity >=0.6.2;
-
-
-interface IUniswapV2Router02 is IUniswapV2Router01 {
-    function removeLiquidityETHSupportingFeeOnTransferTokens(
-        address token,
-        uint liquidity,
-        uint amountTokenMin,
-        uint amountETHMin,
-        address to,
-        uint deadline
-    ) external returns (uint amountETH);
-    function removeLiquidityETHWithPermitSupportingFeeOnTransferTokens(
-        address token,
-        uint liquidity,
-        uint amountTokenMin,
-        uint amountETHMin,
-        address to,
-        uint deadline,
-        bool approveMax, uint8 v, bytes32 r, bytes32 s
-    ) external returns (uint amountETH);
-
-    function swapExactTokensForTokensSupportingFeeOnTransferTokens(
-        uint amountIn,
-        uint amountOutMin,
-        address[] calldata path,
-        address to,
-        uint deadline
-    ) external;
-    function swapExactETHForTokensSupportingFeeOnTransferTokens(
-        uint amountOutMin,
-        address[] calldata path,
-        address to,
-        uint deadline
-    ) external payable;
-    function swapExactTokensForETHSupportingFeeOnTransferTokens(
-        uint amountIn,
-        uint amountOutMin,
-        address[] calldata path,
-        address to,
-        uint deadline
-    ) external;
-}
 // File: openzeppelin/contracts/utils/Address.sol
 
 
@@ -1516,136 +1337,7 @@ abstract contract Ownable is Context {
         emit OwnershipTransferred(oldOwner, newOwner);
     }
 }
-// File: TokenLocker.sol
-
-pragma solidity ^0.8.0;
-
-
-
-
-
-
-contract TokenLocker is Ownable {
-    using SafeMath for uint256;
-    using SafeERC20 for ERC20;
-
-    ERC20 public token;
-    address public withdrawer;
-    uint256 public withdrawTime;
-    string public name;
-
-    event withdrawTokenEvent(uint256 timestamp, uint256 amount);
-
-    constructor(
-        ERC20 _token,
-        string memory _name,
-        address _withdrawer,
-        uint256 _withdrawTime
-    ){
-        require(_withdrawTime > block.timestamp, "withdraw time should be more than now");
-
-        token = _token;
-        name = _name;
-        withdrawer = _withdrawer;
-        withdrawTime = _withdrawTime;
-    }
-
-    function withdrawToken(uint256 amount) public{
-        require(amount >= token.balanceOf(address(this)), "Withdraw amount is exceed balance");
-        require(msg.sender == withdrawer, "You are not withdrawer");
-        require(block.timestamp > withdrawTime, "Not time yet");
-        token.transfer(msg.sender, amount);
-            emit withdrawTokenEvent(block.timestamp, amount);
-    }
-
-    function withdrawTokenAll() public{
-        require(msg.sender == withdrawer, "You are not withdrawer");
-        require(block.timestamp > withdrawTime, "Not time yet");
-        uint256 amount = token.balanceOf(address(this));
-        token.transfer(msg.sender, amount);
-        emit withdrawTokenEvent(block.timestamp, amount);
-    }
-
-    function tokenRemaining() public view returns(uint256){
-        return token.balanceOf(address(this));
-    }
-
-}
-// File: TokenLockerFactory.sol
-
-pragma solidity ^0.8.0;
-
-
-
-
-
-
-
-contract TokenLockerFactory is Ownable {
-    using SafeMath for uint256;
-    using SafeERC20 for ERC20;
-
-    uint256 public lockerCount = 0;
-    uint256 public fee = 0;
-
-    struct lockerInfo {
-        uint256 lockerId;
-        address tokenAddress;
-        address creator;
-        uint256 ramaining;
-        address withdrawer;
-        uint256 withdrawTime;
-    }
-
-    address[] public lockerAddresses;
-
-    event LockerCreated(uint256 lockerId, address indexed lockerAddress, address tokenAddress);
-
-    constructor(
-    ){
-
-    }
-
-    function getLockerAddresses() public view returns (address[] memory) {
-      return lockerAddresses;
-    }
-
-    function createLocker(
-        ERC20 _tokenAddress,
-        string memory _name,
-        uint256 _lockAmount,
-        address _withdrawer,
-        uint256 _withdrawTime
-        ) payable public returns(address){
-        require(msg.value == fee, 'Fee amount is required');
-
-        TokenLocker tokenLocker = new TokenLocker(_tokenAddress, _name, _withdrawer, _withdrawTime);
-        tokenLocker.transferOwnership(msg.sender);
-
-        _tokenAddress.safeTransferFrom(
-                msg.sender,
-                address(tokenLocker),
-                _lockAmount
-            );
-
-        lockerAddresses.push(address(tokenLocker));
-
-        emit LockerCreated(lockerCount, address(tokenLocker), address(_tokenAddress));
-        lockerCount++;
-        return address(tokenLocker);
-
-    }
-
-    function withdrawFee() public onlyOwner{
-        (bool success, ) = msg.sender.call{value: address(this).balance}("");
-        require(success, "Transfer failed.");
-    }
-
-    function setFee(uint256 amount) public onlyOwner{
-        fee = amount;
-    }
-}
-// File: IDOPool.sol
+// File: IDOERC20Pool.sol
 
 
 pragma solidity ^0.8.18;
@@ -1655,19 +1347,16 @@ pragma solidity ^0.8.18;
 
 
 
-
-
-
-contract IDOPool is Ownable, ReentrancyGuard {
+contract IDOERC20Pool is Ownable, ReentrancyGuard {
     using SafeMath for uint256;
     using SafeERC20 for ERC20;
 
     struct FinInfo {
-        uint256 tokenPrice; // one token in WEI
+        uint256 tokenPrice; // one token in erc20pay WEI
         uint256 softCap;
         uint256 hardCap;
-        uint256 minEthPayment;
-        uint256 maxEthPayment;
+        uint256 minPayment;
+        uint256 maxPayment;
         uint256 listingPrice; // one token in WEI
         uint256 lpInterestRate;
     }
@@ -1678,29 +1367,24 @@ contract IDOPool is Ownable, ReentrancyGuard {
         uint256 unlockTimestamp;
     }
 
-    struct DEXInfo {
-        address router;
-        address factory;
-        address weth;
-    }
-
     struct UserInfo {
         uint debt;
         uint total;
-        uint totalInvestedETH;
+        uint totalInvested;
     }
 
     ERC20 public rewardToken;
     uint256 public decimals;
+
+    ERC20 public payToken;
+    uint256 public payTokenDecimals;
+
     string public metadataURL;
 
     FinInfo public finInfo;
     Timestamps public timestamps;
-    DEXInfo public dexInfo;
 
-    TokenLockerFactory public lockerFactory;
-
-    uint256 public totalInvestedETH;
+    uint256 public totalInvested;
     uint256 public tokensForDistribution;
     uint256 public distributedTokens;
 
@@ -1708,34 +1392,33 @@ contract IDOPool is Ownable, ReentrancyGuard {
 
     mapping(address => UserInfo) public userInfo;
 
+    uint256 public contractType = 2;
+    
     event TokensDebt(
         address indexed holder,
-        uint256 ethAmount,
+        uint256 payAmount,
         uint256 tokenAmount
     );
 
     event TokensWithdrawn(address indexed holder, uint256 amount);
 
-    uint256 public contractType = 1;
-
     constructor(
         ERC20 _rewardToken,
+        ERC20 _payToken,
         FinInfo memory _finInfo,
         Timestamps memory _timestamps,
-        DEXInfo memory _dexInfo,
-        address _lockerFactoryAddress,
         string memory _metadataURL
     ) {
 
         rewardToken = _rewardToken;
         decimals = rewardToken.decimals();
-        lockerFactory = TokenLockerFactory(_lockerFactoryAddress);
 
+        payToken = _payToken;
+        payTokenDecimals = payToken.decimals();
+        
         finInfo = _finInfo;
 
         setTimestamps(_timestamps);
-
-        dexInfo = _dexInfo;
 
         setMetadataURL(_metadataURL);
     }
@@ -1757,44 +1440,45 @@ contract IDOPool is Ownable, ReentrancyGuard {
         metadataURL = _metadataURL;
     }
 
-    function pay() payable external {
+    function pay(uint256 amount) external {
         require(block.timestamp >= timestamps.startTimestamp, "Not started");
         require(block.timestamp < timestamps.endTimestamp, "Ended");
 
-        require(msg.value >= finInfo.minEthPayment, "Less then min amount");
-        require(msg.value <= finInfo.maxEthPayment, "More then max amount");
-        require(totalInvestedETH.add(msg.value) <= finInfo.hardCap, "Overfilled");
+        require(amount >= finInfo.minPayment, "Less then min amount");
+        require(amount <= finInfo.maxPayment, "More then max amount");
+        require(totalInvested.add(amount) <= finInfo.hardCap, "Overfilled");
 
         UserInfo storage user = userInfo[msg.sender];
-        require(user.totalInvestedETH.add(msg.value) <= finInfo.maxEthPayment, "More then max amount");
+        require(user.totalInvested.add(amount) <= finInfo.maxPayment, "More then max amount");
+        // @to-do - check allowance
 
-        uint256 tokenAmount = getTokenAmount(msg.value, finInfo.tokenPrice);
+        uint256 tokenAmount = getTokenAmount(amount, finInfo.tokenPrice);
 
-        totalInvestedETH = totalInvestedETH.add(msg.value);
+        payToken.safeTransferFrom(msg.sender, address(this), amount);
+
+        totalInvested = totalInvested.add(amount);
         tokensForDistribution = tokensForDistribution.add(tokenAmount);
-        user.totalInvestedETH = user.totalInvestedETH.add(msg.value);
+        user.totalInvested = user.totalInvested.add(amount);
         user.total = user.total.add(tokenAmount);
         user.debt = user.debt.add(tokenAmount);
 
-        emit TokensDebt(msg.sender, msg.value, tokenAmount);
+        emit TokensDebt(msg.sender, amount, tokenAmount);
     }
 
     function refund() external {
         require(block.timestamp > timestamps.endTimestamp, "The IDO pool has not ended.");
-        require(totalInvestedETH < finInfo.softCap, "The IDO pool has reach soft cap.");
+        require(totalInvested < finInfo.softCap, "The IDO pool has reach soft cap.");
 
         UserInfo storage user = userInfo[msg.sender];
 
-        uint256 _amount = user.totalInvestedETH;
+        uint256 _amount = user.totalInvested;
         require(_amount > 0 , "You have no investment.");
 
         user.debt = 0;
-        user.totalInvestedETH = 0;
+        user.totalInvested = 0;
         user.total = 0;
 
-        (bool success, ) = msg.sender.call{value: _amount}("");
-        require(success, "Transfer failed.");
-
+        payToken.safeTransfer(msg.sender, _amount);
     }
 
     /// @dev Allows to claim tokens for the specific user.
@@ -1814,7 +1498,7 @@ contract IDOPool is Ownable, ReentrancyGuard {
         address _receiver
     ) internal nonReentrant{
         require(block.timestamp > timestamps.endTimestamp, "The IDO pool has not ended.");
-        require(totalInvestedETH >= finInfo.softCap, "The IDO pool did not reach soft cap.");
+        require(totalInvested >= finInfo.softCap, "The IDO pool did not reach soft cap.");
 
         UserInfo storage user = userInfo[_receiver];
 
@@ -1827,59 +1511,14 @@ contract IDOPool is Ownable, ReentrancyGuard {
         emit TokensWithdrawn(_receiver,_amount);
     }
 
-    function withdrawETH() external payable onlyOwner {
+    function withdraw() external onlyOwner {
         require(block.timestamp > timestamps.endTimestamp, "The IDO pool has not ended.");
-        require(totalInvestedETH >= finInfo.softCap, "The IDO pool did not reach soft cap.");
+        require(totalInvested >= finInfo.softCap, "The IDO pool did not reach soft cap.");
         require(!distributed, "Already distributed.");
 
-        // This forwards all available gas. Be sure to check the return value!
-        uint256 balance = address(this).balance;
+        uint256 balance = payToken.balanceOf(address(this));
 
-        if ( finInfo.lpInterestRate > 0 && finInfo.listingPrice > 0 ) {
-            // if TokenLockerFactory has fee we should provide there fee by msg.value and sub it from balance for correct execution
-            balance -= msg.value;
-            uint256 ethForLP = (balance * finInfo.lpInterestRate)/100;
-            uint256 ethWithdraw = balance - ethForLP;
-
-            uint256 tokenAmount = getTokenAmount(ethForLP, finInfo.listingPrice);
-
-            // Add Liquidity ETH
-            IUniswapV2Router02 uniswapRouter = IUniswapV2Router02(dexInfo.router);
-            rewardToken.approve(address(uniswapRouter), tokenAmount);
-            (,, uint liquidity) = uniswapRouter.addLiquidityETH{value: ethForLP}(
-                address(rewardToken),
-                tokenAmount,
-                0, // slippage is unavoidable
-                0, // slippage is unavoidable
-                address(this),
-                block.timestamp + 360
-            );
-
-            // Lock LP Tokens
-            (address lpTokenAddress) = IUniswapV2Factory(dexInfo.factory).getPair(address(rewardToken), dexInfo.weth);
-
-            ERC20 lpToken = ERC20(lpTokenAddress);
-
-            if (timestamps.unlockTimestamp > block.timestamp) {
-                lpToken.approve(address(lockerFactory), liquidity);
-                lockerFactory.createLocker{value: msg.value}(
-                    lpToken,
-                    string.concat(lpToken.symbol(), " tokens locker"),
-                    liquidity, msg.sender, timestamps.unlockTimestamp
-                );
-            } else {
-                lpToken.transfer(msg.sender, liquidity);
-                // return msg.value along with eth to output if someone sent it wrong
-                ethWithdraw += msg.value;
-            }
-
-            // Withdraw rest ETH
-            (bool success, ) = msg.sender.call{value: ethWithdraw}("");
-            require(success, "Transfer failed.");
-        } else {
-            (bool success, ) = msg.sender.call{value: balance}("");
-            require(success, "Transfer failed.");
-        }
+        payToken.safeTransfer(msg.sender, balance);
 
         distributed = true;
     }
@@ -1899,7 +1538,7 @@ contract IDOPool is Ownable, ReentrancyGuard {
 
     function refundTokens() external onlyOwner {
         require(block.timestamp > timestamps.endTimestamp, "The IDO pool has not ended.");
-        require(totalInvestedETH < finInfo.softCap, "The IDO pool has reach soft cap.");
+        require(totalInvested < finInfo.softCap, "The IDO pool has reach soft cap.");
 
         uint256 balance = rewardToken.balanceOf(address(this));
         require(balance > 0, "The IDO pool has not refund tokens.");

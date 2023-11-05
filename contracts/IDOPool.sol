@@ -69,6 +69,8 @@ contract IDOPool is Ownable, ReentrancyGuard {
 
     event TokensWithdrawn(address indexed holder, uint256 amount);
 
+    uint256 public contractType = 1;
+
     constructor(
         ERC20 _rewardToken,
         FinInfo memory _finInfo,

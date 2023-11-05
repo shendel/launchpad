@@ -178,6 +178,77 @@ interface IUniswapV2Router02 is IUniswapV2Router01 {
         uint deadline
     ) external;
 }
+// File: openzeppelin/contracts/security/ReentrancyGuard.sol
+
+
+// OpenZeppelin Contracts (last updated v4.8.0) (security/ReentrancyGuard.sol)
+
+pragma solidity ^0.8.0;
+
+/**
+ * @dev Contract module that helps prevent reentrant calls to a function.
+ *
+ * Inheriting from `ReentrancyGuard` will make the {nonReentrant} modifier
+ * available, which can be applied to functions to make sure there are no nested
+ * (reentrant) calls to them.
+ *
+ * Note that because there is a single `nonReentrant` guard, functions marked as
+ * `nonReentrant` may not call one another. This can be worked around by making
+ * those functions `private`, and then adding `external` `nonReentrant` entry
+ * points to them.
+ *
+ * TIP: If you would like to learn more about reentrancy and alternative ways
+ * to protect against it, check out our blog post
+ * https://blog.openzeppelin.com/reentrancy-after-istanbul/[Reentrancy After Istanbul].
+ */
+abstract contract ReentrancyGuard {
+    // Booleans are more expensive than uint256 or any type that takes up a full
+    // word because each write operation emits an extra SLOAD to first read the
+    // slot's contents, replace the bits taken up by the boolean, and then write
+    // back. This is the compiler's defense against contract upgrades and
+    // pointer aliasing, and it cannot be disabled.
+
+    // The values being non-zero value makes deployment a bit more expensive,
+    // but in exchange the refund on every call to nonReentrant will be lower in
+    // amount. Since refunds are capped to a percentage of the total
+    // transaction's gas, it is best to keep them low in cases like this one, to
+    // increase the likelihood of the full refund coming into effect.
+    uint256 private constant _NOT_ENTERED = 1;
+    uint256 private constant _ENTERED = 2;
+
+    uint256 private _status;
+
+    constructor() {
+        _status = _NOT_ENTERED;
+    }
+
+    /**
+     * @dev Prevents a contract from calling itself, directly or indirectly.
+     * Calling a `nonReentrant` function from another `nonReentrant`
+     * function is not supported. It is possible to prevent this from happening
+     * by making the `nonReentrant` function external, and making it call a
+     * `private` function that does the actual work.
+     */
+    modifier nonReentrant() {
+        _nonReentrantBefore();
+        _;
+        _nonReentrantAfter();
+    }
+
+    function _nonReentrantBefore() private {
+        // On the first call to nonReentrant, _status will be _NOT_ENTERED
+        require(_status != _ENTERED, "ReentrancyGuard: reentrant call");
+
+        // Any calls to nonReentrant after this point will fail
+        _status = _ENTERED;
+    }
+
+    function _nonReentrantAfter() private {
+        // By storing the original value once again, a refund is triggered (see
+        // https://eips.ethereum.org/EIPS/eip-2200)
+        _status = _NOT_ENTERED;
+    }
+}
 // File: openzeppelin/contracts/utils/Address.sol
 
 
@@ -945,77 +1016,6 @@ library SafeMath {
         }
     }
 }
-// File: openzeppelin/contracts/security/ReentrancyGuard.sol
-
-
-// OpenZeppelin Contracts (last updated v4.8.0) (security/ReentrancyGuard.sol)
-
-pragma solidity ^0.8.0;
-
-/**
- * @dev Contract module that helps prevent reentrant calls to a function.
- *
- * Inheriting from `ReentrancyGuard` will make the {nonReentrant} modifier
- * available, which can be applied to functions to make sure there are no nested
- * (reentrant) calls to them.
- *
- * Note that because there is a single `nonReentrant` guard, functions marked as
- * `nonReentrant` may not call one another. This can be worked around by making
- * those functions `private`, and then adding `external` `nonReentrant` entry
- * points to them.
- *
- * TIP: If you would like to learn more about reentrancy and alternative ways
- * to protect against it, check out our blog post
- * https://blog.openzeppelin.com/reentrancy-after-istanbul/[Reentrancy After Istanbul].
- */
-abstract contract ReentrancyGuard {
-    // Booleans are more expensive than uint256 or any type that takes up a full
-    // word because each write operation emits an extra SLOAD to first read the
-    // slot's contents, replace the bits taken up by the boolean, and then write
-    // back. This is the compiler's defense against contract upgrades and
-    // pointer aliasing, and it cannot be disabled.
-
-    // The values being non-zero value makes deployment a bit more expensive,
-    // but in exchange the refund on every call to nonReentrant will be lower in
-    // amount. Since refunds are capped to a percentage of the total
-    // transaction's gas, it is best to keep them low in cases like this one, to
-    // increase the likelihood of the full refund coming into effect.
-    uint256 private constant _NOT_ENTERED = 1;
-    uint256 private constant _ENTERED = 2;
-
-    uint256 private _status;
-
-    constructor() {
-        _status = _NOT_ENTERED;
-    }
-
-    /**
-     * @dev Prevents a contract from calling itself, directly or indirectly.
-     * Calling a `nonReentrant` function from another `nonReentrant`
-     * function is not supported. It is possible to prevent this from happening
-     * by making the `nonReentrant` function external, and making it call a
-     * `private` function that does the actual work.
-     */
-    modifier nonReentrant() {
-        _nonReentrantBefore();
-        _;
-        _nonReentrantAfter();
-    }
-
-    function _nonReentrantBefore() private {
-        // On the first call to nonReentrant, _status will be _NOT_ENTERED
-        require(_status != _ENTERED, "ReentrancyGuard: reentrant call");
-
-        // Any calls to nonReentrant after this point will fail
-        _status = _ENTERED;
-    }
-
-    function _nonReentrantAfter() private {
-        // By storing the original value once again, a refund is triggered (see
-        // https://eips.ethereum.org/EIPS/eip-2200)
-        _status = _NOT_ENTERED;
-    }
-}
 // File: openzeppelin/contracts/utils/Context.sol
 
 
@@ -1432,6 +1432,46 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
         uint256 amount
     ) internal virtual {}
 }
+// File: openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol
+
+
+// OpenZeppelin Contracts (last updated v4.5.0) (token/ERC20/extensions/ERC20Burnable.sol)
+
+pragma solidity ^0.8.0;
+
+
+
+/**
+ * @dev Extension of {ERC20} that allows token holders to destroy both their own
+ * tokens and those that they have an allowance for, in a way that can be
+ * recognized off-chain (via event analysis).
+ */
+abstract contract ERC20Burnable is Context, ERC20 {
+    /**
+     * @dev Destroys `amount` tokens from the caller.
+     *
+     * See {ERC20-_burn}.
+     */
+    function burn(uint256 amount) public virtual {
+        _burn(_msgSender(), amount);
+    }
+
+    /**
+     * @dev Destroys `amount` tokens from `account`, deducting from the caller's
+     * allowance.
+     *
+     * See {ERC20-_burn} and {ERC20-allowance}.
+     *
+     * Requirements:
+     *
+     * - the caller must have allowance for ``accounts``'s tokens of at least
+     * `amount`.
+     */
+    function burnFrom(address account, uint256 amount) public virtual {
+        _spendAllowance(account, _msgSender(), amount);
+        _burn(account, amount);
+    }
+}
 // File: openzeppelin/contracts/access/Ownable.sol
 
 
@@ -1514,6 +1554,233 @@ abstract contract Ownable is Context {
         address oldOwner = _owner;
         _owner = newOwner;
         emit OwnershipTransferred(oldOwner, newOwner);
+    }
+}
+// File: IDOERC20Pool.sol
+
+
+pragma solidity ^0.8.18;
+
+
+
+
+
+
+contract IDOERC20Pool is Ownable, ReentrancyGuard {
+    using SafeMath for uint256;
+    using SafeERC20 for ERC20;
+
+    struct FinInfo {
+        uint256 tokenPrice; // one token in erc20pay WEI
+        uint256 softCap;
+        uint256 hardCap;
+        uint256 minPayment;
+        uint256 maxPayment;
+        uint256 listingPrice; // one token in WEI
+        uint256 lpInterestRate;
+    }
+
+    struct Timestamps {
+        uint256 startTimestamp;
+        uint256 endTimestamp;
+        uint256 unlockTimestamp;
+    }
+
+    struct UserInfo {
+        uint debt;
+        uint total;
+        uint totalInvested;
+    }
+
+    ERC20 public rewardToken;
+    uint256 public decimals;
+
+    ERC20 public payToken;
+    uint256 public payTokenDecimals;
+
+    string public metadataURL;
+
+    FinInfo public finInfo;
+    Timestamps public timestamps;
+
+    uint256 public totalInvested;
+    uint256 public tokensForDistribution;
+    uint256 public distributedTokens;
+
+    bool public distributed = false;
+
+    mapping(address => UserInfo) public userInfo;
+
+    uint256 public contractType = 2;
+    
+    event TokensDebt(
+        address indexed holder,
+        uint256 payAmount,
+        uint256 tokenAmount
+    );
+
+    event TokensWithdrawn(address indexed holder, uint256 amount);
+
+    constructor(
+        ERC20 _rewardToken,
+        ERC20 _payToken,
+        FinInfo memory _finInfo,
+        Timestamps memory _timestamps,
+        string memory _metadataURL
+    ) {
+
+        rewardToken = _rewardToken;
+        decimals = rewardToken.decimals();
+
+        payToken = _payToken;
+        payTokenDecimals = payToken.decimals();
+        
+        finInfo = _finInfo;
+
+        setTimestamps(_timestamps);
+
+        setMetadataURL(_metadataURL);
+    }
+
+    function setTimestamps(Timestamps memory _timestamps) internal {
+        require(
+            _timestamps.startTimestamp < _timestamps.endTimestamp,
+            "Start timestamp must be less than finish timestamp"
+        );
+        require(
+            _timestamps.endTimestamp > block.timestamp,
+            "Finish timestamp must be more than current block"
+        );
+
+        timestamps = _timestamps;
+    }
+
+    function setMetadataURL(string memory _metadataURL) public{
+        metadataURL = _metadataURL;
+    }
+
+    function pay(uint256 amount) external {
+        require(block.timestamp >= timestamps.startTimestamp, "Not started");
+        require(block.timestamp < timestamps.endTimestamp, "Ended");
+
+        require(amount >= finInfo.minPayment, "Less then min amount");
+        require(amount <= finInfo.maxPayment, "More then max amount");
+        require(totalInvested.add(amount) <= finInfo.hardCap, "Overfilled");
+
+        UserInfo storage user = userInfo[msg.sender];
+        require(user.totalInvested.add(amount) <= finInfo.maxPayment, "More then max amount");
+        // @to-do - check allowance
+
+        uint256 tokenAmount = getTokenAmount(amount, finInfo.tokenPrice);
+
+        payToken.safeTransferFrom(msg.sender, address(this), amount);
+
+        totalInvested = totalInvested.add(amount);
+        tokensForDistribution = tokensForDistribution.add(tokenAmount);
+        user.totalInvested = user.totalInvested.add(amount);
+        user.total = user.total.add(tokenAmount);
+        user.debt = user.debt.add(tokenAmount);
+
+        emit TokensDebt(msg.sender, amount, tokenAmount);
+    }
+
+    function refund() external {
+        require(block.timestamp > timestamps.endTimestamp, "The IDO pool has not ended.");
+        require(totalInvested < finInfo.softCap, "The IDO pool has reach soft cap.");
+
+        UserInfo storage user = userInfo[msg.sender];
+
+        uint256 _amount = user.totalInvested;
+        require(_amount > 0 , "You have no investment.");
+
+        user.debt = 0;
+        user.totalInvested = 0;
+        user.total = 0;
+
+        payToken.safeTransfer(msg.sender, _amount);
+    }
+
+    /// @dev Allows to claim tokens for the specific user.
+    /// @param _user Token receiver.
+    function claimFor(address _user) external {
+        proccessClaim(_user);
+    }
+
+    /// @dev Allows to claim tokens for themselves.
+    function claim() external {
+        proccessClaim(msg.sender);
+    }
+
+    /// @dev Proccess the claim.
+    /// @param _receiver Token receiver.
+    function proccessClaim(
+        address _receiver
+    ) internal nonReentrant{
+        require(block.timestamp > timestamps.endTimestamp, "The IDO pool has not ended.");
+        require(totalInvested >= finInfo.softCap, "The IDO pool did not reach soft cap.");
+
+        UserInfo storage user = userInfo[_receiver];
+
+        uint256 _amount = user.debt;
+        require(_amount > 0 , "You do not have debt tokens.");
+
+        user.debt = 0;
+        distributedTokens = distributedTokens.add(_amount);
+        rewardToken.safeTransfer(_receiver, _amount);
+        emit TokensWithdrawn(_receiver,_amount);
+    }
+
+    function withdraw() external onlyOwner {
+        require(block.timestamp > timestamps.endTimestamp, "The IDO pool has not ended.");
+        require(totalInvested >= finInfo.softCap, "The IDO pool did not reach soft cap.");
+        require(!distributed, "Already distributed.");
+
+        uint256 balance = payToken.balanceOf(address(this));
+
+        payToken.safeTransfer(msg.sender, balance);
+
+        distributed = true;
+    }
+
+     function withdrawNotSoldTokens() external onlyOwner {
+        require(distributed, "Withdraw allowed after distributed.");
+
+        uint256 balance = getNotSoldToken();
+        require(balance > 0, "The IDO pool has not unsold tokens.");
+        rewardToken.safeTransfer(msg.sender, balance);
+    }
+
+    function getNotSoldToken() public view returns(uint256){
+        uint256 balance = rewardToken.balanceOf(address(this));
+        return balance.add(distributedTokens).sub(tokensForDistribution);
+    }
+
+    function refundTokens() external onlyOwner {
+        require(block.timestamp > timestamps.endTimestamp, "The IDO pool has not ended.");
+        require(totalInvested < finInfo.softCap, "The IDO pool has reach soft cap.");
+
+        uint256 balance = rewardToken.balanceOf(address(this));
+        require(balance > 0, "The IDO pool has not refund tokens.");
+        rewardToken.safeTransfer(msg.sender, balance);
+    }
+
+    function getTokenAmount(uint256 ethAmount, uint256 oneTokenInWei)
+        internal
+        view
+        returns (uint256)
+    {
+        return (ethAmount / oneTokenInWei) * 10**decimals;
+    }
+
+    /**
+     * @notice It allows the owner to recover wrong tokens sent to the contract
+     * @param _tokenAddress: the address of the token to withdraw with the exception of rewardToken
+     * @param _tokenAmount: the number of token amount to withdraw
+     * @dev Only callable by owner.
+     */
+    function recoverWrongTokens(address _tokenAddress, uint256 _tokenAmount) external onlyOwner {
+        require(_tokenAddress != address(rewardToken));
+        ERC20(_tokenAddress).safeTransfer(address(msg.sender), _tokenAmount);
     }
 }
 // File: TokenLocker.sol
@@ -1924,4 +2191,228 @@ contract IDOPool is Ownable, ReentrancyGuard {
         require(_tokenAddress != address(rewardToken));
         ERC20(_tokenAddress).safeTransfer(address(msg.sender), _tokenAmount);
     }
+}
+// File: IDOFactory.sol
+
+pragma solidity ^0.8.18;
+
+
+
+
+
+
+
+contract IDOFactory is Ownable {
+    using SafeMath for uint256;
+    using SafeERC20 for ERC20Burnable;
+    using SafeERC20 for ERC20;
+
+    uint256 public version = 2;
+
+    ERC20Burnable public feeToken;
+    address public feeWallet;
+    uint256 public feeAmount;
+    uint256 public burnPercent; // use this state only if your token is ERC20Burnable and has burnFrom method
+    uint256 public divider;
+
+    bool public onlyOwnerCreate = false;
+
+    function setOnlyOwnerCreate(bool _onlyOwnerCreate) external onlyOwner {
+        onlyOwnerCreate = _onlyOwnerCreate;
+    }
+
+    address[] public idoPools;
+
+    event IDOCreated(
+        address indexed owner,
+        address idoPool,
+        address indexed rewardToken,
+        string tokenURI
+    );
+
+    event TokenFeeUpdated(address newFeeToken);
+    event FeeAmountUpdated(uint256 newFeeAmount);
+    event BurnPercentUpdated(uint256 newBurnPercent, uint256 divider);
+    event FeeWalletUpdated(address newFeeWallet);
+
+    constructor(
+        ERC20Burnable _feeToken,
+        uint256 _feeAmount,
+        uint256 _burnPercent
+    ){
+        feeToken = _feeToken;
+        feeAmount = _feeAmount;
+        burnPercent = _burnPercent;
+        divider = 100;
+    }
+
+    function getIdoPools() public view returns (address[] memory) {
+      return idoPools;
+    }
+
+    function setFeeToken(address _newFeeToken) external onlyOwner {
+        require(isContract(_newFeeToken), "New address is not a token");
+        feeToken = ERC20Burnable(_newFeeToken);
+
+        emit TokenFeeUpdated(_newFeeToken);
+    }
+
+    function setFeeAmount(uint256 _newFeeAmount) external onlyOwner {
+        feeAmount = _newFeeAmount;
+
+        emit FeeAmountUpdated(_newFeeAmount);
+    }
+
+    function setFeeWallet(address _newFeeWallet) external onlyOwner {
+        feeWallet = _newFeeWallet;
+
+        emit FeeWalletUpdated(_newFeeWallet);
+    }
+
+    function setBurnPercent(uint256 _newBurnPercent, uint256 _newDivider)
+        external
+        onlyOwner
+    {
+        require(_newBurnPercent <= _newDivider, "Burn percent must be less than divider");
+        burnPercent = _newBurnPercent;
+        divider = _newDivider;
+
+        emit BurnPercentUpdated(_newBurnPercent, _newDivider);
+    }
+
+    function createIDO(
+        ERC20 _rewardToken,
+        IDOPool.FinInfo memory _finInfo,
+        IDOPool.Timestamps memory _timestamps,
+        IDOPool.DEXInfo memory _dexInfo,
+        address _lockerFactoryAddress,
+        string memory _metadataURL
+    ) external {
+        if (onlyOwnerCreate) {
+            require(msg.sender == this.owner(), "Only owner can create IDOPool");
+        }
+        IDOPool idoPool =
+            new IDOPool(
+                _rewardToken,
+                _finInfo,
+                _timestamps,
+                _dexInfo,
+                _lockerFactoryAddress,
+                _metadataURL
+            );
+
+        idoPool.transferOwnership(msg.sender);
+
+        processIDOCreate(
+            _rewardToken,
+            address(idoPool),
+            _finInfo.hardCap,
+            _finInfo.tokenPrice,
+            _finInfo.lpInterestRate,
+            _finInfo.listingPrice,
+            _metadataURL
+        );
+    }
+
+    function createIDOERC20(
+        ERC20 _rewardToken,
+        ERC20 _payToken,
+        IDOERC20Pool.FinInfo memory _finInfo,
+        IDOERC20Pool.Timestamps memory _timestamps,
+        string memory _metadataURL
+    ) external {
+        if (onlyOwnerCreate) {
+            require(msg.sender == this.owner(), "Only owner can create IDOPool");
+        }
+        IDOERC20Pool idoPool =
+            new IDOERC20Pool(
+                _rewardToken,
+                _payToken,
+                _finInfo,
+                _timestamps,
+                _metadataURL
+            );
+        idoPool.transferOwnership(msg.sender);
+
+        processIDOCreate(
+            _rewardToken,
+            address(idoPool),
+            _finInfo.hardCap,
+            _finInfo.tokenPrice,
+            _finInfo.lpInterestRate,
+            _finInfo.listingPrice,
+            _metadataURL
+        );
+    }
+
+    function processIDOCreate(
+        ERC20 _rewardToken,
+        address idoPoolAddress,
+        uint256 hardCap,
+        uint256 tokenPrice,
+        uint256 lpInterestRate,
+        uint256 listingPrice,
+        string memory _metadataURL
+    ) private {
+        uint8 tokenDecimals = _rewardToken.decimals();
+
+        uint256 transferAmount = getTokenAmount(hardCap, tokenPrice, tokenDecimals);
+
+        if (lpInterestRate > 0 && listingPrice > 0) {
+            transferAmount += getTokenAmount(hardCap * lpInterestRate / 100, listingPrice, tokenDecimals);
+        }
+
+        _rewardToken.safeTransferFrom(
+            msg.sender,
+            idoPoolAddress,
+            transferAmount
+        );
+
+        idoPools.push(idoPoolAddress);
+
+        emit IDOCreated(
+            msg.sender,
+            idoPoolAddress,
+            address(_rewardToken),
+            _metadataURL
+        );
+
+
+        if(feeAmount > 0){
+            if (burnPercent > 0){
+                uint256 burnAmount = feeAmount.mul(burnPercent).div(divider);
+
+                feeToken.safeTransferFrom(
+                    msg.sender,
+                    feeWallet,
+                    feeAmount.sub(burnAmount)
+                );
+
+                feeToken.burnFrom(msg.sender, burnAmount);
+            } else {
+                feeToken.safeTransferFrom(
+                    msg.sender,
+                    feeWallet,
+                    feeAmount
+                );
+            }
+        }
+    }
+
+    function getTokenAmount(uint256 ethAmount, uint256 oneTokenInWei, uint8 decimals)
+        internal
+        pure
+        returns (uint256)
+    {
+        return (ethAmount / oneTokenInWei) * 10**decimals;
+    }
+
+    function isContract(address _addr) private view returns (bool) {
+        uint32 size;
+        assembly {
+            size := extcodesize(_addr)
+        }
+        return (size > 0);
+    }
+
 }

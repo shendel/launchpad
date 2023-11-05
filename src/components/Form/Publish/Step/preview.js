@@ -130,6 +130,74 @@ export default function Preview() {
     }
   };
 
+  const createIDONative = async (tokenURI) => {
+    const rewardToken = tokenAddress;
+
+    const finInfo = [
+      `0x${oneTokenInWei.toString(16)}`,
+      `0x${ETHER.times(softCap).toString(16)}`,
+      `0x${ETHER.times(hardCap).toString(16)}`,
+      `0x${ETHER.times(minETH).toString(16)}`,
+      `0x${ETHER.times(maxETH).toString(16)}`,
+      listingRateBN.gt(0) ? `0x${oneListingTokeninWei.toString(16)}` : 0,
+      parseInt(isAddLiquidityEnabled ? liquidityPercentage : 0),
+    ];
+    const timestamps = [
+      `0x${BigNumber(start.getTime()).div(1000).decimalPlaces(0, 1).toString(16)}`,
+      `0x${BigNumber(end.getTime()).div(1000).decimalPlaces(0, 1).toString(16)}`,
+      `0x${BigNumber(unlock.getTime()).div(1000).decimalPlaces(0, 1).toString(16)}`,
+    ];
+    const dexInfo = [
+      chainRouter[chainId][0].ROUTER,
+      chainRouter[chainId][0].FACTORY,
+      chainRouter[chainId][0].WETH,
+    ];
+
+    return await IDOFactoryContract
+      .createIDO(
+        rewardToken,
+        finInfo,
+        timestamps,
+        dexInfo,
+        TokenLockerFactoryAddress,
+        tokenURI,
+        {
+          from: account,
+        },
+      );
+  }
+  
+  const createIDOERC20 = async (tokenURI) => {
+    const rewardToken = tokenAddress;
+
+    const finInfo = [
+      `0x${oneTokenInWei.toString(16)}`,        // uint256 tokenPrice; // one token in erc20pay WEI
+      `0x${ETHER.times(softCap).toString(16)}`, // uint256 softCap;
+      `0x${ETHER.times(hardCap).toString(16)}`, // uint256 hardCap;
+      `0x${ETHER.times(minETH).toString(16)}`,  // uint256 minPayment;
+      `0x${ETHER.times(maxETH).toString(16)}`,  // uint256 maxPayment;
+      listingRateBN.gt(0) ? `0x${oneListingTokeninWei.toString(16)}` : 0, // uint256 listingPrice; // one token in WEI
+      parseInt(isAddLiquidityEnabled ? liquidityPercentage : 0),  // uint256 lpInterestRate;
+    ];
+    const timestamps = [
+      `0x${BigNumber(start.getTime()).div(1000).decimalPlaces(0, 1).toString(16)}`,
+      `0x${BigNumber(end.getTime()).div(1000).decimalPlaces(0, 1).toString(16)}`,
+      `0x${BigNumber(unlock.getTime()).div(1000).decimalPlaces(0, 1).toString(16)}`,
+    ];
+
+    return await IDOFactoryContract
+      .createIDOERC20(
+        rewardToken,
+        erc20ForBuyAddress,
+        finInfo,
+        timestamps,
+        tokenURI,
+        {
+          from: account,
+        },
+      );
+  }
+  
   const createIDO = async () => {
     setLoading(true);
 
@@ -157,41 +225,8 @@ export default function Preview() {
       }
       const tokenURI = ipfsResonse.ipfsHash;
 
-      const rewardToken = tokenAddress;
-
-      const finInfo = [
-        `0x${oneTokenInWei.toString(16)}`,
-        `0x${ETHER.times(softCap).toString(16)}`,
-        `0x${ETHER.times(hardCap).toString(16)}`,
-        `0x${ETHER.times(minETH).toString(16)}`,
-        `0x${ETHER.times(maxETH).toString(16)}`,
-        listingRateBN.gt(0) ? `0x${oneListingTokeninWei.toString(16)}` : 0,
-        parseInt(isAddLiquidityEnabled ? liquidityPercentage : 0),
-      ];
-      const timestamps = [
-        `0x${BigNumber(start.getTime()).div(1000).decimalPlaces(0, 1).toString(16)}`,
-        `0x${BigNumber(end.getTime()).div(1000).decimalPlaces(0, 1).toString(16)}`,
-        `0x${BigNumber(unlock.getTime()).div(1000).decimalPlaces(0, 1).toString(16)}`,
-      ];
-      const dexInfo = [
-        chainRouter[chainId][0].ROUTER,
-        chainRouter[chainId][0].FACTORY,
-        chainRouter[chainId][0].WETH,
-      ];
-
-      const tx = await IDOFactoryContract
-        .createIDO(
-          rewardToken,
-          finInfo,
-          timestamps,
-          dexInfo,
-          TokenLockerFactoryAddress,
-          tokenURI,
-          {
-            from: account,
-          },
-        );
-
+      const tx = await ((useERC20ForBuy) ? createIDOERC20(tokenURI) : createIDONative(tokenURI))
+      
       const receipt = await tx.wait();
 
       console.log('createIDO receipt', receipt);
