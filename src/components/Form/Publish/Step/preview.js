@@ -34,6 +34,11 @@ export default function Preview() {
   const navigate = useNavigate();
 
   const {
+    // erc20-erc20-e
+    useERC20ForBuy: [useERC20ForBuy],
+    erc20ForBuyAddress: [erc20ForBuyAddress],
+    erc20ForBuyInfo: [erc20ForBuyInfo],
+    // ----
     tokenInformation: [tokenInfo],
     address: [tokenAddress],
     icon: [icon, setIcon],
@@ -225,6 +230,8 @@ export default function Preview() {
     }
   };
 
+  const payCurrency = (useERC20ForBuy && erc20ForBuyInfo && erc20ForBuyInfo.tokenSymbol) ? erc20ForBuyInfo.tokenSymbol : baseCurrencySymbol
+  
   return (
     <s.Container flex={1}>
       <s.TextTitle fullWidth>Token information</s.TextTitle>
@@ -270,67 +277,41 @@ export default function Preview() {
       <s.TextID>Description</s.TextID>
       <ReadMore max={2000}>{description}</ReadMore>
 
-      <s.TextID>Token address</s.TextID>
-      <s.TextDescriptionEllipsis>
-        {tokenInfo.tokenAddress}
-      </s.TextDescriptionEllipsis>
-      <s.TextID>Token name</s.TextID>
+      <s.TextID>{`Token address`}</s.TextID>
+      <s.TextDescriptionEllipsis>{tokenInfo.tokenAddress}</s.TextDescriptionEllipsis>
+      <s.TextID>{`Token name`}</s.TextID>
       <s.TextDescription>{tokenInfo.tokenName}</s.TextDescription>
-      <s.TextID>Total supply</s.TextID>
+      <s.TextID>{`Total supply`}</s.TextID>
       <s.TextDescription>
         {BigNumber(tokenInfo.totalSupply)
           .dividedBy(tokenInfo.tokenDenominator)
           .toFormat(0) +
-          " $" +
+          " " +
           tokenInfo.tokenSymbol}
       </s.TextDescription>
-      <s.TextTitle fullWidth>IDO information</s.TextTitle>
-      <s.TextID>Token rate</s.TextID>
+      <s.TextTitle fullWidth>{`IDO information`}</s.TextTitle>
+      <s.TextID>{`Token rate`}</s.TextID>
       <s.TextDescription>
-        {"1 $" +
-          baseCurrencySymbol +
-          " -> " +
-          ETHER.div(oneTokenInWei) +
-          " $" +
-          tokenInfo.tokenSymbol}
+        {`1 ${payCurrency} -> ${ETHER.div(oneTokenInWei)} ${tokenInfo.tokenSymbol}`}
       </s.TextDescription>
       <s.Container fd={"row"} jc="space-between">
         <s.Container flex={1} style={{ marginLeft: 10, marginRight: 10 }}>
-          <s.TextID>Soft Cap</s.TextID>
-          <s.TextDescription>
-            {BigNumber(softCap).toFormat(2) +
-              " $" +
-              baseCurrencySymbol}
-          </s.TextDescription>
+          <s.TextID>{`Soft Cap`}</s.TextID>
+          <s.TextDescription>{`${BigNumber(softCap).toFormat(2)} ${payCurrency}`}</s.TextDescription>
           <s.SpacerSmall />
-          <s.TextID>Hard Cap</s.TextID>
-          <s.TextDescription>
-            {hardCapBN.toFormat(2) +
-              " $" +
-              baseCurrencySymbol}
-          </s.TextDescription>
+          <s.TextID>{`Hard Cap`}</s.TextID>
+          <s.TextDescription>{`${hardCapBN.toFormat(2)} ${payCurrency}`}</s.TextDescription>
           <s.SpacerSmall />
-          {/* <s.TextID>Pool router</s.TextID>
-          <s.TextDescription>
-            {
-              chainRouter[chainId][context.router[0]]
-                .name
-            }
-          </s.TextDescription> */}
         </s.Container>
         <s.Container flex={1} style={{ marginLeft: 10, marginRight: 10 }}>
-          <s.TextID>Minimum Buy</s.TextID>
+          <s.TextID>{`Minimum Buy`}</s.TextID>
           <s.TextDescription>
-            {BigNumber(minETH).toFormat(2) +
-              " $" +
-              baseCurrencySymbol}
+            {`${BigNumber(minETH).toFormat(2)} ${payCurrency}`}
           </s.TextDescription>
           <s.SpacerSmall />
-          <s.TextID>Maximum Buy</s.TextID>
+          <s.TextID>{`Maximum Buy`}</s.TextID>
           <s.TextDescription>
-            {BigNumber(maxETH).toFormat(2) +
-              " $" +
-              baseCurrencySymbol}
+            {`${BigNumber(maxETH).toFormat(2)} ${payCurrency}`}
           </s.TextDescription>
           {
             isAddLiquidityEnabled && <>

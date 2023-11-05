@@ -1,6 +1,8 @@
 import BigNumber from "bignumber.js";
 import React, { createContext, useState, useEffect } from "react";
 
+import { isAddress } from '../utils/utils'
+
 export const StoreContext = createContext({});
 
 export const StoreContextProvider = ({ children }) => {
@@ -57,6 +59,11 @@ export const StoreContextProvider = ({ children }) => {
   const idoFormValidate = () => {
     let errors = {};
     let formIsValid = true;
+    
+    if (useERC20ForBuy && (!isAddress(erc20ForBuyAddress) || !erc20ForBuyInfo)) {
+      formIsValid = false
+      errors['erc20ForBuy'] = `Token address not valid`
+    }
     if (BigNumber(softCap).gte(BigNumber(hardCap))) {
       formIsValid = false;
       errors["softCap"] = "Soft cap cannot less than Hard cap";

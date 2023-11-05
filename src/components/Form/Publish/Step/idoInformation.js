@@ -54,6 +54,8 @@ export default function IDOInfo() {
         } finally {
           setErc20BuyInfoFetching(false)
         }
+      } else {
+        setErc20ForBuyInfo(null)
       }
     }
     fetchTokenInfo()
@@ -84,6 +86,7 @@ export default function IDOInfo() {
             label={`ERC20 Token for pay ${tokenInformation?.tokenSymbol} address`}
             fullWidth
           />
+          <s.TextIDWarning>{context.idoError["erc20ForBuy"]}</s.TextIDWarning>
           <s.SpacerSmall />
           {erc20ForBuyAddress.toLowerCase() == tokenAddress.toLowerCase() ? (
             <s.TextIDWarning>{`Pay token cannot be equal as IDO pool token`}</s.TextIDWarning>
