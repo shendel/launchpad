@@ -32,11 +32,18 @@ const PoolInfoRenderer = (props) => {
     return null;
   }
 
+  const {
+    idoType,
+    payToken
+  } = idoInfo
+  
   const startDate = new Date(parseInt(idoInfo.start) * 1000);
   const endDate = new Date(parseInt(idoInfo.end) * 1000);
   const claimDate = new Date(parseInt(idoInfo.claim) * 1000);
 
   const isAddLiquidityEnabled = idoInfo.listingRate > 0 && idoInfo.lpPercentage > 0;
+
+  const payCurrency = (idoType === `ERC20`) ? payToken.symbol : baseCurrencySymbol
 
   const formatWei = (weiValue, dp = 10) => {
     return BigNumber(
@@ -45,8 +52,10 @@ const PoolInfoRenderer = (props) => {
           weiValue, "ether"
         )
       ).toFormat(dp)
-    ).toNumber() + " " + baseCurrencySymbol
+    ).toNumber() + " " + payCurrency
   }
+
+  
 
   return (
     <s.Container flex={2} ai="center" style={{ margin: 10, minWidth: 400 }}>
@@ -71,13 +80,13 @@ const PoolInfoRenderer = (props) => {
         <s.SpacerSmall />
         <s.Container fd="row" jc="space-between">
           <s.TextID fw="700">Token rate</s.TextID>
-          {`${ETHER.div(idoInfo.tokenRate)} ${idoInfo.tokenSymbol}/${baseCurrencySymbol}`}
+          {`${ETHER.div(idoInfo.tokenRate)} ${idoInfo.tokenSymbol}/${payCurrency}`}
         </s.Container>
         <s.SpacerSmall />
         {
           isAddLiquidityEnabled && <s.Container fd="row" jc="space-between">
             <s.TextID fw="700">Listing rate</s.TextID>
-            {`${ETHER.div(idoInfo.listingRate)} ${idoInfo.tokenSymbol}/${baseCurrencySymbol}`}
+            {`${ETHER.div(idoInfo.listingRate)} ${idoInfo.tokenSymbol}/${payCurrency}`}
           </s.Container>
         }
         <s.SpacerSmall />

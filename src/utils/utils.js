@@ -32,7 +32,7 @@ export function isZeroAddress(address) {
 }
 
 export function tokenAmountToWei(amount, decimals) {
-  return new BigNumber(amount).multipliedBy(10 ** decimals).toString()
+  return new BigNumber(amount).multipliedBy(10 ** decimals).toFixed()
 }
 
 export function tokenAmountFromWei(amount, decimals) {
@@ -168,7 +168,7 @@ export const loadPoolData = async (idoAddress, web3, account, infuraDedicatedGat
     );
 
     let result = {
-      idoType: (poolType == 1) ? 'Native' : 'ERC20',
+      idoType: (poolType == 1) ? 'NATIVE' : 'ERC20',
       tokenAddress: tokenAddress,
       metadata: metadata,
       tokenName: tokenName,
@@ -201,13 +201,16 @@ export const loadPoolData = async (idoAddress, web3, account, infuraDedicatedGat
       const payTokenName = await payToken.methods.name().call()
       const payTokenSymbol = await payToken.methods.symbol().call()
       const payTokenDecimals = await payToken.methods.decimals().call()
+      const payAllowance = await payToken.methods.allowance(account, idoAddress).call()
+      console.log('>>> payAllowance', payAllowance)
       result = {
         ...result,
         payToken: {
           address: payTokenAddress,
           symbol: payTokenSymbol,
           name: payTokenName,
-          decimals: payTokenDecimals
+          decimals: payTokenDecimals,
+          allowance: payAllowance,
         }
       }
     }
@@ -218,6 +221,22 @@ export const loadPoolData = async (idoAddress, web3, account, infuraDedicatedGat
     throw e;
   }
 };
+
+export const getTokenAllowance = async (opts) => {
+  const {
+    tokenAddress,
+    web3,
+    owner,
+    spender
+  } = opts
+  
+  if (!isAddress(tokenAddress)) {
+    return null;
+  }
+  const token = new web3.eth.Contract(ERC20.abi, tokenAddress);
+  const allowance = await token.methods.allowance(owner, spender).call()
+  return allowance
+}
 
 export const getTokenData = async (tokenAddress, web3) => {
   if (!isAddress(tokenAddress)) {

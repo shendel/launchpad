@@ -22,6 +22,13 @@ const WithdrawETH = (props) => {
   const idoInfo = usePoolContext().allPools[idoAddress];
   const IDOPoolContract = useIDOPoolContract(idoAddress);
 
+  const {
+    idoType,
+    payToken,
+  } = idoInfo
+
+  const payCurrency = (idoType === `ERC20`) ? payToken.symbol : baseCurrencySymbol
+  
   if (!account || !idoInfo || !library.web3) {
     return null;
   }
@@ -125,7 +132,7 @@ const WithdrawETH = (props) => {
           <s.TextDescription>
             {BigNumber(BigNumber(library.web3.utils.fromWei(idoInfo.balance)).toFixed(10)).toNumber() +
               " " +
-              baseCurrencySymbol}
+              payCurrency}
           </s.TextDescription>
         </s.Container>
         <s.button
@@ -142,21 +149,22 @@ const WithdrawETH = (props) => {
           WITHDRAW
         </s.button>
       </s.Container>
-      <s.Container fd="row" ai="center" jc="space-between">
-        <s.Container flex={2}>
-          <s.TextID>Unsold token</s.TextID>
-          <s.TextDescription>
-            {
-              BigNumber(
-                BigNumber(idoInfo.unsold)
-                .dividedBy(10 ** idoInfo.tokenDecimals)
-                .toFixed(10)
-              ).toNumber() +
-              " " +
-              idoInfo.tokenSymbol
-            }
-          </s.TextDescription>
-        </s.Container>
+      
+      <s.Container>
+        <s.TextID>Unsold token</s.TextID>
+        <s.TextDescription>
+          {
+            BigNumber(
+              BigNumber(idoInfo.unsold)
+              .dividedBy(10 ** idoInfo.tokenDecimals)
+              .toFixed(10)
+            ).toNumber() +
+            " " +
+            idoInfo.tokenSymbol
+          }
+        </s.TextDescription>
+      </s.Container>
+      <s.Container>
         {BigNumber(idoInfo.totalInvestedETH).lt(BigNumber(idoInfo.softCap)) ? (
           <s.button
             disabled={

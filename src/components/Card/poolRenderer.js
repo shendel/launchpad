@@ -26,6 +26,8 @@ const PoolRenderer = (props) => {
       softCap,
       hardCap,
       progress,
+      idoType,
+      payToken,
     }
   } = props;
 
@@ -59,6 +61,8 @@ const PoolRenderer = (props) => {
   //   );
   // }
   if (!idoAddress || !metadata || !tokenName || !tokenSymbol) return null;
+  
+  const payCurrency = (idoType === `ERC20`) ? idoInfo.payToken.symbol : baseCurrencySymbol
 
   return (
     <s.Card ref={card} style={{ maxWidth: 500, margin: 20, minWidth: 400 }}>
@@ -115,7 +119,7 @@ const PoolRenderer = (props) => {
               2
             ) +
               " " +
-              baseCurrencySymbol}
+              payCurrency}
           </s.Container>
           <s.Container ai="center" flex={1}>
             <s.TextID fullWidth>Hard cap</s.TextID>
@@ -123,7 +127,7 @@ const PoolRenderer = (props) => {
               2
             ) +
               " " +
-              baseCurrencySymbol}
+              payCurrency}
           </s.Container>
         </s.Container>
         <s.SpacerSmall />
