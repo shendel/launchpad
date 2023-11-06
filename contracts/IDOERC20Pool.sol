@@ -205,14 +205,17 @@ contract IDOERC20Pool is Ownable, ReentrancyGuard {
         rewardToken.safeTransfer(msg.sender, balance);
     }
 
-    function getTokenAmount(uint256 ethAmount, uint256 oneTokenInWei)
-        internal
-        view
-        returns (uint256)
-    {
-        return (ethAmount / oneTokenInWei) * 10**decimals;
-    }
 
+    function getTokenAmount(
+        uint256 amount,
+        uint256 rate
+    ) internal view returns (uint256) {
+        return (
+            rate
+            * ((decimals > 0) ? 10**decimals : 1)
+            * amount
+        ) / ((payTokenDecimals > 0) ? 10**payTokenDecimals : 1);
+    }
     /**
      * @notice It allows the owner to recover wrong tokens sent to the contract
      * @param _tokenAddress: the address of the token to withdraw with the exception of rewardToken

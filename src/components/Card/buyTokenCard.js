@@ -185,6 +185,8 @@ const BuyTokenCard = (props) => {
   const reachMaxAmount = BigNumber(idoInfo.max).lte(
     BigNumber(idoInfo.userData.totalInvestedETH)
   );
+  
+  console.log('>>> IDO INFO', idoInfo)
   const lessThanMinAmount = BigNumber(ethAmount).lt(BigNumber(idoInfo.min));
 
 
@@ -208,9 +210,13 @@ const BuyTokenCard = (props) => {
         let val = BigNumber(e.target.value).toFixed(0);
         if (!isNaN(val)) {
           setTokensToBuy(e.target.value);
+          
           setEthAmount(
-            BigNumber(idoInfo.tokenRate).times(e.target.value)
+            (idoType === `ERC20`)
+              ? utils.tokenAmountToWei(BigNumber(e.target.value).div(idoInfo.tokenRate), idoInfo.payToken.decimals)
+              : BigNumber(idoInfo.tokenRate).times(e.target.value)
           );
+
         } else {
           setTokensToBuy(0);
           setEthAmount("0");
@@ -218,7 +224,14 @@ const BuyTokenCard = (props) => {
       }}
     />
   )
-  
+  console.log('>>> CAN BUY',         hasEnded ||
+        isNeedApproveFetching ||
+        !isStarted ||
+        tokensToBuy === 0 ||
+        willhMaxAmountOverflow ||
+        reachMaxAmount ||
+        lessThanMinAmount)
+  console.log(willhMaxAmountOverflow,reachMaxAmount,lessThanMinAmount, hasEnded, isNeedApproveFetching, !isStarted, tokensToBuy === 0)
   const buyTokenButton = (
     <s.button
       fullWidth
@@ -251,6 +264,9 @@ const BuyTokenCard = (props) => {
       )}
     </s.button>
   )
+  
+  console.log('>>> render',  utils.tokenAmountFromWei(ethAmount.toString(), payToken.decimals))
+  console.log('>>>', payToken, ethAmount, ethAmount.toString())
   return (
     <s.Card
       style={{
@@ -362,10 +378,19 @@ const BuyTokenCard = (props) => {
 
       <s.Container fd="row" jc="space-between" ai="center"  style={{ wordBreak: "break-all" }} >
         <s.TextID>You will spend</s.TextID>
-        { (ethAmount ? library.web3.utils.fromWei(ethAmount.toString(16)) : 0) +
-            " " +
-            payCurrency
-        }
+        {idoType == `ERC20` && (
+          <>
+            {ethAmount ? `${utils.tokenAmountFromWei(ethAmount, payToken.decimals)}` : 0}
+          </>
+        )}
+        {idoType == `NATIVE` && (
+          <>
+            { (ethAmount ? library.web3.utils.fromWei(ethAmount.toString(16)) : 0) +
+                " " +
+                payCurrency
+            }
+          </>
+        )}
       </s.Container>
     </s.Card>
   );

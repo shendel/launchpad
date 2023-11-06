@@ -36,7 +36,10 @@ export function tokenAmountToWei(amount, decimals) {
 }
 
 export function tokenAmountFromWei(amount, decimals) {
-  return new BigNumber(amount).div(new BigNumber(10).pow(decimals)).toNumber()
+  console.log('tokenAmountFromWei', amount.toString(), decimals)
+  const t = new BigNumber(amount).div(new BigNumber(10).pow(decimals)).toFixed()
+  console.log(t)
+  return t
 }
 
 export var typewatch = (function () {

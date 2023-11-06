@@ -109,18 +109,24 @@ contract IDOFactory is Ownable {
 
         idoPool.transferOwnership(msg.sender);
 
+        uint8 tokenDecimals = _rewardToken.decimals();
+
+        uint256 transferAmount = getTokenAmount(_finInfo.hardCap, _finInfo.tokenPrice, tokenDecimals);
+
+        if (_finInfo.lpInterestRate > 0 && _finInfo.listingPrice > 0) {
+            transferAmount += getTokenAmount(_finInfo.hardCap * _finInfo.lpInterestRate / 100, _finInfo.listingPrice, tokenDecimals);
+        }
+
         processIDOCreate(
+            transferAmount,
             _rewardToken,
             address(idoPool),
-            _finInfo.hardCap,
-            _finInfo.tokenPrice,
-            _finInfo.lpInterestRate,
-            _finInfo.listingPrice,
             _metadataURL
         );
     }
 
     function createIDOERC20(
+        uint256 transferAmount,
         ERC20 _rewardToken,
         ERC20 _payToken,
         IDOERC20Pool.FinInfo memory _finInfo,
@@ -141,32 +147,19 @@ contract IDOFactory is Ownable {
         idoPool.transferOwnership(msg.sender);
 
         processIDOCreate(
+            transferAmount,
             _rewardToken,
             address(idoPool),
-            _finInfo.hardCap,
-            _finInfo.tokenPrice,
-            _finInfo.lpInterestRate,
-            _finInfo.listingPrice,
             _metadataURL
         );
     }
 
     function processIDOCreate(
+        uint256 transferAmount,
         ERC20 _rewardToken,
         address idoPoolAddress,
-        uint256 hardCap,
-        uint256 tokenPrice,
-        uint256 lpInterestRate,
-        uint256 listingPrice,
         string memory _metadataURL
     ) private {
-        uint8 tokenDecimals = _rewardToken.decimals();
-
-        uint256 transferAmount = getTokenAmount(hardCap, tokenPrice, tokenDecimals);
-
-        if (lpInterestRate > 0 && listingPrice > 0) {
-            transferAmount += getTokenAmount(hardCap * lpInterestRate / 100, listingPrice, tokenDecimals);
-        }
 
         _rewardToken.safeTransferFrom(
             msg.sender,

@@ -135,8 +135,7 @@ interface IUniswapV2Router01 {
 }
 // File: IUniswapV2Router02.sol
 
-pragma solidity >=0.6.2;
-
+pragma solidity >=0.6.2;
 
 interface IUniswapV2Router02 is IUniswapV2Router01 {
     function removeLiquidityETHSupportingFeeOnTransferTokens(
@@ -646,8 +645,7 @@ interface IERC20 {
 
 // OpenZeppelin Contracts v4.4.1 (token/ERC20/extensions/IERC20Metadata.sol)
 
-pragma solidity ^0.8.0;
-
+pragma solidity ^0.8.0;
 
 /**
  * @dev Interface for the optional metadata functions from the ERC20 standard.
@@ -675,10 +673,7 @@ interface IERC20Metadata is IERC20 {
 
 // OpenZeppelin Contracts (last updated v4.8.0) (token/ERC20/utils/SafeERC20.sol)
 
-pragma solidity ^0.8.0;
-
-
-
+pragma solidity ^0.8.0;
 
 /**
  * @title SafeERC20
@@ -1047,10 +1042,7 @@ abstract contract Context {
 
 // OpenZeppelin Contracts (last updated v4.8.0) (token/ERC20/ERC20.sol)
 
-pragma solidity ^0.8.0;
-
-
-
+pragma solidity ^0.8.0;
 
 /**
  * @dev Implementation of the {IERC20} interface.
@@ -1437,9 +1429,7 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
 
 // OpenZeppelin Contracts (last updated v4.5.0) (token/ERC20/extensions/ERC20Burnable.sol)
 
-pragma solidity ^0.8.0;
-
-
+pragma solidity ^0.8.0;
 
 /**
  * @dev Extension of {ERC20} that allows token holders to destroy both their own
@@ -1477,8 +1467,7 @@ abstract contract ERC20Burnable is Context, ERC20 {
 
 // OpenZeppelin Contracts (last updated v4.7.0) (access/Ownable.sol)
 
-pragma solidity ^0.8.0;
-
+pragma solidity ^0.8.0;
 
 /**
  * @dev Contract module which provides a basic access control mechanism, where
@@ -1559,12 +1548,7 @@ abstract contract Ownable is Context {
 // File: IDOERC20Pool.sol
 
 
-pragma solidity ^0.8.18;
-
-
-
-
-
+pragma solidity ^0.8.18;
 
 contract IDOERC20Pool is Ownable, ReentrancyGuard {
     using SafeMath for uint256;
@@ -1764,14 +1748,13 @@ contract IDOERC20Pool is Ownable, ReentrancyGuard {
         rewardToken.safeTransfer(msg.sender, balance);
     }
 
-    function getTokenAmount(uint256 ethAmount, uint256 oneTokenInWei)
-        internal
-        view
-        returns (uint256)
-    {
-        return (ethAmount / oneTokenInWei) * 10**decimals;
-    }
 
+    function getTokenAmount(
+        uint256 rate,
+        uint256 amount
+    ) internal view returns (uint256) {
+        return (rate*((decimals > 0) ? decimals : 1)*amount)/((payTokenDecimals > 0) ? payTokenDecimals : 1);
+    }
     /**
      * @notice It allows the owner to recover wrong tokens sent to the contract
      * @param _tokenAddress: the address of the token to withdraw with the exception of rewardToken
@@ -1785,12 +1768,7 @@ contract IDOERC20Pool is Ownable, ReentrancyGuard {
 }
 // File: TokenLocker.sol
 
-pragma solidity ^0.8.0;
-
-
-
-
-
+pragma solidity ^0.8.0;
 
 contract TokenLocker is Ownable {
     using SafeMath for uint256;
@@ -1840,13 +1818,7 @@ contract TokenLocker is Ownable {
 }
 // File: TokenLockerFactory.sol
 
-pragma solidity ^0.8.0;
-
-
-
-
-
-
+pragma solidity ^0.8.0;
 
 contract TokenLockerFactory is Ownable {
     using SafeMath for uint256;
@@ -1915,15 +1887,7 @@ contract TokenLockerFactory is Ownable {
 // File: IDOPool.sol
 
 
-pragma solidity ^0.8.18;
-
-
-
-
-
-
-
-
+pragma solidity ^0.8.18;
 
 contract IDOPool is Ownable, ReentrancyGuard {
     using SafeMath for uint256;
@@ -2194,13 +2158,7 @@ contract IDOPool is Ownable, ReentrancyGuard {
 }
 // File: IDOFactory.sol
 
-pragma solidity ^0.8.18;
-
-
-
-
-
-
+pragma solidity ^0.8.18;
 
 contract IDOFactory is Ownable {
     using SafeMath for uint256;
@@ -2303,18 +2261,24 @@ contract IDOFactory is Ownable {
 
         idoPool.transferOwnership(msg.sender);
 
+        uint8 tokenDecimals = _rewardToken.decimals();
+
+        uint256 transferAmount = getTokenAmount(_finInfo.hardCap, _finInfo.tokenPrice, tokenDecimals);
+
+        if (_finInfo.lpInterestRate > 0 && _finInfo.listingPrice > 0) {
+            transferAmount += getTokenAmount(_finInfo.hardCap * _finInfo.lpInterestRate / 100, _finInfo.listingPrice, tokenDecimals);
+        }
+
         processIDOCreate(
+            transferAmount,
             _rewardToken,
             address(idoPool),
-            _finInfo.hardCap,
-            _finInfo.tokenPrice,
-            _finInfo.lpInterestRate,
-            _finInfo.listingPrice,
             _metadataURL
         );
     }
 
     function createIDOERC20(
+        uint256 transferAmount,
         ERC20 _rewardToken,
         ERC20 _payToken,
         IDOERC20Pool.FinInfo memory _finInfo,
@@ -2335,32 +2299,19 @@ contract IDOFactory is Ownable {
         idoPool.transferOwnership(msg.sender);
 
         processIDOCreate(
+            transferAmount,
             _rewardToken,
             address(idoPool),
-            _finInfo.hardCap,
-            _finInfo.tokenPrice,
-            _finInfo.lpInterestRate,
-            _finInfo.listingPrice,
             _metadataURL
         );
     }
 
     function processIDOCreate(
+        uint256 transferAmount,
         ERC20 _rewardToken,
         address idoPoolAddress,
-        uint256 hardCap,
-        uint256 tokenPrice,
-        uint256 lpInterestRate,
-        uint256 listingPrice,
         string memory _metadataURL
     ) private {
-        uint8 tokenDecimals = _rewardToken.decimals();
-
-        uint256 transferAmount = getTokenAmount(hardCap, tokenPrice, tokenDecimals);
-
-        if (lpInterestRate > 0 && listingPrice > 0) {
-            transferAmount += getTokenAmount(hardCap * lpInterestRate / 100, listingPrice, tokenDecimals);
-        }
 
         _rewardToken.safeTransferFrom(
             msg.sender,
