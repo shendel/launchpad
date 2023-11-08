@@ -130,9 +130,17 @@ const WithdrawETH = (props) => {
         <s.Container flex={2}>
           <s.TextID>Total invested</s.TextID>
           <s.TextDescription>
-            {BigNumber(BigNumber(library.web3.utils.fromWei(idoInfo.balance)).toFixed(10)).toNumber() +
+            {
+              BigNumber(
+                BigNumber(
+                  (idoType === `ERC20`)
+                    ? utils.tokenAmountFromWei(idoInfo.balance, payToken.decimals)
+                    : library.web3.utils.fromWei(idoInfo.balance)
+                ).toFixed(10)
+              ).toNumber() +
               " " +
-              payCurrency}
+              payCurrency
+            }
           </s.TextDescription>
         </s.Container>
         <s.button

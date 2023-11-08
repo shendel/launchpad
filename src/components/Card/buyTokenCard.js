@@ -193,9 +193,11 @@ const BuyTokenCard = (props) => {
   const formatWei = (weiValue, dp = 10) => {
     return BigNumber(
       BigNumber(
-        library.web3.utils.fromWei(
-          weiValue
-        )
+        (idoType === `ERC20`)
+          ? utils.tokenAmountFromWei(weiValue, payToken.decimals)
+          : library.web3.utils.fromWei(
+            weiValue
+          )
       ).toFormat(dp)
     ).toNumber()
   }
@@ -224,14 +226,7 @@ const BuyTokenCard = (props) => {
       }}
     />
   )
-  console.log('>>> CAN BUY',         hasEnded ||
-        isNeedApproveFetching ||
-        !isStarted ||
-        tokensToBuy === 0 ||
-        willhMaxAmountOverflow ||
-        reachMaxAmount ||
-        lessThanMinAmount)
-  console.log(willhMaxAmountOverflow,reachMaxAmount,lessThanMinAmount, hasEnded, isNeedApproveFetching, !isStarted, tokensToBuy === 0)
+
   const buyTokenButton = (
     <s.button
       fullWidth
@@ -265,8 +260,7 @@ const BuyTokenCard = (props) => {
     </s.button>
   )
   
-  console.log('>>> render',  utils.tokenAmountFromWei(ethAmount.toString(), payToken.decimals))
-  console.log('>>>', payToken, ethAmount, ethAmount.toString())
+
   return (
     <s.Card
       style={{

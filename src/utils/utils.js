@@ -205,9 +205,11 @@ export const loadPoolData = async (idoAddress, web3, account, infuraDedicatedGat
       const payTokenSymbol = await payToken.methods.symbol().call()
       const payTokenDecimals = await payToken.methods.decimals().call()
       const payAllowance = await payToken.methods.allowance(account, idoAddress).call()
+      const payTokenBalance = await payToken.methods.balanceOf(idoAddress).call()
       console.log('>>> payAllowance', payAllowance)
       result = {
         ...result,
+        balance: payTokenBalance,
         payToken: {
           address: payTokenAddress,
           symbol: payTokenSymbol,

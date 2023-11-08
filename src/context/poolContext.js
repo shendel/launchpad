@@ -170,6 +170,10 @@ export const PoolContextProvider = ({ children }) => {
     return () => clearTimeout(delayDebounceFn);
   }, [account, allLocker])
 
+  const updatePoolInfo = (idoAddress) => {
+    console.log('>>> updatePoolInfo', idoAddress)
+  }
+
   const value = {
     allPools,
     allPoolsFetching,
@@ -178,6 +182,7 @@ export const PoolContextProvider = ({ children }) => {
     allLocker,
     allLockerAddress,
     userLockersAddresses,
+    updatePoolInfo,
   };
   return <PoolContext.Provider value={value}>{children}</PoolContext.Provider>;
 };
