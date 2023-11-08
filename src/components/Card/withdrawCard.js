@@ -4,7 +4,11 @@ import React, { useState } from "react";
 import Countdown from "react-countdown";
 import { useApplicationContext } from "../../context/applicationContext";
 import { usePoolContext } from "../../context/poolContext";
-import { useIDOPoolContract } from "../../hooks/useContract";
+import {
+  useIDOPoolContract,
+  useIDOERC20PoolContract
+} from "../../hooks/useContract";
+
 import * as s from "../../styles/global";
 import { utils } from "../../utils";
 
@@ -20,13 +24,17 @@ const WithdrawETH = (props) => {
   } = useApplicationContext();
 
   const idoInfo = usePoolContext().allPools[idoAddress];
-  const IDOPoolContract = useIDOPoolContract(idoAddress);
-
+  
   const {
     idoType,
     payToken,
   } = idoInfo
-
+  
+  const IDOPoolNativeContract = useIDOPoolContract(idoAddress)
+  const IDOPoolERC20Contract = useIDOERC20PoolContract(idoAddress)
+  
+  const IDOPoolContract = (idoType == `ERC20`) ? IDOPoolERC20Contract : IDOPoolNativeContract
+  
   const payCurrency = (idoType === `ERC20`) ? payToken.symbol : baseCurrencySymbol
   
   if (!account || !idoInfo || !library.web3) {
@@ -44,12 +52,22 @@ const WithdrawETH = (props) => {
   const withdrawETH = async () => {
     setLoading(true); // TODO: add action loader to the appropriate button
     try {
-      const isNeedLocker = parseInt(idoInfo.claim) > parseInt(Date.now() / 1000);
+      const prepareTx = async () => {
+        if (idoType === `ERC20`) {
+          return await IDOPoolContract.withdraw({
+            from: account
+          })
+        } else {
+          const isNeedLocker = parseInt(idoInfo.claim) > parseInt(Date.now() / 1000);
 
-      const tx = await IDOPoolContract.withdrawETH({
-        from: account,
-        value: isNeedLocker ? await TokenLockerFactoryContract.fee() : 0,
-      });
+          return await IDOPoolContract.withdrawETH({
+            from: account,
+            value: isNeedLocker ? await TokenLockerFactoryContract.fee() : 0,
+          });
+        }
+      }
+
+      const tx = await prepareTx()
 
       const receipt = await tx.wait();
 

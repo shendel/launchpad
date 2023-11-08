@@ -349,43 +349,48 @@ const BuyTokenCard = (props) => {
       <s.SpacerSmall />
       <ProgressBar now={parseInt(idoInfo.progress)} />
       <s.SpacerMedium />
-      {idoType == `NATIVE` && (
-        <s.Container fd="row" ai="center" jc="space-between">
-          <s.Container flex={4} style={{ marginRight: 20 }}>
-            {buyTokenAmountInput}
-          </s.Container>
-          <s.Container flex={1} ai="flex-end">
-            {buyTokenButton}
-          </s.Container>
-        </s.Container>
-      )}
-      {idoType == `ERC20` && (
+      {!hasEnded && isStarted && (
         <>
-          <s.Container>
-            {buyTokenAmountInput}
-            <s.SpacerSmall />
-            {buyTokenButton}
+          {idoType == `NATIVE` && (
+            <s.Container fd="row" ai="center" jc="space-between">
+              <s.Container flex={4} style={{ marginRight: 20 }}>
+                {buyTokenAmountInput}
+              </s.Container>
+              <s.Container flex={1} ai="flex-end">
+                {buyTokenButton}
+              </s.Container>
+            </s.Container>
+          )}
+          {idoType == `ERC20` && (
+            <>
+              <s.Container>
+                {buyTokenAmountInput}
+                <s.SpacerSmall />
+                {buyTokenButton}
+              </s.Container>
+            </>
+          )}
+          <s.SpacerSmall />
+          <s.Container fd="row" jc="space-between" ai="center"  style={{ wordBreak: "break-all" }} >
+            <s.TextID>You will spend</s.TextID>
+            {idoType == `ERC20` && (
+              <>
+                {ethAmount ? `${utils.tokenAmountFromWei(ethAmount, payToken.decimals)}` : 0}
+                {` `}
+                {payCurrency}
+              </>
+            )}
+            {idoType == `NATIVE` && (
+              <>
+                { (ethAmount ? library.web3.utils.fromWei(ethAmount.toString(16)) : 0) +
+                    " " +
+                    payCurrency
+                }
+              </>
+            )}
           </s.Container>
         </>
       )}
-      <s.SpacerSmall />
-
-      <s.Container fd="row" jc="space-between" ai="center"  style={{ wordBreak: "break-all" }} >
-        <s.TextID>You will spend</s.TextID>
-        {idoType == `ERC20` && (
-          <>
-            {ethAmount ? `${utils.tokenAmountFromWei(ethAmount, payToken.decimals)}` : 0}
-          </>
-        )}
-        {idoType == `NATIVE` && (
-          <>
-            { (ethAmount ? library.web3.utils.fromWei(ethAmount.toString(16)) : 0) +
-                " " +
-                payCurrency
-            }
-          </>
-        )}
-      </s.Container>
     </s.Card>
   );
 };
