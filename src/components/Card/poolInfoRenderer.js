@@ -34,7 +34,7 @@ const PoolInfoRenderer = (props) => {
 
   const {
     idoType,
-    payToken
+    payToken,
   } = idoInfo
   
   const startDate = new Date(parseInt(idoInfo.start) * 1000);
@@ -48,14 +48,14 @@ const PoolInfoRenderer = (props) => {
   const formatWei = (weiValue, dp = 10) => {
     return BigNumber(
       BigNumber(
-        Web3Utils.fromWei(
-          weiValue, "ether"
-        )
+        (idoType === `ERC20`)
+          ? utils.tokenAmountFromWei(weiValue, payToken.decimals)
+          : Web3Utils.fromWei(weiValue, "ether")
       ).toFormat(dp)
     ).toNumber() + " " + payCurrency
   }
 
-  
+  console.log('>>> POOL INFO', idoInfo)
 
   return (
     <s.Container flex={2} ai="center" style={{ margin: 10, minWidth: 400 }}>
@@ -80,7 +80,13 @@ const PoolInfoRenderer = (props) => {
         <s.SpacerSmall />
         <s.Container fd="row" jc="space-between">
           <s.TextID fw="700">Token rate</s.TextID>
-          {`${ETHER.div(idoInfo.tokenRate)} ${idoInfo.tokenSymbol}/${payCurrency}`}
+          {idoType == `ERC20` ? (
+            <>{idoInfo.tokenRate}</>
+          ) : (
+            <>{ETHER.div(idoInfo.tokenRate)}</>
+          )}
+          {` `}
+          {`${idoInfo.tokenSymbol}/${payCurrency}`}
         </s.Container>
         <s.SpacerSmall />
         {
@@ -141,11 +147,15 @@ const PoolInfoRenderer = (props) => {
           {endDate.toString()}
         </s.Container>
         <s.SpacerSmall />
-        <s.Container fd="row" jc="space-between">
-          <s.TextID fw="700">Lock LP until</s.TextID>
-          {claimDate.toString()}
-        </s.Container>
-        <s.SpacerSmall />
+        {idoType === `NATIVE` && (
+          <>
+            <s.Container fd="row" jc="space-between">
+              <s.TextID fw="700">Lock LP until</s.TextID>
+              {claimDate.toString()}
+            </s.Container>
+            <s.SpacerSmall />
+          </>
+        )}
       </s.Card>
       <s.SpacerMedium />
       <TokenInfo idoAddress={idoAddress} />
