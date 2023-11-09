@@ -422,7 +422,7 @@ console.log('>>> ',requiredToken.toString())
               createIDO();
             }}
           >
-            {loading ? ". . ." : "Create IDO Poll"}
+            {loading ? ". . ." : "Create IDO Pool"}
           </s.button>
         )}
       </s.Container>
