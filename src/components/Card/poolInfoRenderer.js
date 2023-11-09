@@ -55,7 +55,7 @@ const PoolInfoRenderer = (props) => {
     ).toNumber() + " " + payCurrency
   }
 
-  console.log('>>> POOL INFO', idoInfo)
+  console.log('>>> POOL INFO', idoInfo, ETHER.div(idoInfo.tokenRate).toString())
 
   return (
     <s.Container flex={2} ai="center" style={{ margin: 10, minWidth: 400 }}>
@@ -83,7 +83,7 @@ const PoolInfoRenderer = (props) => {
           {idoType == `ERC20` ? (
             <>{idoInfo.tokenRate}</>
           ) : (
-            <>{ETHER.div(idoInfo.tokenRate)}</>
+            <>{ETHER.div(idoInfo.tokenRate).toString()}</>
           )}
           {` `}
           {`${idoInfo.tokenSymbol}/${payCurrency}`}

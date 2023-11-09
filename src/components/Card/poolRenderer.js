@@ -51,7 +51,18 @@ const PoolRenderer = (props) => {
       setImage(getValidImageUrl(idoInfo?.metadata?.image || idoInfo?.metadata?.imageHash, ipfsInfuraDedicatedGateway));
     }
   }, [idoInfo, idoInfo.metadata.image, idoInfo.metadata.imageHash, ipfsInfuraDedicatedGateway]);
-
+  
+  /*
+return (
+  <s.Card
+    ref={card}
+    ai="center"
+    style={{ maxWidth: 500, margin: 20, minWidth: 400 }}
+  >
+    Loading
+  </s.Card>
+)
+*/
   // if (!utils.isValidPool(idoInfo) || !idoInfo) {
   //   return (
   //     <s.Card
