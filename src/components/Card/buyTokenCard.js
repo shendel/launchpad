@@ -27,7 +27,11 @@ const BuyTokenCard = (props) => {
     triggerUpdateAccountData,
     baseCurrencySymbol
   } = useApplicationContext();
-  const idoInfo = usePoolContext().allPools[idoAddress];
+  const {
+    updatePoolInfo
+  } = usePoolContext()
+  
+  const [ idoInfo, setIdoInfo ] = useState(usePoolContext().allPools[idoAddress])
 
   const {
     idoType,
@@ -35,7 +39,7 @@ const BuyTokenCard = (props) => {
     tokenDecimals,
     tokenAddress,
   } = idoInfo
-  
+
   const [ isNeedApprove, setIsNeedApprove ] = useState(false)
   const [ isNeedApproveFetching, setIsNeedApproveFetching ] = useState(false)
   const [ isApproving, setIsApproving ] = useState(false)
@@ -127,6 +131,9 @@ const BuyTokenCard = (props) => {
 
       const receipt = await tx.wait();
 
+      updatePoolInfo(idoAddress).then((newInfo) => {
+        setIdoInfo(newInfo)
+      })
       triggerUpdateAccountData();
       // TODO: add trigger for update IDOInfo after actions
       console.log("buyToken receipt", receipt);
@@ -145,7 +152,10 @@ const BuyTokenCard = (props) => {
       });
 
       const receipt = await tx.wait();
-
+  
+      updatePoolInfo(idoAddress).then((newInfo) => {
+        setIdoInfo(newInfo)
+      })
       triggerUpdateAccountData();
       // TODO: add trigger for update IDOInfo after actions
       console.log("claimToken receipt", receipt);
@@ -165,6 +175,9 @@ const BuyTokenCard = (props) => {
 
       const receipt = await tx.wait();
 
+      updatePoolInfo(idoAddress).then((newInfo) => {
+        setIdoInfo(newInfo)
+      })
       triggerUpdateAccountData();
       // TODO: add trigger for update IDOInfo after actions
       console.log("refund receipt", receipt);

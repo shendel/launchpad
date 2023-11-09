@@ -172,6 +172,30 @@ export const PoolContextProvider = ({ children }) => {
 
   const updatePoolInfo = (idoAddress) => {
     console.log('>>> updatePoolInfo', idoAddress)
+    return new Promise(async (resolve, reject) => {
+      if (ipfsInfuraDedicatedGateway) {
+        await utils.loadPoolData(idoAddress, contract.web3, account, ipfsInfuraDedicatedGateway).then((IDOPoolData) => {
+          console.log('>>> IDOPoolData', IDOPoolData)
+          
+          setAllPools((p) => ({
+            ...p,
+            ...{
+              [idoAddress]: {
+                ...p[idoAddress],
+                ...IDOPoolData
+              }
+            }
+          }));
+          const { owner, userData } = IDOPoolData
+          if (
+            owner?.toLowerCase() === account?.toLowerCase()
+            || (userData?.totalInvestedETH && userData?.totalInvestedETH !== "0")
+          ) setUserPoolAddresses((prevUserPoolAddresses) => [ ...prevUserPoolAddresses, idoAddress ])
+
+          resolve(IDOPoolData)
+        })
+      }
+    })
   }
 
   const value = {

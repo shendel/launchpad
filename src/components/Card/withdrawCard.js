@@ -23,8 +23,12 @@ const WithdrawETH = (props) => {
     TokenLockerFactoryContract,
   } = useApplicationContext();
 
-  const idoInfo = usePoolContext().allPools[idoAddress];
+  const {
+    updatePoolInfo
+  } = usePoolContext()
   
+  const [ idoInfo, setIdoInfo ] = useState(usePoolContext().allPools[idoAddress])
+
   const {
     idoType,
     payToken,
@@ -71,6 +75,9 @@ const WithdrawETH = (props) => {
 
       const receipt = await tx.wait();
 
+      updatePoolInfo(idoAddress).then((newInfo) => {
+        setIdoInfo(newInfo)
+      })
       triggerUpdateAccountData();
       // TODO: add trigger for update IDOInfo after actions
       console.log("withdrawETH receipt", receipt);
@@ -90,6 +97,9 @@ const WithdrawETH = (props) => {
 
       const receipt = await tx.wait();
 
+      updatePoolInfo(idoAddress).then((newInfo) => {
+        setIdoInfo(newInfo)
+      })
       triggerUpdateAccountData();
       // TODO: add trigger for update IDOInfo after actions
       console.log("withdrawToken receipt", receipt);
@@ -109,6 +119,9 @@ const WithdrawETH = (props) => {
 
       const receipt = await tx.wait();
 
+      updatePoolInfo(idoAddress).then((newInfo) => {
+        setIdoInfo(newInfo)
+      })
       triggerUpdateAccountData();
       // TODO: add trigger for update IDOInfo after actions
       console.log("withdrawUnsoldToken receipt", receipt);
