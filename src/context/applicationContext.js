@@ -184,6 +184,24 @@ export const ApplicationContextProvider = ({ children }) => {
   const TokenLockerFactoryContract = useLockerFactoryContract(TokenLockerFactoryAddress, true);
   const IDOFactoryContract = useIDOFactoryContract(IDOFactoryAddress, true);
 
+  const [ IDOFactoryLoaded, setIDOFactoryLoaded ] = useState(false)
+  const [ IDOFactoryOwner, setIDOFactoryOwner ] = useState(false)
+  const [ IDOFactoryOnlyOwnerCreate, setIDOFactoryOnlyOwnerCreate ] = useState(false)
+  
+  useEffect(async () => {
+    if (IDOFactoryContract) {
+      const factoryOwner = await IDOFactoryContract.owner()
+      let onlyOwnerCreate = false
+      try {
+        // v2.0
+        onlyOwnerCreate = await IDOFactoryContract.onlyOwnerCreate()
+      } catch (e) {}
+      setIDOFactoryOwner(factoryOwner)
+      setIDOFactoryOnlyOwnerCreate(onlyOwnerCreate)
+      setIDOFactoryLoaded(true)
+    }
+  }, [ IDOFactoryContract ])
+  
   const value = {
     isAppConfigured,
 
@@ -217,6 +235,10 @@ export const ApplicationContextProvider = ({ children }) => {
 
     IDOFactoryContract,
     IDOFactoryAddress,
+    
+    IDOFactoryLoaded,
+    IDOFactoryOwner,
+    IDOFactoryOnlyOwnerCreate,
 
     TokenLockerFactoryAddress,
     TokenLockerFactoryContract,
