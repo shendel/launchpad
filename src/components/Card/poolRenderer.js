@@ -4,7 +4,10 @@ import { Badge } from "react-bootstrap";
 import Countdown from "react-countdown";
 import { useSelector } from "react-redux";
 import { NavLink } from "react-router-dom";
-import { getValidImageUrl } from "../../utils/utils";
+import {
+  getValidImageUrl,
+  tokenAmountFromWei
+} from "../../utils/utils";
 import * as s from "../../styles/global";
 import ProgressBar from "../Modal/ProgressBar";
 
@@ -115,19 +118,35 @@ const PoolRenderer = (props) => {
         <s.Container fd="row">
           <s.Container ai="center" flex={1}>
             <s.TextID fullWidth>Soft cap</s.TextID>
-            {BigNumber(contract.web3.utils.fromWei(softCap)).toFormat(
-              2
-            ) +
+            {
+              parseFloat(
+                BigNumber(
+                  (idoType === `ERC20`)
+                    ? tokenAmountFromWei(softCap, payToken.decimals)
+                    : contract.web3.utils.fromWei(softCap)
+                ).toFormat(
+                  4
+                )
+              ) +
               " " +
-              payCurrency}
+              payCurrency
+            }
           </s.Container>
           <s.Container ai="center" flex={1}>
             <s.TextID fullWidth>Hard cap</s.TextID>
-            {BigNumber(contract.web3.utils.fromWei(hardCap)).toFormat(
-              2
-            ) +
+            {
+              parseFloat(
+                BigNumber(
+                  (idoType === `ERC20`)
+                    ? tokenAmountFromWei(hardCap, payToken.decimals)
+                    : contract.web3.utils.fromWei(hardCap)
+                ).toFormat(
+                  4
+                )
+              ) +
               " " +
-              payCurrency}
+              payCurrency
+            }
           </s.Container>
         </s.Container>
         <s.SpacerSmall />
