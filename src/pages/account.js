@@ -12,7 +12,14 @@ const Account = () => {
   const { account } = useWeb3React();
   const [showZero, setShowZero] = useState(0);
 
-  const { domainSettings: { isLockerEnabled } } = useApplicationContext();
+  const {
+    domainSettings: {
+      isLockerEnabled
+    },
+    IDOFactoryLoaded,
+    IDOFactoryOwner,
+    IDOFactoryOnlyOwnerCreate,
+  } = useApplicationContext()
 
   if (!account) {
     return (
@@ -23,6 +30,9 @@ const Account = () => {
     );
   }
 
+  const canCreateIDO = (IDOFactoryLoaded && (!IDOFactoryOnlyOwnerCreate || (IDOFactoryOnlyOwnerCreate && IDOFactoryOwner.toLowerCase() == account.toLowerCase())))
+
+  
   const handleShowZero = (e) => {
     setShowZero(!showZero);
   };
@@ -37,9 +47,14 @@ const Account = () => {
             <s.TextTitle style={{ flex: 1, whiteSpace: "nowrap", margin: 20 }}>
               My IDO
             </s.TextTitle>
-            <CreateLaunchpad />
+            {canCreateIDO && (<CreateLaunchpad />)}
           </s.Container>
-          <LongIdoList />
+          {canCreateIDO && (<LongIdoList />)}
+          {!canCreateIDO && (
+            <s.Text warning>
+              {`Creating new IDO Pools is not allowed for your account`}
+            </s.Text>
+          )}
         </s.Container>
 
         {

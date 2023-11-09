@@ -196,6 +196,7 @@ export const ApplicationContextProvider = ({ children }) => {
         // v2.0
         onlyOwnerCreate = await IDOFactoryContract.onlyOwnerCreate()
       } catch (e) {}
+      console.log('>>> onlyOwnerCreate', onlyOwnerCreate, factoryOwner)
       setIDOFactoryOwner(factoryOwner)
       setIDOFactoryOnlyOwnerCreate(onlyOwnerCreate)
       setIDOFactoryLoaded(true)
