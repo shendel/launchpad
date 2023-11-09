@@ -171,12 +171,10 @@ export const PoolContextProvider = ({ children }) => {
   }, [account, allLocker])
 
   const updatePoolInfo = (idoAddress) => {
-    console.log('>>> updatePoolInfo', idoAddress)
     return new Promise(async (resolve, reject) => {
       if (ipfsInfuraDedicatedGateway) {
         await utils.loadPoolData(idoAddress, contract.web3, account, ipfsInfuraDedicatedGateway).then((IDOPoolData) => {
-          console.log('>>> IDOPoolData', IDOPoolData)
-          
+
           setAllPools((p) => ({
             ...p,
             ...{

@@ -82,7 +82,6 @@ export default function Preview() {
   
   const oneListingTokeninWei = ETHER.div(listingRateBN).integerValue(BigNumber.ROUND_CEIL);
 
-console.log('>>> oneTokenInWei', BigNumber(10 ** (payDecimals || 1)).toString(),tokenRate, oneTokenInWei.toString(), oneTokenWeiPrice.toString())
   const requiredToken = ETHER.times(hardCapBN).div(oneTokenInWei)
     .plus(ETHER.times(hardCapBN).div(oneListingTokeninWei).times(lp).dividedBy(100))
     .times(tokenInfo.tokenDenominator);
@@ -175,8 +174,6 @@ console.log('>>> oneTokenInWei', BigNumber(10 ** (payDecimals || 1)).toString(),
   
   const createIDOERC20 = async (tokenURI) => {
     const rewardToken = tokenAddress;
-
-    console.log('>>> CREATE IDO', minETH, maxETH, erc20ForBuyInfo,payDecimals, tokenAmountToWei(minETH, payDecimals), )
     const finInfo = [
       `0x${tokenRateBN.toString(16)}`,          // uint256 tokenPrice; // rate 1pay => count recieve
       tokenAmountToWei(softCap, payDecimals), // uint256 softCap;
@@ -186,13 +183,13 @@ console.log('>>> oneTokenInWei', BigNumber(10 ** (payDecimals || 1)).toString(),
       listingRateBN.gt(0) ? `0x${oneListingTokeninWei.toString(16)}` : 0, // uint256 listingPrice; // one token in WEI
       parseInt(isAddLiquidityEnabled ? liquidityPercentage : 0),  // uint256 lpInterestRate;
     ];
-    console.log('finInfo', finInfo)
+
     const timestamps = [
       `0x${BigNumber(start.getTime()).div(1000).decimalPlaces(0, 1).toString(16)}`,
       `0x${BigNumber(end.getTime()).div(1000).decimalPlaces(0, 1).toString(16)}`,
       `0x${BigNumber(unlock.getTime()).div(1000).decimalPlaces(0, 1).toString(16)}`,
     ];
-console.log('>>> ',requiredToken.toString())
+
     return await IDOFactoryContract
       .createIDOERC20(
         requiredToken.toString(),

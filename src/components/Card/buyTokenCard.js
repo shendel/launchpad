@@ -57,9 +57,7 @@ const BuyTokenCard = (props) => {
       owner: account,
       spender: idoAddress
     })
-    console.log('>>. allowance', allowance)
     setIsNeedApproveFetching(false)
-    console.log('>>> need approve', new BigNumber(ethAmount).isGreaterThan(allowance))
     setIsNeedApprove(new BigNumber(ethAmount).isGreaterThan(allowance))
   }
   useEffect(async () => {
@@ -198,8 +196,7 @@ const BuyTokenCard = (props) => {
   const reachMaxAmount = BigNumber(idoInfo.max).lte(
     BigNumber(idoInfo.userData.totalInvestedETH)
   );
-  
-  console.log('>>> IDO INFO', idoInfo)
+
   const lessThanMinAmount = BigNumber(ethAmount).lt(BigNumber(idoInfo.min));
 
 

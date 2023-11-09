@@ -48,7 +48,6 @@ export const callIDOFactoryContract = (options) => {
 
   try {
     const contract = getContractInstance(library.web3, address, IDOFactoryV2.abi)
-    console.log('>>>',  contract.methods)
     return new Promise(async (resolve, reject) => {
       contract.methods[method](...params)
         .send({ from: account })
@@ -155,7 +154,6 @@ const deployContract = async (params) => {
 export const deployIDOFactory = async ({ library, onHash, FeeTokenAddress }) => {
   const { abi, data: { bytecode: { object: bytecode } } } = IDOFactoryV2;
 
-console.log('>>> IDOFactoryV2', bytecode, IDOFactoryV2)
   return deployContract({
     abi,
     byteCode: bytecode,

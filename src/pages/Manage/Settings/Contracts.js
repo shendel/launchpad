@@ -160,7 +160,6 @@ export default function Contracts() {
     setIsIdoInfoError(false)
     setIdoInfo(false)
     fetchIDOFactoryInfo(chainIdToManage, contracts[chainIdToManage].IDOFactoryAddress).then((idoInfo) => {
-      console.log('>> idoInfo', idoInfo)
       setIdoInfo(idoInfo)
       setIDOFeeWallet(idoInfo.feeWallet)
       setIDOFeeAmount(tokenAmountFromWei(idoInfo.feeAmount, idoInfo.feeTokenDecimals))

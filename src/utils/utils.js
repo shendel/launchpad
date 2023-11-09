@@ -36,9 +36,7 @@ export function tokenAmountToWei(amount, decimals) {
 }
 
 export function tokenAmountFromWei(amount, decimals) {
-  console.log('tokenAmountFromWei', amount.toString(), decimals)
   const t = new BigNumber(amount).div(new BigNumber(10).pow(decimals)).toFixed()
-  console.log(t)
   return t
 }
 
@@ -118,8 +116,7 @@ export const loadPoolData = async (idoAddress, web3, account, infuraDedicatedGat
     const idoPoolErc20 = await  new web3.eth.Contract(IDOPoolERC20.abi, idoAddress)
     
     let poolType = await idoPool.methods.contractType().call()
-    
-    console.log('>>> loadPoolData', idoAddress, poolType)
+
     let metadataURL = await idoPool.methods.metadataURL().call();
     let balance = await web3.eth.getBalance(idoAddress);
     let tokenAddress = await idoPool.methods.rewardToken().call();
@@ -146,8 +143,6 @@ export const loadPoolData = async (idoAddress, web3, account, infuraDedicatedGat
       ? await idoPool.methods.totalInvestedETH().call()
       : await idoPoolErc20.methods.totalInvested().call()
 
-    console.log('>>> total invested', totalInvestedETH)
-    
     const {
       startTimestamp,
       endTimestamp,
@@ -206,7 +201,7 @@ export const loadPoolData = async (idoAddress, web3, account, infuraDedicatedGat
       const payTokenDecimals = await payToken.methods.decimals().call()
       const payAllowance = await payToken.methods.allowance(account, idoAddress).call()
       const payTokenBalance = await payToken.methods.balanceOf(idoAddress).call()
-      console.log('>>> payAllowance', payAllowance)
+
       result = {
         ...result,
         balance: payTokenBalance,
@@ -219,7 +214,6 @@ export const loadPoolData = async (idoAddress, web3, account, infuraDedicatedGat
         }
       }
     }
-    console.log('>>> IDO INFO', idoAddress, result)
     return result;
   } catch (e) {
     console.log(e);

@@ -55,8 +55,6 @@ const PoolInfoRenderer = (props) => {
     ).toNumber() + " " + payCurrency
   }
 
-  console.log('>>> POOL INFO', idoInfo, ETHER.div(idoInfo.tokenRate).toString())
-
   return (
     <s.Container flex={2} ai="center" style={{ margin: 10, minWidth: 400 }}>
       <s.Card
