@@ -152,15 +152,19 @@ export default function Contracts() {
   const [ IDOFeeWalletSaving, setIDOFeeWalletSaving ] = useState(false)
   const [ IDOFeeAmount, setIDOFeeAmount ] = useState(``)
   const [ IDOFeeAmountSaving, setIDOFeeAmountSaving] = useState(false)
-  
+  const [ IDOOnlyOwnerCreate, setIDOOnlyOwnerCreate] = useState('0')
+  const [ IDOOnlyOwnerCreateSaving, setIDOOnlyOwnerCreateSaving] = useState(false)
+
   const fetchIdoInfo = () => {
     setIsIdoInfoFetching(true)
     setIsIdoInfoError(false)
     setIdoInfo(false)
     fetchIDOFactoryInfo(chainIdToManage, contracts[chainIdToManage].IDOFactoryAddress).then((idoInfo) => {
+      console.log('>> idoInfo', idoInfo)
       setIdoInfo(idoInfo)
       setIDOFeeWallet(idoInfo.feeWallet)
       setIDOFeeAmount(tokenAmountFromWei(idoInfo.feeAmount, idoInfo.feeTokenDecimals))
+      setIDOOnlyOwnerCreate((idoInfo.onlyOwnerCreate) ? `1` : `0`)
       setIsIdoInfoFetching(false)
     }).catch((err) => {
       setIsIdoInfoFetching(false)
@@ -178,6 +182,33 @@ export default function Contracts() {
     }
   }, [ chainIdToManage ])
 
+  const saveWhoCanCreateIDO = async () => {
+    setIsLoading(true)
+    setIDOOnlyOwnerCreateSaving(true)
+    callIDOFactoryContract({
+      library,
+      address: contracts[chainIdToManage].IDOFactoryAddress,
+      account,
+      method: `setOnlyOwnerCreate`,
+      params: [(IDOOnlyOwnerCreate == '0') ? false : true],
+      onReceipt: () => {
+        setIdoInfo({
+          ...idoInfo,
+          onlyOwnerCreate: IDOOnlyOwnerCreate
+        })
+      },
+      onHash: (hash) => {
+        console.log('saveContractsData hash: ', hash);
+      },
+    }).then(() => {
+      setIsLoading(false)
+      setIDOOnlyOwnerCreateSaving(false)
+    }).catch((err) => {
+      console.log('Fail save onlyOwnerCreate', err)
+      setIsLoading(false)
+      setIDOOnlyOwnerCreateSaving(false)
+    })
+  }
   const saveFeeWallet = async () => {
     setIsLoading(true)
     setIDOFeeWalletSaving(true)
@@ -313,6 +344,9 @@ export default function Contracts() {
                                 ) : (
                                   <>
                                     <s.SpacerSmall />
+                                    <s.Text small info>
+                                      {`If specified, a flat fee will be charged for creating new pools`}
+                                    </s.Text>
                                     <TextField
                                       label="Wallet for recieve fee"
                                       value={IDOFeeWallet}
@@ -352,6 +386,25 @@ export default function Contracts() {
                                         </s.button>
                                       </>
                                     )}
+                                    <s.SpacerSmall />
+                                    <InputLabel>{`Who can create IDOPool?`}</InputLabel>
+                                    <Select
+                                      value={IDOOnlyOwnerCreate}
+                                      label={`Select`}
+                                      onChange={(e) => {
+                                        setIDOOnlyOwnerCreate(e.target.value)
+                                      }}
+                                    >
+                                      <MenuItem value={'0'}>{`All`}</MenuItem>
+                                      <MenuItem value={'1'}>{`Only owner/admin`}</MenuItem>
+                                    </Select>
+                                    <s.SpacerSmall />
+                                    <s.button fullWidth
+                                      onClick={() => { saveWhoCanCreateIDO() }}
+                                      disabled={isLoading}
+                                    >
+                                      { IDOOnlyOwnerCreateSaving ? <Loader /> : `Save create IDO rule`}
+                                    </s.button>
                                   </>
                                 )}
                               </>

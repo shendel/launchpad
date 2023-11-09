@@ -48,6 +48,7 @@ export const callIDOFactoryContract = (options) => {
 
   try {
     const contract = getContractInstance(library.web3, address, IDOFactoryV2.abi)
+    console.log('>>>',  contract.methods)
     return new Promise(async (resolve, reject) => {
       contract.methods[method](...params)
         .send({ from: account })
@@ -88,6 +89,7 @@ export const fetchIDOFactoryInfo = (chainId, address) => {
     const contract = getContractInstance(web3, address, IDOFactoryV2.abi)
     
     const owner = await contract.methods.owner().call()
+    const onlyOwnerCreate = await contract.methods.onlyOwnerCreate().call()
     const feeWallet = await contract.methods.feeWallet().call()
     const feeAmount = await contract.methods.feeAmount().call()
     const feeToken = await contract.methods.feeToken().call()
@@ -103,7 +105,8 @@ export const fetchIDOFactoryInfo = (chainId, address) => {
       feeAmount,
       feeToken,
       feeTokenDecimals,
-      feeTokenSymbol
+      feeTokenSymbol,
+      onlyOwnerCreate,
     }
     resolve(idoInfo)
   })
