@@ -288,17 +288,19 @@ export default function IDOInfo() {
           </s.Container>
           <s.TextIDWarning>{context.idoError["start-end"]}</s.TextIDWarning>
           <s.SpacerMedium />
-          <LocalizationProvider dateAdapter={AdapterDateFns}>
-            <DateTimePicker
-              renderInput={(props) => <TextField fullWidth {...props} />}
-              label="Unlock date"
-              displayEmpty
-              value={context.unlock[0]}
-              onChange={(e) => {
-                context.unlock[1](e);
-              }}
-            />
-          </LocalizationProvider>
+          {!useERC20ForBuy && (
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+              <DateTimePicker
+                renderInput={(props) => <TextField fullWidth {...props} />}
+                label="Unlock date"
+                displayEmpty
+                value={context.unlock[0]}
+                onChange={(e) => {
+                  context.unlock[1](e);
+                }}
+              />
+            </LocalizationProvider>
+          )}
           <s.TextIDWarning>{context.idoError["unlock"]}</s.TextIDWarning>
         </>
       )}

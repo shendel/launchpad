@@ -100,7 +100,7 @@ export const StoreContextProvider = ({ children }) => {
       formIsValid = false;
       errors["start-end"] = "Start date cannot less than End date";
     }
-    if (BigNumber(end.getTime()).gte(BigNumber(unlock.getTime()))) {
+    if (BigNumber(end.getTime()).gte(BigNumber(unlock.getTime())) && !useERC20ForBuy) {
       formIsValid = false;
       errors["unlock"] = "Unlock date cannot less than End date";
     }
