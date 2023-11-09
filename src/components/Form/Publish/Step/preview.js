@@ -8,6 +8,7 @@ import * as s from "../../../../styles/global";
 import { chainRouter } from "../../../../constants/networksInfo";
 import SocialMediaModal from "../../../Modal/socialmediaModal";
 import { useApplicationContext } from "../../../../context/applicationContext";
+import { usePoolContext } from "../../../../context/poolContext"
 import { useTokenContract } from "../../../../hooks/useContract";
 import ReadMore from "../../readMore";
 import {
@@ -20,6 +21,7 @@ import { ETHER } from "../../../../constants";
 
 export default function Preview() {
   const { account, chainId, library } = useWeb3React();
+  const { updatePoolInfo } = usePoolContext()
   const {
     baseCurrencySymbol,
     IDOFactoryContract,
@@ -70,6 +72,8 @@ export default function Preview() {
   const [isTokenApprovalFetching, setIsTokenApprovalFetching] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const [isNavigateToNewIDO, setIsNavigateToNewIDO ] = useState(false)
+  
   const tokenRateBN = BigNumber(tokenRate);
   const hardCapBN = BigNumber(hardCap);
   const listingRateBN = BigNumber(isAddLiquidityEnabled ? listingRate : 0);
@@ -240,7 +244,11 @@ export default function Preview() {
       triggerUpdateAccountData();
       const IDOCreatedIndex = receipt?.events?.findIndex?.((i) => i?.event === "IDOCreated");
       if (IDOCreatedIndex || IDOCreatedIndex === 0){
-        navigate(`../launchpad/${receipt.events[IDOCreatedIndex].args.idoPool}`)
+        const newIdoAdderess = receipt.events[IDOCreatedIndex].args.idoPool
+        setIsNavigateToNewIDO(true)
+        updatePoolInfo(newIdoAdderess).then((idoInfo) => {
+          navigate(`../launchpad/${newIdoAdderess}`)
+        })
       }
     } catch (error) {
       console.log("createIDO Error: ", error);
@@ -387,42 +395,51 @@ export default function Preview() {
           " $" +
           tokenInfo.tokenSymbol}
       </s.TextDescription>
-      <s.Container ai="center">
-        {BigNumber(FeeTokenApproveToFactory?.toString?.()).lt(BigNumber(IDOFactoryFee?.toString?.())) ? (
-          <s.button
-            style={{ marginTop: 20 }}
-            disabled={loading}
-            onClick={(e) => {
-              e.preventDefault();
-              approveToken(IDOFactoryFee, FeeTokenContract);
-            }}
-          >
-            {loading ? ". . ." : `APPROVE ${FeeTokenSymbol}`}
-          </s.button>
-        ) : BigNumber(tokenApprove?.toString?.()).lt(BigNumber(requiredToken?.toString?.())) ? (
-          <s.button
-            style={{ marginTop: 20 }}
-            disabled={loading}
-            onClick={(e) => {
-              e.preventDefault();
-              approveToken(BigNumber(requiredToken).toFixed(0), tokenContract);
-            }}
-          >
-            {loading ? ". . ." : `APPROVE ${tokenInfo.tokenSymbol}`}
-          </s.button>
-        ) : (
-          <s.button
-            style={{ marginTop: 20 }}
-            disabled={loading}
-            onClick={(e) => {
-              e.preventDefault();
-              createIDO();
-            }}
-          >
-            {loading ? ". . ." : "Create IDO Pool"}
-          </s.button>
-        )}
-      </s.Container>
+      {!isNavigateToNewIDO && (
+        <s.Container ai="center">
+          {BigNumber(FeeTokenApproveToFactory?.toString?.()).lt(BigNumber(IDOFactoryFee?.toString?.())) ? (
+            <s.button
+              style={{ marginTop: 20 }}
+              disabled={loading}
+              onClick={(e) => {
+                e.preventDefault();
+                approveToken(IDOFactoryFee, FeeTokenContract);
+              }}
+            >
+              {loading ? ". . ." : `APPROVE ${FeeTokenSymbol}`}
+            </s.button>
+          ) : BigNumber(tokenApprove?.toString?.()).lt(BigNumber(requiredToken?.toString?.())) ? (
+            <s.button
+              style={{ marginTop: 20 }}
+              disabled={loading}
+              onClick={(e) => {
+                e.preventDefault();
+                approveToken(BigNumber(requiredToken).toFixed(0), tokenContract);
+              }}
+            >
+              {loading ? ". . ." : `APPROVE ${tokenInfo.tokenSymbol}`}
+            </s.button>
+          ) : (
+            <s.button
+              style={{ marginTop: 20 }}
+              disabled={loading}
+              onClick={(e) => {
+                e.preventDefault();
+                createIDO();
+              }}
+            >
+              {loading ? ". . ." : "Create IDO Pool"}
+            </s.button>
+          )}
+        </s.Container>
+      )}
+      {isNavigateToNewIDO && (
+        <s.Container ai="center">
+          <s.Text small info>
+            {`The IDO pool has been created. You will now be redirected to his page...`}
+          </s.Text>
+        </s.Container>
+      )}
 
       {IDOFactoryFee && IDOFactoryFee !== "0" && (
         <>
