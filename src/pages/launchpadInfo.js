@@ -23,6 +23,7 @@ const LaunchpadInFo = () => {
   const idoInfo = usePoolContext().allPools[idoAddress];
   const IDOPoolContract = useIDOPoolContract(idoAddress, false, defaultChain);
 
+console.log('>>> IDO INFO', idoInfo)
   useEffect(() => {
     /*
     const checkPoolByContract = async () => {

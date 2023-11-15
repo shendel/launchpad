@@ -214,7 +214,7 @@ export default function Preview() {
 
     return await IDOFactoryContract
       .createIDOERC20(
-        requiredToken.toString(),
+        `0x${requiredToken.toString(16)}`,
         rewardToken,
         erc20ForBuyAddress,
         finInfo,
@@ -224,6 +224,7 @@ export default function Preview() {
           from: account,
         },
       );
+    
   }
   
   const createIDO = async () => {

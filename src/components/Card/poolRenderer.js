@@ -10,7 +10,8 @@ import {
 } from "../../utils/utils";
 import * as s from "../../styles/global";
 import ProgressBar from "../Modal/ProgressBar";
-
+import { utils } from "../../utils";
+import * as Web3Utils from "web3-utils";
 import imageSolid from "../../assets/images/image-solid.png"
 import { useApplicationContext } from "../../context/applicationContext";
 
@@ -77,7 +78,16 @@ return (
   if (!idoAddress || !metadata || !tokenName || !tokenSymbol) return null;
   
   const payCurrency = (idoType === `ERC20`) ? idoInfo.payToken.symbol : baseCurrencySymbol
-
+  const formatWei = (weiValue, dp = 0) => {
+    return BigNumber(
+      BigNumber(
+        (idoType === `ERC20`)
+          ? utils.tokenAmountFromWei(weiValue, payToken.decimals)
+          : Web3Utils.fromWei(weiValue, "ether")
+      ).toNumber()
+    ).toFormat(dp) + " " + payCurrency
+  }
+  
   return (
     <s.Card ref={card} style={{ maxWidth: 500, margin: 20, minWidth: 400 }}>
       <NavLink
@@ -129,35 +139,11 @@ return (
         <s.Container fd="row">
           <s.Container ai="center" flex={1}>
             <s.TextID fullWidth>Soft cap</s.TextID>
-            {
-              parseFloat(
-                BigNumber(
-                  (idoType === `ERC20`)
-                    ? tokenAmountFromWei(softCap, payToken.decimals)
-                    : contract.web3.utils.fromWei(softCap)
-                ).toFormat(
-                  4
-                )
-              ) +
-              " " +
-              payCurrency
-            }
+            {formatWei(softCap)}
           </s.Container>
           <s.Container ai="center" flex={1}>
             <s.TextID fullWidth>Hard cap</s.TextID>
-            {
-              parseFloat(
-                BigNumber(
-                  (idoType === `ERC20`)
-                    ? tokenAmountFromWei(hardCap, payToken.decimals)
-                    : contract.web3.utils.fromWei(hardCap)
-                ).toFormat(
-                  4
-                )
-              ) +
-              " " +
-              payCurrency
-            }
+            {formatWei(hardCap)}
           </s.Container>
         </s.Container>
         <s.SpacerSmall />
