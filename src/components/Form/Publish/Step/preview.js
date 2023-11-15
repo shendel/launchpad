@@ -90,6 +90,24 @@ export default function Preview() {
     .plus(ETHER.times(hardCapBN).div(oneListingTokeninWei).times(lp).dividedBy(100))
     .times(tokenInfo.tokenDenominator);
 
+  const [ userBalance, setUserBalance ] = useState(0)
+  const [ userBalanceFetched, setUserBalanceFetched ] = useState(false)
+  const [ userBalanceFetching, setUserBalanceFetching ] = useState(false)
+  
+  useEffect(async () => {
+    try {
+      setUserBalanceFetching(true)
+      if (isAddress(tokenAddress) && tokenContract && account) {
+        const balance = await tokenContract.balanceOf(account)
+        setUserBalance(balance)
+        setUserBalanceFetched(true)
+        setUserBalanceFetching(false)
+      }
+    } catch (err) {
+      console.log('>> Fail fetch balance', err)
+    }
+  }, [account, library, tokenContract, tokenAddress])
+
   useEffect(() => {
     const checkTokenApproval = async () => {
       setIsTokenApprovalFetching(true);
@@ -281,6 +299,8 @@ export default function Preview() {
 
   const payCurrency = (useERC20ForBuy && erc20ForBuyInfo && erc20ForBuyInfo.tokenSymbol) ? erc20ForBuyInfo.tokenSymbol : baseCurrencySymbol
   
+  const infuelBalance = !(BigNumber(requiredToken?.toString?.()).lt(BigNumber(userBalance?.toString())))
+
   return (
     <s.Container flex={1}>
       <s.TextTitle fullWidth>Token information</s.TextTitle>
@@ -420,16 +440,21 @@ export default function Preview() {
               {loading ? ". . ." : `APPROVE ${tokenInfo.tokenSymbol}`}
             </s.button>
           ) : (
-            <s.button
-              style={{ marginTop: 20 }}
-              disabled={loading}
-              onClick={(e) => {
-                e.preventDefault();
-                createIDO();
-              }}
-            >
-              {loading ? ". . ." : "Create IDO Pool"}
-            </s.button>
+            <>
+              {infuelBalance && (
+                <s.TextIDWarning>{`There are not enough ${tokenInfo.tokenSymbol} tokens at your account`}</s.TextIDWarning>
+              )}
+              <s.button
+                style={{ marginTop: 20 }}
+                disabled={loading || userBalanceFetching || infuelBalance}
+                onClick={(e) => {
+                  e.preventDefault();
+                  createIDO();
+                }}
+              >
+                {loading ? ". . ." : "Create IDO Pool"}
+              </s.button>
+            </>
           )}
         </s.Container>
       )}
