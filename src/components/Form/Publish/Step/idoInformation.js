@@ -71,6 +71,7 @@ export default function IDOInfo() {
         <s.TextID>{`Use ERC20 for pay ${context.tokenInformation?.[0]?.tokenSymbol}`}</s.TextID>
         <Checkbox
           value={useERC20ForBuy}
+          checked={useERC20ForBuy}
           onChange={() => setUseERC20ForBuy(!useERC20ForBuy)}
         />
       </s.Container>
