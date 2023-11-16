@@ -71,7 +71,7 @@ const BuyTokenCard = (props) => {
     try {
       const tx = await payTokenContract.approve(
         idoAddress,
-        new BigNumber(ethAmount).toString(),
+        `0x${BigNumber(ethAmount).toString(16)}`,
         {
           from: account,
         }
@@ -115,7 +115,7 @@ const BuyTokenCard = (props) => {
       const makeTx = async () => {
         if (idoType == `ERC20`) {
           return await IDOPoolContract.pay(
-            new BigNumber(ethAmount).toString(),
+            `0x${BigNumber(ethAmount).toString(16)}`,
             { from: account }
           )
         } else {
@@ -200,7 +200,7 @@ const BuyTokenCard = (props) => {
   const lessThanMinAmount = BigNumber(ethAmount).lt(BigNumber(idoInfo.min));
 
 
-  const formatWei = (weiValue, dp = 10) => {
+  const formatWei = (weiValue, dp = 0) => {
     return BigNumber(
       BigNumber(
         (idoType === `ERC20`)
@@ -208,8 +208,8 @@ const BuyTokenCard = (props) => {
           : library.web3.utils.fromWei(
             weiValue
           )
-      ).toFormat(dp)
-    ).toNumber()
+      ).toNumber()
+    ).toFormat(dp)
   }
 
   const buyTokenAmountInput = (

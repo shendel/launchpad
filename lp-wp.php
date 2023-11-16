@@ -6,14 +6,14 @@ Author:  onout.tools
 Requires PHP: 7.1
 Text Domain: launchpad-wp
 Domain Path: /lang
-Version: 1.2.4
+Version: 1.2.5
  */
 /* Define Plugin Constants */
 defined( 'ABSPATH' ) || exit;
 define( 'ONOUT_LPWP_TEMPLATE_DIR', __DIR__ . '/templates' );
 define( 'ONOUT_LPWP_BASE_DIR', __DIR__ );
 define( 'ONOUT_LPWP_BASE_FILE', __FILE__ );
-define( 'ONOUT_LPWP_VER', '1.2.4' );
+define( 'ONOUT_LPWP_VER', '1.2.5' );
 define( 'ONOUT_LPWP_URL', plugin_dir_url( __FILE__ ) );
 /**
  * Plugin Init
