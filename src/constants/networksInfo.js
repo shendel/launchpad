@@ -47,7 +47,7 @@ export const networks = {
     explorer: "https://bscscan.com",
     color: "#CC9B00",
     storage: "0xa7472f384339D37EfE505a1A71619212495A973A",
-    multicall: "0x41263cBA59EB80dC200F3E2544eda4ed6A90E76C", // to-do v2 need
+    multicall: "0xcA11bde05977b3631167028862bE2a173976CA11",
     fromBlock: 25825000,
     baseCurrency: {
       decimals: 18,
@@ -66,7 +66,7 @@ export const networks = {
     chainId: 97,
     explorer: "https://testnet.bscscan.com/",
     color: "#CC9B00",
-    multicall: "0x6e5BB1a5Ad6F68A8D7D6A5e47750eC15773d6042", // to-do v2 need
+    multicall: "0xcA11bde05977b3631167028862bE2a173976CA11",
     fromBlock: 27113000,
     baseCurrency: {
       decimals: 18,
