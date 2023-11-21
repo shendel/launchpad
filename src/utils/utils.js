@@ -7,6 +7,7 @@ import IDOPoolERC20 from "../contracts/IDOERC20Pool.json";
 import Locker from "../contracts/TokenLocker.json";
 import { networks, chainRouter } from '../constants/networksInfo';
 import { ZERO_ADDRESS } from '../constants';
+import { loadPoolInfoByMC } from "./multicall"
 
 export function randomIntFromInterval(min, max) {
   // min and max included
@@ -110,38 +111,70 @@ export const isValidToken = (_tokenInfo) => {
   }
 };
 
+
+export const loadPoolDataMulticall = ({
+  idoAddress,
+  web3,
+  account,
+  chainId,
+  infuraDedicatedGateway
+}) => {
+  return new Promise((resolve, reject) => {
+    loadPoolInfoByMC({
+      chainId,
+      account,
+      idoAddress
+    }).then((poolInfo) => {
+      getTokenURI(
+        poolInfo.metadataURL,
+        infuraDedicatedGateway
+      ).then((metadata) => {
+        resolve({
+          ...poolInfo,
+          metadata
+        })
+      }).catch((err) => {
+        reject(err)
+      })
+    }).catch((err) => {
+      reject(err)
+    })
+  })
+}
+  
 export const loadPoolData = async (idoAddress, web3, account, infuraDedicatedGateway) => {
+  console.log('>>> CALL DEPRECATED >>> loadPoolData')
   try {
     const idoPool = await new web3.eth.Contract(IDOPool.abi, idoAddress);
     const idoPoolErc20 = await  new web3.eth.Contract(IDOPoolERC20.abi, idoAddress)
     
-    let poolType = await idoPool.methods.contractType().call()
+    let poolType = await idoPool.methods.contractType().call() //
 
-    let metadataURL = await idoPool.methods.metadataURL().call();
+    let metadataURL = await idoPool.methods.metadataURL().call(); // 
     let balance = await web3.eth.getBalance(idoAddress);
-    let tokenAddress = await idoPool.methods.rewardToken().call();
-    const token = new web3.eth.Contract(ERC20.abi, tokenAddress);
+    let tokenAddress = await idoPool.methods.rewardToken().call(); //
+    const token = new web3.eth.Contract(ERC20.abi, tokenAddress); //
     let metadata = await getTokenURI(metadataURL, infuraDedicatedGateway);
-    let owner = await idoPool.methods.owner().call();
+    let owner = await idoPool.methods.owner().call(); //
 
-    const userData = await loadUserData(idoAddress, web3, account)
+    const userData = await loadUserData(idoAddress, web3, account) //
 
-    let tokenName = await token.methods.name().call();
-    let tokenSymbol = await token.methods.symbol().call();
-    let tokenDecimals = await token.methods.decimals().call();
-    let totalSupply = await token.methods.totalSupply().call();
-    let finInfo = await idoPool.methods.finInfo().call();
+    let tokenName = await token.methods.name().call(); //
+    let tokenSymbol = await token.methods.symbol().call(); //
+    let tokenDecimals = await token.methods.decimals().call(); //
+    let totalSupply = await token.methods.totalSupply().call(); //
+    let finInfo = await idoPool.methods.finInfo().call(); //
 
     // TODO: make a check for withdraw tokens from the contract if the Soft Cap is not collected
     let unsold = 0;
-    try { unsold = await idoPool.methods.getNotSoldToken().call(); }
+    try { unsold = await idoPool.methods.getNotSoldToken().call(); } //
     catch (e) { console.log(e); }
 
-    const timestamps = await idoPool.methods.timestamps().call();
-    const dexInfo = (poolType == 1) ? await idoPool.methods.dexInfo().call() : {}
+    const timestamps = await idoPool.methods.timestamps().call(); // 
+    const dexInfo = (poolType == 1) ? await idoPool.methods.dexInfo().call() : {} //
     const totalInvestedETH = (poolType == 1)
       ? await idoPool.methods.totalInvestedETH().call()
-      : await idoPoolErc20.methods.totalInvested().call()
+      : await idoPoolErc20.methods.totalInvested().call() //
 
     const {
       startTimestamp,

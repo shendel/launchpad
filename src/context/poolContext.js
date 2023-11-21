@@ -3,6 +3,7 @@ import React, { createContext, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { networks } from "../constants/networksInfo";
 import { utils } from "../utils";
+import { loadPoolInfoByMC } from "../utils/multicall"
 import { useApplicationContext } from "./applicationContext";
 
 export const PoolContext = createContext({});
@@ -36,7 +37,13 @@ export const PoolContextProvider = ({ children }) => {
     if (ipfsInfuraDedicatedGateway) {
       const delayDebounceFn = setTimeout(() => {
         allPoolAddress.map(async (address, index) => {
-          await utils.loadPoolData(address, contract.web3, account, ipfsInfuraDedicatedGateway).then((IDOPoolData) => {
+          await utils.loadPoolDataMulticall({
+            idoAddress: address,
+            web3: contract.web3,
+            account,
+            chainId: usedChainId,
+            infuraDedicatedGateway: ipfsInfuraDedicatedGateway
+          }).then((IDOPoolData) => {
             setAllPools((p) => ({ ...p, ...{ [address]: IDOPoolData } }));
             const { owner, userData, idoAddress } = IDOPoolData;
             if (
@@ -173,8 +180,13 @@ export const PoolContextProvider = ({ children }) => {
   const updatePoolInfo = (idoAddress) => {
     return new Promise(async (resolve, reject) => {
       if (ipfsInfuraDedicatedGateway) {
-        await utils.loadPoolData(idoAddress, contract.web3, account, ipfsInfuraDedicatedGateway).then((IDOPoolData) => {
-
+        await utils.loadPoolDataMulticall({
+          idoAddress,
+          web3: contract.web3,
+          account,
+          chainId: usedChainId,
+          infuraDedicatedGateway: ipfsInfuraDedicatedGateway
+        }).then((IDOPoolData) => {
           setAllPools((p) => ({
             ...p,
             ...{
