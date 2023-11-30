@@ -101,6 +101,8 @@ export default function Contracts() {
   const [ isLockerInfoError, setIsLockerInfoError ] = useState(false)
   const [ lockerInfo, setLockerInfo ] = useState(false)
   const [ lockerFeeAmount, setLockerFeeAmount ] = useState(``)
+  const [ lockerOnlyOwnerCreate, setLockerOnlyOwnerCreate ] = useState('0')
+  const [ lockerOnlyOwnerCreateSaving, setLockerOnlyOwnerCreateSaving ] = useState(false)
   const [ lockerFeeAmountSaving, setLockerFeeAmountSaving ] = useState(false)
   
   const fetchLockerInfo = () => {
@@ -110,6 +112,7 @@ export default function Contracts() {
     fetchLockerFactoryInfo(chainIdToManage, contracts[chainIdToManage].TokenLockerFactoryAddress).then((lockerInfo) => {
       setLockerInfo(lockerInfo)
       setLockerFeeAmount(tokenAmountFromWei(lockerInfo.feeAmount, networks[chainIdToManage].baseCurrency.decimals))
+      setLockerOnlyOwnerCreate((lockerInfo.onlyOwnerCreate) ? '1' : '0')
       setIsLockerInfoFetching(false)
     }).catch((err) => {
       setIsLockerInfoError(true)
@@ -171,6 +174,9 @@ export default function Contracts() {
     })
   }
   
+  const saveWhoCanCreateLocker = async () => {
+  }
+
   useEffect(() => {
     if (contracts[chainIdToManage] && contracts[chainIdToManage].IDOFactoryAddress && contracts[chainIdToManage].TokenLockerFactoryAddress) {
       setHasChainContracts(true)
@@ -475,6 +481,25 @@ export default function Contracts() {
                                       }
                                     >
                                       { lockerFeeAmountSaving ? <Loader /> : `Save Fee amount`}
+                                    </s.button>
+                                    <s.SpacerSmall />
+                                    <InputLabel>{`Who can create TokenLock?`}</InputLabel>
+                                    <Select
+                                      value={lockerOnlyOwnerCreate}
+                                      label={`Select`}
+                                      onChange={(e) => {
+                                        setLockerOnlyOwnerCreate(e.target.value)
+                                      }}
+                                    >
+                                      <MenuItem value={'0'}>{`All`}</MenuItem>
+                                      <MenuItem value={'1'}>{`Only owner/admin`}</MenuItem>
+                                    </Select>
+                                    <s.SpacerSmall />
+                                    <s.button fullWidth
+                                      onClick={() => { saveWhoCanCreateLocker() }}
+                                      disabled={isLoading}
+                                    >
+                                      { lockerOnlyOwnerCreateSaving ? <Loader /> : `Save create TokenLock rule`}
                                     </s.button>
                                   </>
                                 )}

@@ -73,10 +73,18 @@ export const fetchLockerFactoryInfo = (chainId, address) => {
     
     const owner = await contract.methods.owner().call()
     const feeAmount = await contract.methods.fee().call()
+    
+    let onlyOwnerCreate = false
+    try {
+      onlyOwnerCreate = await contract.methods.onlyOwnerCreate().call()
+    } catch (e) {
+      /* v 1.0 - no only admin */
+    }
 
     const lockerInfo = {
       owner,
       feeAmount,
+      onlyOwnerCreate
     }
     resolve(lockerInfo)
   })
