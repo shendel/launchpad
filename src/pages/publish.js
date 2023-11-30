@@ -28,11 +28,17 @@ const Publish = () => {
     <s.Container ai="center">
       <s.TextTitle></s.TextTitle>
       <s.SpacerMedium />
-      {canCreateIDO && (<PublishForm></PublishForm>)}
-      {!canCreateIDO && (
-        <s.Text warning>
-          {`Creating new IDO Pools is not allowed for your account`}
-        </s.Text>
+      {IDOFactoryLoaded ? (
+        <>
+          {canCreateIDO && (<PublishForm></PublishForm>)}
+          {!canCreateIDO && (
+            <s.Text warning>
+              {`Creating new IDO Pools is not allowed for your account`}
+            </s.Text>
+          )}
+        </>
+      ) : (
+        <s.Text info small>{`Loading...`}</s.Text>
       )}
     </s.Container>
   );
