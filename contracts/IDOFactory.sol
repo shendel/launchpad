@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
 import "./openzeppelin/contracts/access/Ownable.sol";
@@ -28,6 +29,10 @@ contract IDOFactory is Ownable {
     }
 
     address[] public idoPools;
+    mapping (address => bool) public idoPoolsMap;
+    function isIdoAddress(address _address) public view returns (bool) {
+        return idoPoolsMap[_address];
+    }
 
     event IDOCreated(
         address indexed owner,
@@ -166,7 +171,7 @@ contract IDOFactory is Ownable {
             idoPoolAddress,
             transferAmount
         );
-
+        
         idoPools.push(idoPoolAddress);
 
         emit IDOCreated(

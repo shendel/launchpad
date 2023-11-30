@@ -171,13 +171,13 @@ export const deployIDOFactory = async ({ library, onHash, FeeTokenAddress }) => 
   });
 }
 
-export const deployLockerFactory = async ({ library, onHash }) => {
-  const { abi, bytecode } = TokenLockerFactory;
-
+export const deployLockerFactory = async ({ library, onHash, idoFactory }) => {
+  const { abi, data: { bytecode: { object: bytecode } } } = TokenLockerFactory;
+console.log('>> deploy locker', bytecode, idoFactory)
   return deployContract({
     abi,
     byteCode: bytecode,
-    deployArguments: [],
+    deployArguments: [idoFactory],
     library,
     onHash,
   });
@@ -202,6 +202,7 @@ export const deployLaunchpadContracts = async ({
     const LockerFactory = await deployLockerFactory({
       onHash: onLockerFactoryHash,
       library,
+      idoFactory: IDOFactory.options.address,
     });
 
     if (typeof onSuccessfulDeploy === 'function') {

@@ -71,6 +71,8 @@ contract IDOPool is Ownable, ReentrancyGuard {
 
     uint256 public contractType = 1;
 
+    address public factory;
+
     constructor(
         ERC20 _rewardToken,
         FinInfo memory _finInfo,
@@ -79,7 +81,8 @@ contract IDOPool is Ownable, ReentrancyGuard {
         address _lockerFactoryAddress,
         string memory _metadataURL
     ) {
-
+        factory = msg.sender;
+        
         rewardToken = _rewardToken;
         decimals = rewardToken.decimals();
         lockerFactory = TokenLockerFactory(_lockerFactoryAddress);

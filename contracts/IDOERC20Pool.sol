@@ -61,7 +61,9 @@ contract IDOERC20Pool is Ownable, ReentrancyGuard {
     );
 
     event TokensWithdrawn(address indexed holder, uint256 amount);
-
+    
+    address public factory;
+    
     constructor(
         ERC20 _rewardToken,
         ERC20 _payToken,
@@ -69,7 +71,7 @@ contract IDOERC20Pool is Ownable, ReentrancyGuard {
         Timestamps memory _timestamps,
         string memory _metadataURL
     ) {
-
+        factory = msg.sender;
         rewardToken = _rewardToken;
         decimals = rewardToken.decimals();
 
