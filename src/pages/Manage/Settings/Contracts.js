@@ -175,6 +175,31 @@ export default function Contracts() {
   }
   
   const saveWhoCanCreateLocker = async () => {
+    setIsLoading(true)
+    setLockerOnlyOwnerCreateSaving(true)
+    callTokenLockerFactoryContract({
+      library,
+      address: contracts[chainIdToManage].TokenLockerFactoryAddress,
+      account,
+      method: `setOnlyOwnerCreate`,
+      params: [(lockerOnlyOwnerCreate == '0') ? false : true],
+      onReceipt: () => {
+        setIdoInfo({
+          ...idoInfo,
+          onlyOwnerCreate: lockerOnlyOwnerCreate
+        })
+      },
+      onHash: (hash) => {
+        console.log('saveContractsData hash: ', hash);
+      },
+    }).then(() => {
+      setIsLoading(false)
+      setLockerOnlyOwnerCreateSaving(false)
+    }).catch((err) => {
+      console.log('Fail save onlyOwnerCreate', err)
+      setIsLoading(false)
+      setLockerOnlyOwnerCreateSaving(false)
+    })
   }
 
   useEffect(() => {
