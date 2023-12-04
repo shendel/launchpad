@@ -31,6 +31,8 @@ export default function IDOInfo() {
     tokenInformation: [tokenInformation],
     address: [tokenAddress],
     erc20ForBuyInfo: [erc20ForBuyInfo, setErc20ForBuyInfo],
+    allowRefund: [ allowRefund, setAllowRefund ],
+    allowSoftWithdraw: [ allowSoftWithdraw, setAllowSoftWithdraw ],
   } = context;
   const [erc20ForBuyError, setErc20ForBuyError] = useState(false)
   
@@ -303,6 +305,21 @@ export default function IDOInfo() {
             </LocalizationProvider>
           )}
           <s.TextIDWarning>{context.idoError["unlock"]}</s.TextIDWarning>
+          {useERC20ForBuy && (
+            <>
+              <s.SpacerMedium />
+              <s.Container>
+                <s.TextID>
+                  <Checkbox
+                    value={allowSoftWithdraw}
+                    checked={allowSoftWithdraw}
+                    onChange={() => setAllowSoftWithdraw(!allowSoftWithdraw)}
+                  />
+                  {`Allow withdraw tokens, if soft cap not reached. If enabled, refund will be disabled, users can claim buyed tokens at end of IDO time`}
+                </s.TextID>
+              </s.Container>
+            </>
+          )}
         </>
       )}
     </s.Container>

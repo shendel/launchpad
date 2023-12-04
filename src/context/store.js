@@ -41,6 +41,9 @@ export const StoreContextProvider = ({ children }) => {
   const [idoInformation, setIdoInformation] = useState(null);
   const [account, setAccount] = useState(null);
 
+  const [allowRefund, setAllowRefund] = useState(true)
+  const [allowSoftWithdraw, setAllowSoftWithdraw] = useState(false)
+  
   const tokenFormValidate = () => {
     let errors = {};
     let formIsValid = true;
@@ -163,6 +166,8 @@ export const StoreContextProvider = ({ children }) => {
     useERC20ForBuy: [useERC20ForBuy, setUseERC20ForBuy],
     erc20ForBuyAddress: [erc20ForBuyAddress, setErc20ForBuyAddress],
     erc20ForBuyInfo: [erc20ForBuyInfo, setErc20ForBuyInfo],
+    allowRefund: [ allowRefund, setAllowRefund ],
+    allowSoftWithdraw: [ allowSoftWithdraw, setAllowSoftWithdraw ],
     // ----
     softCap: [softCap, setSoftCap],
     hardCap: [hardCap, setHardCap],

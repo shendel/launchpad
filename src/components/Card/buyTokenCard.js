@@ -51,12 +51,14 @@ const BuyTokenCard = (props) => {
   
   const checkAllowance = async () => {
     setIsNeedApproveFetching(true)
+    console.log('>>> checkAllowance')
     const allowance = await utils.getTokenAllowance({
       tokenAddress: payToken.address,
       web3: library.web3,
       owner: account,
       spender: idoAddress
     })
+    console.log('>>> allowance', allowance)
     setIsNeedApproveFetching(false)
     setIsNeedApprove(new BigNumber(ethAmount).isGreaterThan(allowance))
   }
@@ -270,7 +272,14 @@ const BuyTokenCard = (props) => {
     </s.button>
   )
   
-
+  let claimDisabled = (
+    !hasEnded ||
+    (hasEnded && !reachSoftCap) ||
+    BigNumber(idoInfo.userData.debt).lte(0)
+  )
+  if (idoInfo.allowRefund === false) {
+    if (hasEnded && BigNumber(idoInfo.userData.debt).gt(0)) claimDisabled = false
+  }
   return (
     <s.Card
       style={{
@@ -316,11 +325,7 @@ const BuyTokenCard = (props) => {
         </s.Container>
         <s.Container flex={1}>
           <s.button
-            disabled={
-              !hasEnded ||
-              (hasEnded && !reachSoftCap) ||
-              BigNumber(idoInfo.userData.debt).lte(0)
-            }
+            disabled={claimDisabled}
             onClick={(e) => {
               e.preventDefault();
               claimToken();
@@ -337,23 +342,25 @@ const BuyTokenCard = (props) => {
             {formatWei(idoInfo.userData.totalInvestedETH)+ " " + payCurrency}
           </s.TextDescription>
         </s.Container>
-        <s.Container flex={1}>
-          <s.button
-            disabled={
-              !hasEnded ||
-              BigNumber(idoInfo.totalInvestedETH).gte(
-                BigNumber(idoInfo.softCap)
-              ) ||
-              BigNumber(idoInfo.userData.totalInvestedETH).lte(0)
-            }
-            onClick={(e) => {
-              e.preventDefault();
-              refund();
-            }}
-          >
-            REFUND
-          </s.button>
-        </s.Container>
+        {idoInfo.allowRefund == -1 || idoInfo.allowRefund && (
+          <s.Container flex={1}>
+            <s.button
+              disabled={
+                !hasEnded ||
+                BigNumber(idoInfo.totalInvestedETH).gte(
+                  BigNumber(idoInfo.softCap)
+                ) ||
+                BigNumber(idoInfo.userData.totalInvestedETH).lte(0)
+              }
+              onClick={(e) => {
+                e.preventDefault();
+                refund();
+              }}
+            >
+              REFUND
+            </s.button>
+          </s.Container>
+        )}
       </s.Container>
       <s.TextID>Progress</s.TextID>
       <s.SpacerSmall />

@@ -133,7 +133,34 @@ const WithdrawETH = (props) => {
   };
 
   const hasEnded = parseInt(idoInfo.end) < parseInt(Date.now() / 1000);
+  const allowSoftWithdraw = (idoInfo.allowSoftWithdraw == true)
 
+  let buttonDisabled = (
+    !hasEnded ||
+    BigNumber(idoInfo.totalInvestedETH).lt(BigNumber(idoInfo.softCap)) ||
+    idoInfo.balance == 0
+  )
+  if (allowSoftWithdraw) {
+    if (idoInfo.balance != 0) buttonDisabled = false
+  }
+  
+  const renderAmount = (amount) => {
+    return (
+      <>
+        {
+          BigNumber(
+            BigNumber(
+              (idoType === `ERC20`)
+                ? utils.tokenAmountFromWei(amount, payToken.decimals)
+                : library.web3.utils.fromWei(amount)
+            ).toFixed(10)
+          ).toNumber() +
+          " " +
+          payCurrency
+        }
+      </>
+    )
+  }
   return (
     <s.Card
       style={{
@@ -146,7 +173,7 @@ const WithdrawETH = (props) => {
       <s.TextID>(Pool owner only)</s.TextID>
       <s.SpacerSmall />
       {
-        !hasEnded && (
+        !hasEnded && !allowSoftWithdraw && (
           <s.Container fd="row" ai="center" jc="space-between">
             <s.Container flex={3}>
               <s.TextID>Can withdraw in</s.TextID>
@@ -157,29 +184,24 @@ const WithdrawETH = (props) => {
         )
       }
       <s.SpacerMedium />
-      <s.Container fd="row" ai="center" jc="space-between">
-        <s.Container flex={2}>
+      <s.Container ai="center">
+        <s.Container>
           <s.TextID>Total invested</s.TextID>
           <s.TextDescription>
-            {
-              BigNumber(
-                BigNumber(
-                  (idoType === `ERC20`)
-                    ? utils.tokenAmountFromWei(idoInfo.balance, payToken.decimals)
-                    : library.web3.utils.fromWei(idoInfo.balance)
-                ).toFixed(10)
-              ).toNumber() +
-              " " +
-              payCurrency
-            }
+            {renderAmount((allowSoftWithdraw) ? idoInfo.totalInvestedETH : idoInfo.balance)}
           </s.TextDescription>
         </s.Container>
+        {allowSoftWithdraw && (
+          <s.Container>
+            <s.TextID>Allow for withdraw</s.TextID>
+            <s.TextDescription>
+              {renderAmount(idoInfo.balance)}
+            </s.TextDescription>
+          </s.Container>
+        )}
         <s.button
-          disabled={
-            !hasEnded ||
-            BigNumber(idoInfo.totalInvestedETH).lt(BigNumber(idoInfo.softCap)) ||
-            idoInfo.balance == 0
-          }
+          fullWidth
+          disabled={buttonDisabled}
           onClick={(e) => {
             e.preventDefault();
             withdrawETH();
@@ -204,8 +226,9 @@ const WithdrawETH = (props) => {
         </s.TextDescription>
       </s.Container>
       <s.Container>
-        {BigNumber(idoInfo.totalInvestedETH).lt(BigNumber(idoInfo.softCap)) ? (
+        {BigNumber(idoInfo.totalInvestedETH).lt(BigNumber(idoInfo.softCap) && (idoInfo.allowSoftWithdraw != true) ) ? (
           <s.button
+            fullWidth
             disabled={
               !hasEnded ||
               !BigNumber(idoInfo.totalInvestedETH).lt(BigNumber(idoInfo.softCap)) ||
@@ -220,6 +243,7 @@ const WithdrawETH = (props) => {
           </s.button>
         ) : (
           <s.button
+            fullWidth
             disabled={
               !hasEnded ||
               idoInfo.balance > 0 ||

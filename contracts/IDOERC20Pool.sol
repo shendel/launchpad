@@ -50,6 +50,9 @@ contract IDOERC20Pool is Ownable, ReentrancyGuard {
 
     bool public distributed = false;
 
+    bool public allowRefund = true;
+    bool public allowSoftWithdraw = false;
+
     mapping(address => UserInfo) public userInfo;
 
     uint256 public contractType = 2;
@@ -64,6 +67,14 @@ contract IDOERC20Pool is Ownable, ReentrancyGuard {
     
     address public factory;
     
+    function setAllowRefund(bool newVal) public onlyOwner {
+        allowRefund = newVal;
+    }
+
+    function setAllowSoftWithdraw(bool newVal) public onlyOwner {
+        allowSoftWithdraw = newVal;
+    }
+
     constructor(
         ERC20 _rewardToken,
         ERC20 _payToken,
@@ -128,6 +139,7 @@ contract IDOERC20Pool is Ownable, ReentrancyGuard {
     }
 
     function refund() external {
+        require(allowRefund, "Refund not enabled");
         require(block.timestamp > timestamps.endTimestamp, "The IDO pool has not ended.");
         require(totalInvested < finInfo.softCap, "The IDO pool has reach soft cap.");
 
@@ -160,7 +172,9 @@ contract IDOERC20Pool is Ownable, ReentrancyGuard {
         address _receiver
     ) internal nonReentrant{
         require(block.timestamp > timestamps.endTimestamp, "The IDO pool has not ended.");
-        require(totalInvested >= finInfo.softCap, "The IDO pool did not reach soft cap.");
+        if (!allowSoftWithdraw) {
+            require(totalInvested >= finInfo.softCap, "The IDO pool did not reach soft cap.");
+        }
 
         UserInfo storage user = userInfo[_receiver];
 
@@ -174,19 +188,24 @@ contract IDOERC20Pool is Ownable, ReentrancyGuard {
     }
 
     function withdraw() external onlyOwner {
-        require(block.timestamp > timestamps.endTimestamp, "The IDO pool has not ended.");
-        require(totalInvested >= finInfo.softCap, "The IDO pool did not reach soft cap.");
-        require(!distributed, "Already distributed.");
+        if (!allowSoftWithdraw) {
+            require(block.timestamp > timestamps.endTimestamp, "The IDO pool has not ended.");
+            require(totalInvested >= finInfo.softCap, "The IDO pool did not reach soft cap.");
+            require(!distributed, "Already distributed.");
+        }
 
         uint256 balance = payToken.balanceOf(address(this));
 
         payToken.safeTransfer(msg.sender, balance);
 
-        distributed = true;
+        if (!allowSoftWithdraw) distributed = true;
     }
 
      function withdrawNotSoldTokens() external onlyOwner {
-        require(distributed, "Withdraw allowed after distributed.");
+        require(block.timestamp > timestamps.endTimestamp, "The IDO pool has not ended.");
+        if (!allowSoftWithdraw) {
+            require(distributed, "Withdraw allowed after distributed.");
+        }
 
         uint256 balance = getNotSoldToken();
         require(balance > 0, "The IDO pool has not unsold tokens.");

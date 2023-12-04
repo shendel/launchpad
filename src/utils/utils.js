@@ -261,7 +261,7 @@ export const getTokenAllowance = async (opts) => {
     owner,
     spender
   } = opts
-  
+  console.log('>>> opts', opts)
   if (!isAddress(tokenAddress)) {
     return null;
   }

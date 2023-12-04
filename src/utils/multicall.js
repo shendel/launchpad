@@ -136,7 +136,7 @@ export const callMulticall = (options) => {
 
           ret[mcCallToValue[index]] = val
         } else {
-          ret[mcCallToValue[index]] = false
+          ret[mcCallToValue[index]] = calls[mcCallToValue[index]].default || false
         }
       })
       resolve(ret)
@@ -189,6 +189,8 @@ export const loadPoolInfoByMC = ({
           totalInvestedETH: { func: 'totalInvestedETH' },
           totalInvestedERC: { func: 'totalInvested', encoder: encoderErc20 },
           finInfo: { func: 'finInfo' },
+          allowRefund: { func: 'allowRefund', encoder: encoderErc20, default: -1 },
+          allowSoftWithdraw: { func: 'allowSoftWithdraw', encoder: encoderErc20, default: -1 },
           balance: { func: 'getEthBalance', args: [ idoAddress ], target: mcData.address, encoder: mcData.encoder },
           ...((account) ? {
             userData: { func: 'userInfo', args: [ account ] }
@@ -267,7 +269,7 @@ export const loadPoolInfoByMC = ({
               ...poolData,
               balance: tokensInfo.payTokenBalance,
               payToken: {
-                address: tokensInfo.payTokenAddress,
+                address: payTokenAddress,
                 symbol: tokensInfo.payTokenSymbol,
                 name: tokensInfo.payTokenName,
                 decimals: tokensInfo.payTokenDecimals,
