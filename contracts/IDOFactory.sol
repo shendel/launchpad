@@ -136,7 +136,8 @@ contract IDOFactory is Ownable {
         ERC20 _payToken,
         IDOERC20Pool.FinInfo memory _finInfo,
         IDOERC20Pool.Timestamps memory _timestamps,
-        string memory _metadataURL
+        string memory _metadataURL,
+        bool allowSoftWithdraw
     ) external {
         if (onlyOwnerCreate) {
             require(msg.sender == this.owner(), "Only owner can create IDOPool");
@@ -149,6 +150,10 @@ contract IDOFactory is Ownable {
                 _timestamps,
                 _metadataURL
             );
+        if (allowSoftWithdraw) {
+            idoPool.setAllowRefund(false);
+            idoPool.setAllowSoftWithdraw(true);
+        }
         idoPool.transferOwnership(msg.sender);
 
         processIDOCreate(

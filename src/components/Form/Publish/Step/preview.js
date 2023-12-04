@@ -62,6 +62,7 @@ export default function Preview() {
     discord: [discord],
     telegram: [telegram],
     twitter: [twitter],
+    allowSoftWithdraw: [allowSoftWithdraw],
   } = useStoreContext();
 
   const ipfs = useIPFS();
@@ -220,6 +221,7 @@ export default function Preview() {
         finInfo,
         timestamps,
         tokenURI,
+        allowSoftWithdraw,
         {
           from: account,
         },
