@@ -79,6 +79,26 @@ export const networks = {
       symbol: "WBNB"
     }
   },
+  34: {
+    name: "SCAI Mainnet",
+    rpc: "https://mainnet-rpc.scai.network/",
+    chainId: 34,
+    explorer: "https://explorer.securechain.ai/",
+    color: "#CC9B00",
+    storage: "0x48d7ac38530697aDB91061B6D141C8c763edE565",
+    multicall: "0x87a6417F03E106A05698F18829bB3a40CBC54f61",
+    fromBlock: 25825000,
+    baseCurrency: {
+      decimals: 18,
+      name: "SCAI",
+      symbol: "SCAI"
+    },
+    wrappedToken: {
+      address: "0xe30E2F0aFD56dacF8b8D4afBc594f63eE21B9441",
+      name: "Wrapped SCAI",
+      symbol: "WSCAI"
+    }
+  },
 }
 
 export const chainRouter = {
@@ -112,6 +132,14 @@ export const chainRouter = {
       FACTORY: "0x6725F303b657a9451d8BA641348b6761A6CC7a17",
       WETH: "0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd",
       ROUTER: "0xD99D1c33F9fC3444f8101754aBC46c52416550D1",
+    },
+  ],
+  34: [
+    {
+      name: "LaunchpadSwap",
+      FACTORY: "0xd4a711333C41cC01B005dBE5389BcFb99D4f5d64",
+      WETH: "0xe30E2F0aFD56dacF8b8D4afBc594f63eE21B9441",
+      ROUTER: "0xC3B6Bb923Cd49661563956730432c7aA97eF7f9B",
     },
   ],
 };
