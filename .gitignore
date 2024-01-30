@@ -29,4 +29,5 @@ yarn-error.log*
 node_modules
 wp_temp_build/
 build/
+wordpress_vendor/
 contracts/artifacts/
