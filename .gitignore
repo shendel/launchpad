@@ -28,4 +28,5 @@ yarn-error.log*
 .secret
 node_modules
 wp_temp_build/
+build/
 contracts/artifacts/
