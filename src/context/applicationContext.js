@@ -120,6 +120,7 @@ export const ApplicationContextProvider = ({ children }) => {
   const triggerUpdateAccountData = () => setShouldUpdateAccountData(!shouldUpdateAccountData);
 
   const [feeTokenSymbol, setFeeTokenSymbol] = useState('');
+  const [feeTokenDecimals, setFeeTokenDecimals] = useState(0)
   const [feeTokenBalance, setFeeTokenBalance] = useState(0);
   const [feeTokenApproveToFactory, setFeeTokenApproveToFactory] = useState(0);
   const [isFeeTokenDataFetching, setIsFeeTokenDataFetching] = useState(false);
@@ -157,9 +158,11 @@ export const ApplicationContextProvider = ({ children }) => {
       try {
         const symbol = await FeeTokenContract.symbol();
         const balance = await FeeTokenContract.balanceOf(account);
+        const decimals = await FeeTokenContract.decimals()
         const approveToFactory = await FeeTokenContract.allowance(account, IDOFactoryAddress);
         setFeeTokenSymbol(symbol);
         setFeeTokenBalance(Number(balance));
+        setFeeTokenDecimals(Number(decimals))
         setFeeTokenApproveToFactory(Number(approveToFactory));
       } catch (error) {
         console.log('fetchTokenFeeData error: ', error);
@@ -173,6 +176,7 @@ export const ApplicationContextProvider = ({ children }) => {
     } else {
       setFeeTokenSymbol('');
       setFeeTokenBalance(0);
+      setFeeTokenDecimals(0)
       setFeeTokenApproveToFactory(0);
     }
   }, [account, FeeTokenContract, IDOFactoryAddress, shouldUpdateAccountData]);
@@ -180,6 +184,44 @@ export const ApplicationContextProvider = ({ children }) => {
   const TokenLockerFactoryContract = useLockerFactoryContract(TokenLockerFactoryAddress, true);
   const IDOFactoryContract = useIDOFactoryContract(IDOFactoryAddress, true);
 
+  const [ IDOFactoryLoaded, setIDOFactoryLoaded ] = useState(false)
+  const [ IDOFactoryOwner, setIDOFactoryOwner ] = useState(false)
+  const [ IDOFactoryOnlyOwnerCreate, setIDOFactoryOnlyOwnerCreate ] = useState(false)
+  
+
+  useEffect(async () => {
+    if (IDOFactoryContract) {
+      const factoryOwner = await IDOFactoryContract.owner()
+      let onlyOwnerCreate = false
+      try {
+        // v2.0
+        onlyOwnerCreate = await IDOFactoryContract.onlyOwnerCreate()
+      } catch (e) {}
+
+      setIDOFactoryOwner(factoryOwner)
+      setIDOFactoryOnlyOwnerCreate(onlyOwnerCreate)
+      setIDOFactoryLoaded(true)
+    }
+  }, [ IDOFactoryContract ])
+  
+  const [ TokenFactoryLoaded, setTokenFactoryLoaded ] = useState(false)
+  const [ TokenFactoryOwner, setTokenFactoryOwner ] = useState(false)
+  const [ TokenFactoryOnlyOwnerCreate, setTokenFactoryOnlyOwnerCreate ] = useState(false)
+  
+  useEffect(async () => {
+    if (TokenLockerFactoryContract) {
+      const factoryOwner = await TokenLockerFactoryContract.owner()
+      let onlyOwnerCreate = false
+      try {
+        // v2.0
+        onlyOwnerCreate = await TokenLockerFactoryContract.onlyOwnerCreate()
+      } catch (e) {}
+      
+      setTokenFactoryOwner(factoryOwner)
+      setTokenFactoryOnlyOwnerCreate(onlyOwnerCreate)
+      setTokenFactoryLoaded(true)
+    }
+  }, [ TokenLockerFactoryContract ])
   const value = {
     isAppConfigured,
 
@@ -204,6 +246,7 @@ export const ApplicationContextProvider = ({ children }) => {
 
     FeeTokenamount: feeTokenBalance,
     FeeTokenSymbol: feeTokenSymbol,
+    FeeTokenDecimals: feeTokenDecimals,
     FeeTokenApproveToFactory: feeTokenApproveToFactory,
     isFeeTokenDataFetching,
 
@@ -212,6 +255,14 @@ export const ApplicationContextProvider = ({ children }) => {
 
     IDOFactoryContract,
     IDOFactoryAddress,
+    
+    IDOFactoryLoaded,
+    IDOFactoryOwner,
+    IDOFactoryOnlyOwnerCreate,
+
+    TokenFactoryLoaded,
+    TokenFactoryOwner,
+    TokenFactoryOnlyOwnerCreate,
 
     TokenLockerFactoryAddress,
     TokenLockerFactoryContract,

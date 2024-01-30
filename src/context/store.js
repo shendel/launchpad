@@ -1,6 +1,8 @@
 import BigNumber from "bignumber.js";
 import React, { createContext, useState, useEffect } from "react";
 
+import { isAddress } from '../utils/utils'
+
 export const StoreContext = createContext({});
 
 export const StoreContextProvider = ({ children }) => {
@@ -13,6 +15,11 @@ export const StoreContextProvider = ({ children }) => {
   const [router, setRouter] = useState(-1);
   const [minETH, setMinETH] = useState("");
   const [maxETH, setMaxETH] = useState("");
+  // v2 - erc20-erc20 pool
+  const [useERC20ForBuy, setUseERC20ForBuy] = useState(false)
+  const [erc20ForBuyAddress, setErc20ForBuyAddress] = useState('')
+  const [erc20ForBuyInfo, setErc20ForBuyInfo] = useState(null)
+  // -----
 
   const [isAddLiquidityEnabled, setIsAddLiquidityEnabled] = useState(false);
   const [liquidityPercentage, setLiquidityPercentage] = useState("");
@@ -34,6 +41,9 @@ export const StoreContextProvider = ({ children }) => {
   const [idoInformation, setIdoInformation] = useState(null);
   const [account, setAccount] = useState(null);
 
+  const [allowRefund, setAllowRefund] = useState(true)
+  const [allowSoftWithdraw, setAllowSoftWithdraw] = useState(false)
+  
   const tokenFormValidate = () => {
     let errors = {};
     let formIsValid = true;
@@ -52,6 +62,11 @@ export const StoreContextProvider = ({ children }) => {
   const idoFormValidate = () => {
     let errors = {};
     let formIsValid = true;
+    
+    if (useERC20ForBuy && (!isAddress(erc20ForBuyAddress) || !erc20ForBuyInfo)) {
+      formIsValid = false
+      errors['erc20ForBuy'] = `Token address not valid`
+    }
     if (BigNumber(softCap).gte(BigNumber(hardCap))) {
       formIsValid = false;
       errors["softCap"] = "Soft cap cannot less than Hard cap";
@@ -88,7 +103,7 @@ export const StoreContextProvider = ({ children }) => {
       formIsValid = false;
       errors["start-end"] = "Start date cannot less than End date";
     }
-    if (BigNumber(end.getTime()).gte(BigNumber(unlock.getTime()))) {
+    if (BigNumber(end.getTime()).gte(BigNumber(unlock.getTime())) && !useERC20ForBuy) {
       formIsValid = false;
       errors["unlock"] = "Unlock date cannot less than End date";
     }
@@ -147,6 +162,13 @@ export const StoreContextProvider = ({ children }) => {
   const store = {
     address: [address, setAddress],
     tokenRate: [tokenRate, setTokenRate],
+    // erc20-erc20 pool
+    useERC20ForBuy: [useERC20ForBuy, setUseERC20ForBuy],
+    erc20ForBuyAddress: [erc20ForBuyAddress, setErc20ForBuyAddress],
+    erc20ForBuyInfo: [erc20ForBuyInfo, setErc20ForBuyInfo],
+    allowRefund: [ allowRefund, setAllowRefund ],
+    allowSoftWithdraw: [ allowSoftWithdraw, setAllowSoftWithdraw ],
+    // ----
     softCap: [softCap, setSoftCap],
     hardCap: [hardCap, setHardCap],
     router: [router, setRouter],

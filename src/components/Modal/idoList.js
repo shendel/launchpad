@@ -21,7 +21,7 @@ const IDOList = (props) => {
   }, [allPools]);
 
   const loadmore = (amount) => {
-    setLimit((p) => (p < allPools.length ? p + amount : p));
+    setLimit((p) => (p <  Object.keys(allPools).length ? p + amount : p));
   };
 
   if (allPoolsFetching || (!Object.keys(allPools).length && allPoolAddress.length)) {

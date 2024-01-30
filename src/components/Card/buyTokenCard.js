@@ -1,15 +1,21 @@
 import { useWeb3React } from "@web3-react/core";
 import BigNumber from "bignumber.js";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Badge } from "react-bootstrap";
 import { useApplicationContext } from "../../context/applicationContext";
 import { usePoolContext } from "../../context/poolContext";
-import { useIDOPoolContract } from "../../hooks/useContract";
+import {
+  useIDOPoolContract,
+  useIDOERC20PoolContract,
+  useTokenContract
+} from "../../hooks/useContract";
+
 import * as s from "../../styles/global";
 import { utils } from "../../utils";
 import { NumberField } from "../FormField";
 import ProgressBar from "../Modal/ProgressBar";
 import PoolCountdown from "../Utils/poolCountdown";
+import Loader from '../Loader';
 
 const BuyTokenCard = (props) => {
   const { account, library } = useWeb3React();
@@ -21,9 +27,71 @@ const BuyTokenCard = (props) => {
     triggerUpdateAccountData,
     baseCurrencySymbol
   } = useApplicationContext();
-  const idoInfo = usePoolContext().allPools[idoAddress];
+  const {
+    updatePoolInfo
+  } = usePoolContext()
+  
+  const [ idoInfo, setIdoInfo ] = useState(usePoolContext().allPools[idoAddress])
 
-  const IDOPoolContract = useIDOPoolContract(idoAddress);
+  const {
+    idoType,
+    payToken,
+    tokenDecimals,
+    tokenAddress,
+  } = idoInfo
+
+  const [ isNeedApprove, setIsNeedApprove ] = useState(false)
+  const [ isNeedApproveFetching, setIsNeedApproveFetching ] = useState(false)
+  const [ isApproving, setIsApproving ] = useState(false)
+
+
+  const payCurrency = (idoType === `ERC20`) ? payToken.symbol : baseCurrencySymbol
+
+  const payTokenContract = useTokenContract((idoType === `ERC20`) ? payToken.address : tokenAddress)
+  
+  const checkAllowance = async () => {
+    setIsNeedApproveFetching(true)
+    console.log('>>> checkAllowance')
+    const allowance = await utils.getTokenAllowance({
+      tokenAddress: payToken.address,
+      web3: library.web3,
+      owner: account,
+      spender: idoAddress
+    })
+    console.log('>>> allowance', allowance)
+    setIsNeedApproveFetching(false)
+    setIsNeedApprove(new BigNumber(ethAmount).isGreaterThan(allowance))
+  }
+  useEffect(async () => {
+    if (idoType === `ERC20`) {
+      await checkAllowance()
+    }
+  }, [ ethAmount ])
+
+  const approveBuyToken = async () => {
+    setIsApproving(true)
+    try {
+      const tx = await payTokenContract.approve(
+        idoAddress,
+        `0x${BigNumber(ethAmount).toString(16)}`,
+        {
+          from: account,
+        }
+      )
+
+      const receipt = await tx.wait()
+      await checkAllowance()
+      setIsApproving(false)
+    } catch (e) {
+      setIsApproving(false)
+      console.log(e)
+    }
+  }
+  
+  const IDOPoolNativeContract = useIDOPoolContract(idoAddress)
+  const IDOPoolERC20Contract = useIDOERC20PoolContract(idoAddress)
+  
+  const IDOPoolContract = (idoType == `ERC20`) ? IDOPoolERC20Contract : IDOPoolNativeContract
 
   if (!account) {
     return null;
@@ -38,16 +106,34 @@ const BuyTokenCard = (props) => {
     return <s.TextDescription fullWidth>Loading</s.TextDescription>;
   }
 
+
+
   const buyToken = async () => {
+    if (idoType === `ERC20` && isNeedApprove) {
+      await approveBuyToken()
+    }
     setLoading(true); // TODO: add action loader to the appropriate button
     try {
-      const tx = await IDOPoolContract.pay({
-        from: account,
-        value: `0x${ethAmount.toString(16)}`,
-      });
+      const makeTx = async () => {
+        if (idoType == `ERC20`) {
+          return await IDOPoolContract.pay(
+            `0x${BigNumber(ethAmount).toString(16)}`,
+            { from: account }
+          )
+        } else {
+          return await IDOPoolContract.pay({
+            from: account,
+            value: `0x${ethAmount.toString(16)}`,
+          })
+        }
+      }
+      const tx = await makeTx()
 
       const receipt = await tx.wait();
 
+      updatePoolInfo(idoAddress).then((newInfo) => {
+        setIdoInfo(newInfo)
+      })
       triggerUpdateAccountData();
       // TODO: add trigger for update IDOInfo after actions
       console.log("buyToken receipt", receipt);
@@ -66,7 +152,10 @@ const BuyTokenCard = (props) => {
       });
 
       const receipt = await tx.wait();
-
+  
+      updatePoolInfo(idoAddress).then((newInfo) => {
+        setIdoInfo(newInfo)
+      })
       triggerUpdateAccountData();
       // TODO: add trigger for update IDOInfo after actions
       console.log("claimToken receipt", receipt);
@@ -86,6 +175,9 @@ const BuyTokenCard = (props) => {
 
       const receipt = await tx.wait();
 
+      updatePoolInfo(idoAddress).then((newInfo) => {
+        setIdoInfo(newInfo)
+      })
       triggerUpdateAccountData();
       // TODO: add trigger for update IDOInfo after actions
       console.log("refund receipt", receipt);
@@ -106,18 +198,88 @@ const BuyTokenCard = (props) => {
   const reachMaxAmount = BigNumber(idoInfo.max).lte(
     BigNumber(idoInfo.userData.totalInvestedETH)
   );
+
   const lessThanMinAmount = BigNumber(ethAmount).lt(BigNumber(idoInfo.min));
 
-  const formatWei = (weiValue, dp = 10) => {
+
+  const formatWei = (weiValue, dp = 0) => {
     return BigNumber(
       BigNumber(
-        library.web3.utils.fromWei(
-          weiValue
-        )
-      ).toFormat(dp)
-    ).toNumber()
+        (idoType === `ERC20`)
+          ? utils.tokenAmountFromWei(weiValue, payToken.decimals)
+          : library.web3.utils.fromWei(
+            weiValue
+          )
+      ).toNumber()
+    ).toFormat(dp)
   }
 
+  const buyTokenAmountInput = (
+    <NumberField
+      value={tokensToBuy}
+      label={"Tokens amount"}
+      adornment={idoInfo.tokenSymbol}
+      onChange={(e) => {
+        e.preventDefault();
+        let val = BigNumber(e.target.value).toFixed(0);
+        if (!isNaN(val)) {
+          setTokensToBuy(e.target.value);
+          
+          setEthAmount(
+            (idoType === `ERC20`)
+              ? utils.tokenAmountToWei(BigNumber(e.target.value).div(idoInfo.tokenRate), idoInfo.payToken.decimals)
+              : BigNumber(idoInfo.tokenRate).times(e.target.value)
+          );
+
+        } else {
+          setTokensToBuy(0);
+          setEthAmount("0");
+        }
+      }}
+    />
+  )
+
+  const buyTokenButton = (
+    <s.button
+      fullWidth
+      disabled={
+        hasEnded ||
+        isNeedApproveFetching ||
+        !isStarted ||
+        tokensToBuy === 0 ||
+        willhMaxAmountOverflow ||
+        reachMaxAmount ||
+        lessThanMinAmount
+      }
+      onClick={(e) => {
+        e.preventDefault();
+        buyToken();
+      }}
+    >
+      {isNeedApproveFetching || loading ? (
+        <Loader />
+      ) : (
+        <>
+          {isApproving ? (
+            <Loader />
+          ) : (
+            <>
+              {isNeedApprove ? `APPROVE & BUY` : `BUY`}
+            </>
+          )}
+        </>
+      )}
+    </s.button>
+  )
+  
+  let claimDisabled = (
+    !hasEnded ||
+    (hasEnded && !reachSoftCap) ||
+    BigNumber(idoInfo.userData.debt).lte(0)
+  )
+  if (idoInfo.allowRefund === false) {
+    if (hasEnded && BigNumber(idoInfo.userData.debt).gt(0)) claimDisabled = false
+  }
   return (
     <s.Card
       style={{
@@ -138,13 +300,13 @@ const BuyTokenCard = (props) => {
       <PoolCountdown start={idoInfo.start} end={idoInfo.end} />
       <s.Container fd="row" jc="space-between" style={{ marginTop: 10 }}>
         <s.Card style={{ padding: 0 }}>
-          <s.TextID>{"Minimum " + baseCurrencySymbol}</s.TextID>
+          <s.TextID>{"Minimum " + payCurrency}</s.TextID>
           <s.TextDescription>
             {formatWei(idoInfo.min)}
           </s.TextDescription>
         </s.Card>
         <s.Card style={{ padding: 0 }}>
-          <s.TextID>Maximum {baseCurrencySymbol}</s.TextID>
+          <s.TextID>Maximum {payCurrency}</s.TextID>
           <s.TextDescription>
             {formatWei(idoInfo.max)}
           </s.TextDescription>
@@ -163,11 +325,7 @@ const BuyTokenCard = (props) => {
         </s.Container>
         <s.Container flex={1}>
           <s.button
-            disabled={
-              !hasEnded ||
-              (hasEnded && !reachSoftCap) ||
-              BigNumber(idoInfo.userData.debt).lte(0)
-            }
+            disabled={claimDisabled}
             onClick={(e) => {
               e.preventDefault();
               claimToken();
@@ -179,82 +337,77 @@ const BuyTokenCard = (props) => {
       </s.Container>
       <s.Container fd="row" jc="space-between" ai="center">
         <s.Container flex={4}>
-          <s.TextID>My invested {baseCurrencySymbol}</s.TextID>
+          <s.TextID>My invested {payCurrency}</s.TextID>
           <s.TextDescription>
-            {formatWei(idoInfo.userData.totalInvestedETH)+ " " + baseCurrencySymbol}
+            {formatWei(idoInfo.userData.totalInvestedETH)+ " " + payCurrency}
           </s.TextDescription>
         </s.Container>
-        <s.Container flex={1}>
-          <s.button
-            disabled={
-              !hasEnded ||
-              BigNumber(idoInfo.totalInvestedETH).gte(
-                BigNumber(idoInfo.softCap)
-              ) ||
-              BigNumber(idoInfo.userData.totalInvestedETH).lte(0)
-            }
-            onClick={(e) => {
-              e.preventDefault();
-              refund();
-            }}
-          >
-            REFUND
-          </s.button>
-        </s.Container>
+        {idoInfo.allowRefund == -1 || idoInfo.allowRefund && (
+          <s.Container flex={1}>
+            <s.button
+              disabled={
+                !hasEnded ||
+                BigNumber(idoInfo.totalInvestedETH).gte(
+                  BigNumber(idoInfo.softCap)
+                ) ||
+                BigNumber(idoInfo.userData.totalInvestedETH).lte(0)
+              }
+              onClick={(e) => {
+                e.preventDefault();
+                refund();
+              }}
+            >
+              REFUND
+            </s.button>
+          </s.Container>
+        )}
       </s.Container>
       <s.TextID>Progress</s.TextID>
       <s.SpacerSmall />
       <ProgressBar now={parseInt(idoInfo.progress)} />
       <s.SpacerMedium />
-      <s.Container fd="row" ai="center" jc="space-between">
-        <s.Container flex={4} style={{ marginRight: 20 }}>
-          <NumberField
-            value={tokensToBuy}
-            label={"Tokens amount"}
-            adornment={idoInfo.tokenSymbol}
-            onChange={(e) => {
-              e.preventDefault();
-              let val = BigNumber(e.target.value).toFixed(0);
-              if (!isNaN(val)) {
-                setTokensToBuy(e.target.value);
-                setEthAmount(
-                  BigNumber(idoInfo.tokenRate).times(e.target.value)
-                );
-              } else {
-                setTokensToBuy(0);
-                setEthAmount("0");
-              }
-            }}
-          />
-        </s.Container>
-        <s.Container flex={1} ai="flex-end">
-          <s.button
-            disabled={
-              hasEnded ||
-              !isStarted ||
-              tokensToBuy === 0 ||
-              willhMaxAmountOverflow ||
-              reachMaxAmount ||
-              lessThanMinAmount
-            }
-            onClick={(e) => {
-              e.preventDefault();
-              buyToken();
-            }}
-          >
-            BUY
-          </s.button>
-        </s.Container>
-      </s.Container>
-      <s.SpacerSmall />
-
-      <s.Container fd="row" jc="space-between" ai="center"  style={{ wordBreak: "break-all" }} >
-        <s.TextID>You will spend</s.TextID>
-        { (ethAmount ? library.web3.utils.fromWei(ethAmount.toString(16)) : 0) +
-            " " +
-            baseCurrencySymbol
-        }
-      </s.Container>
+      {!hasEnded && isStarted && (
+        <>
+          {idoType == `NATIVE` && (
+            <s.Container fd="row" ai="center" jc="space-between">
+              <s.Container flex={4} style={{ marginRight: 20 }}>
+                {buyTokenAmountInput}
+              </s.Container>
+              <s.Container flex={1} ai="flex-end">
+                {buyTokenButton}
+              </s.Container>
+            </s.Container>
+          )}
+          {idoType == `ERC20` && (
+            <>
+              <s.Container>
+                {buyTokenAmountInput}
+                <s.SpacerSmall />
+                {buyTokenButton}
+              </s.Container>
+            </>
+          )}
+          <s.SpacerSmall />
+          <s.Container fd="row" jc="space-between" ai="center"  style={{ wordBreak: "break-all" }} >
+            <s.TextID>You will spend</s.TextID>
+            {idoType == `ERC20` && (
+              <>
+                {ethAmount ? `${utils.tokenAmountFromWei(ethAmount, payToken.decimals)}` : 0}
+                {` `}
+                {payCurrency}
+              </>
+            )}
+            {idoType == `NATIVE` && (
+              <>
+                { (ethAmount ? library.web3.utils.fromWei(ethAmount.toString(16)) : 0) +
+                    " " +
+                    payCurrency
+                }
+              </>
+            )}
+          </s.Container>
+        </>
+      )}
     </s.Card>
   );
 };

@@ -104,7 +104,10 @@ export default function Settings() {
         </>
       )}
       {tab === 'contracts' && (
-        <Contracts />
+        <>
+          <s.SpacerSmall />
+          <Contracts />
+        </>
       )}
       {tab === 'interface' && (
         <>

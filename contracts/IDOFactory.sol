@@ -1,16 +1,20 @@
-pragma solidity ^0.8.0;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.18;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
+import "./openzeppelin/contracts/access/Ownable.sol";
+import "./openzeppelin/contracts/utils/math/SafeMath.sol";
+import "./openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "./openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 
 import "./IDOPool.sol";
+import "./IDOERC20Pool.sol";
 
 contract IDOFactory is Ownable {
     using SafeMath for uint256;
     using SafeERC20 for ERC20Burnable;
     using SafeERC20 for ERC20;
+
+    uint256 public version = 2;
 
     ERC20Burnable public feeToken;
     address public feeWallet;
@@ -18,7 +22,17 @@ contract IDOFactory is Ownable {
     uint256 public burnPercent; // use this state only if your token is ERC20Burnable and has burnFrom method
     uint256 public divider;
 
+    bool public onlyOwnerCreate = false;
+
+    function setOnlyOwnerCreate(bool _onlyOwnerCreate) external onlyOwner {
+        onlyOwnerCreate = _onlyOwnerCreate;
+    }
+
     address[] public idoPools;
+    mapping (address => bool) public idoPoolsMap;
+    function isIdoAddress(address _address) public view returns (bool) {
+        return idoPoolsMap[_address];
+    }
 
     event IDOCreated(
         address indexed owner,
@@ -85,6 +99,9 @@ contract IDOFactory is Ownable {
         address _lockerFactoryAddress,
         string memory _metadataURL
     ) external {
+        if (onlyOwnerCreate) {
+            require(msg.sender == this.owner(), "Only owner can create IDOPool");
+        }
         IDOPool idoPool =
             new IDOPool(
                 _rewardToken,
@@ -95,6 +112,8 @@ contract IDOFactory is Ownable {
                 _metadataURL
             );
 
+        idoPool.transferOwnership(msg.sender);
+
         uint8 tokenDecimals = _rewardToken.decimals();
 
         uint256 transferAmount = getTokenAmount(_finInfo.hardCap, _finInfo.tokenPrice, tokenDecimals);
@@ -103,19 +122,66 @@ contract IDOFactory is Ownable {
             transferAmount += getTokenAmount(_finInfo.hardCap * _finInfo.lpInterestRate / 100, _finInfo.listingPrice, tokenDecimals);
         }
 
+        processIDOCreate(
+            transferAmount,
+            _rewardToken,
+            address(idoPool),
+            _metadataURL
+        );
+    }
+
+    function createIDOERC20(
+        uint256 transferAmount,
+        ERC20 _rewardToken,
+        ERC20 _payToken,
+        IDOERC20Pool.FinInfo memory _finInfo,
+        IDOERC20Pool.Timestamps memory _timestamps,
+        string memory _metadataURL,
+        bool allowSoftWithdraw
+    ) external {
+        if (onlyOwnerCreate) {
+            require(msg.sender == this.owner(), "Only owner can create IDOPool");
+        }
+        IDOERC20Pool idoPool =
+            new IDOERC20Pool(
+                _rewardToken,
+                _payToken,
+                _finInfo,
+                _timestamps,
+                _metadataURL
+            );
+        if (allowSoftWithdraw) {
+            idoPool.setAllowRefund(false);
+            idoPool.setAllowSoftWithdraw(true);
+        }
         idoPool.transferOwnership(msg.sender);
+
+        processIDOCreate(
+            transferAmount,
+            _rewardToken,
+            address(idoPool),
+            _metadataURL
+        );
+    }
+
+    function processIDOCreate(
+        uint256 transferAmount,
+        ERC20 _rewardToken,
+        address idoPoolAddress,
+        string memory _metadataURL
+    ) private {
 
         _rewardToken.safeTransferFrom(
             msg.sender,
-            address(idoPool),
+            idoPoolAddress,
             transferAmount
         );
-
-        idoPools.push(address(idoPool));
+        
+        idoPools.push(idoPoolAddress);
 
         emit IDOCreated(
             msg.sender,
-            address(idoPool),
+            idoPoolAddress,
             address(_rewardToken),
             _metadataURL
         );

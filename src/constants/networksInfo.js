@@ -5,7 +5,7 @@ export const networks = {
     chainId: 1,
     explorer: "https://etherscan.io",
     color: "#627EEA",
-    multicall: "0xeefBa1e63905eF1D7ACbA5a8513c70307C1cE441",
+    multicall: "0x5ba1e12693dc8f9c48aad8770482f4739beed696",
     ENSRegistry: "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e",
     fromBlock: 16669000,
     baseCurrency: {
@@ -21,12 +21,12 @@ export const networks = {
   },
   5: {
     name: "Görli",
-    rpc: "https://rpc.ankr.com/eth_goerli",
+    rpc: "https://eth-goerli.g.alchemy.com/v2/wNvkA78LYEG7fb5S5z4nJIfB22dAcvuH", //"https://rpc.ankr.com/eth_goerli",
     chainId: 5,
     explorer: "https://goerli.etherscan.io",
     color: "#f6c343",
     storage: "0x171a664f12672a61E4e948BC7Fd38eB34b64a15b",
-    multicall: "0xFD4e092227e876dD8F2d036FA8fEB23F8A7F94ca",
+    multicall: "0x5ba1e12693dc8f9c48aad8770482f4739beed696",
     ENSRegistry: "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e",
     fromBlock: 8385000,
     baseCurrency: {
@@ -47,7 +47,7 @@ export const networks = {
     explorer: "https://bscscan.com",
     color: "#CC9B00",
     storage: "0xa7472f384339D37EfE505a1A71619212495A973A",
-    multicall: "0x41263cBA59EB80dC200F3E2544eda4ed6A90E76C",
+    multicall: "0xcA11bde05977b3631167028862bE2a173976CA11",
     fromBlock: 25825000,
     baseCurrency: {
       decimals: 18,
@@ -66,7 +66,7 @@ export const networks = {
     chainId: 97,
     explorer: "https://testnet.bscscan.com/",
     color: "#CC9B00",
-    multicall: "0x6e5BB1a5Ad6F68A8D7D6A5e47750eC15773d6042",
+    multicall: "0xcA11bde05977b3631167028862bE2a173976CA11",
     fromBlock: 27113000,
     baseCurrency: {
       decimals: 18,
@@ -77,6 +77,26 @@ export const networks = {
       address: "0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd",
       name: "Wrapped BNB",
       symbol: "WBNB"
+    }
+  },
+  34: {
+    name: "SCAI Mainnet",
+    rpc: "https://mainnet-rpc.scai.network/",
+    chainId: 34,
+    explorer: "https://explorer.securechain.ai/",
+    color: "#CC9B00",
+    storage: "0x48d7ac38530697aDB91061B6D141C8c763edE565",
+    multicall: "0x87a6417F03E106A05698F18829bB3a40CBC54f61",
+    fromBlock: 25825000,
+    baseCurrency: {
+      decimals: 18,
+      name: "SCAI",
+      symbol: "SCAI"
+    },
+    wrappedToken: {
+      address: "0xe30E2F0aFD56dacF8b8D4afBc594f63eE21B9441",
+      name: "Wrapped SCAI",
+      symbol: "WSCAI"
     }
   },
 }
@@ -112,6 +132,14 @@ export const chainRouter = {
       FACTORY: "0x6725F303b657a9451d8BA641348b6761A6CC7a17",
       WETH: "0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd",
       ROUTER: "0xD99D1c33F9fC3444f8101754aBC46c52416550D1",
+    },
+  ],
+  34: [
+    {
+      name: "LaunchpadSwap",
+      FACTORY: "0xd4a711333C41cC01B005dBE5389BcFb99D4f5d64",
+      WETH: "0xe30E2F0aFD56dacF8b8D4afBc594f63eE21B9441",
+      ROUTER: "0xC3B6Bb923Cd49661563956730432c7aA97eF7f9B",
     },
   ],
 };
