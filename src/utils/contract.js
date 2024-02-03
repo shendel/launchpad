@@ -1,5 +1,124 @@
 import TokenLockerFactory from '../contracts/TokenLockerFactory.json';
 import IDOFactory from '../contracts/IDOFactory.json';
+import IDOFactoryV2 from '../contracts/IDOFactoryV2.json'
+import ERC20 from '../contracts/ERC20.json'
+import { getWeb3Library } from './getLibrary'
+import { networks } from '../constants/networksInfo'
+
+export const callTokenLockerFactoryContract = (options) => {
+  const {
+    library,
+    account,
+    address,
+    method,
+    params,
+    onHash,
+    onReceipt,
+  } = options
+
+  try {
+    const contract = getContractInstance(library.web3, address, TokenLockerFactory.abi)
+    return new Promise(async (resolve, reject) => {
+      contract.methods[method](...params)
+        .send({ from: account })
+        .on('transactionHash', (hash) => {
+          if (typeof onHash === 'function') onHash(hash)
+        })
+        .on('receipt', (receipt) => {
+          if (typeof onReceipt === 'function') onReceipt(receipt, receipt?.status)
+        })
+        .then(resolve)
+        .catch(reject)
+    });
+  } catch (error) {
+    throw error
+  }
+}
+
+export const callIDOFactoryContract = (options) => {
+  const {
+    library,
+    account,
+    address,
+    method,
+    params,
+    onHash,
+    onReceipt,
+  } = options
+
+  try {
+    const contract = getContractInstance(library.web3, address, IDOFactoryV2.abi)
+    return new Promise(async (resolve, reject) => {
+      contract.methods[method](...params)
+        .send({ from: account })
+        .on('transactionHash', (hash) => {
+          if (typeof onHash === 'function') onHash(hash)
+        })
+        .on('receipt', (receipt) => {
+          if (typeof onReceipt === 'function') onReceipt(receipt, receipt?.status)
+        })
+        .then(resolve)
+        .catch(reject)
+    });
+  } catch (error) {
+    throw error
+  }
+}
+
+
+export const fetchLockerFactoryInfo = (chainId, address) => {
+  return new Promise(async (resolve, reject) => {
+    const web3 = getWeb3Library(networks[chainId].rpc)
+    const contract = getContractInstance(web3, address, TokenLockerFactory.abi)
+    
+    const owner = await contract.methods.owner().call()
+    const feeAmount = await contract.methods.fee().call()
+    
+    let onlyOwnerCreate = false
+    try {
+      onlyOwnerCreate = await contract.methods.onlyOwnerCreate().call()
+    } catch (e) {
+      /* v 1.0 - no only admin */
+    }
+
+    const lockerInfo = {
+      owner,
+      feeAmount,
+      onlyOwnerCreate
+    }
+    resolve(lockerInfo)
+  })
+}
+
+export const fetchIDOFactoryInfo = (chainId, address) => {
+  return new Promise(async (resolve, reject) => {
+    const web3 = getWeb3Library(networks[chainId].rpc)
+    const contract = getContractInstance(web3, address, IDOFactoryV2.abi)
+    
+    const owner = await contract.methods.owner().call()
+    const onlyOwnerCreate = await contract.methods.onlyOwnerCreate().call()
+    const feeWallet = await contract.methods.feeWallet().call()
+    const feeAmount = await contract.methods.feeAmount().call()
+    const feeToken = await contract.methods.feeToken().call()
+    
+    const feeTokenContract = getContractInstance(web3, feeToken, ERC20.abi)
+    
+    const feeTokenSymbol = await feeTokenContract.methods.symbol().call()
+    const feeTokenDecimals = await feeTokenContract.methods.decimals().call()
+    
+    const idoInfo = {
+      owner,
+      feeWallet,
+      feeAmount,
+      feeToken,
+      feeTokenDecimals,
+      feeTokenSymbol,
+      onlyOwnerCreate,
+    }
+    resolve(idoInfo)
+  })
+}
+
 
 export const getContractInstance = (web3, address, abi) => {
   return new web3.eth.Contract(abi, address)
@@ -41,7 +160,7 @@ const deployContract = async (params) => {
 }
 
 export const deployIDOFactory = async ({ library, onHash, FeeTokenAddress }) => {
-  const { abi, bytecode } = IDOFactory;
+  const { abi, data: { bytecode: { object: bytecode } } } = IDOFactoryV2;
 
   return deployContract({
     abi,
@@ -52,13 +171,13 @@ export const deployIDOFactory = async ({ library, onHash, FeeTokenAddress }) => 
   });
 }
 
-export const deployLockerFactory = async ({ library, onHash }) => {
-  const { abi, bytecode } = TokenLockerFactory;
-
+export const deployLockerFactory = async ({ library, onHash, idoFactory }) => {
+  const { abi, data: { bytecode: { object: bytecode } } } = TokenLockerFactory;
+console.log('>> deploy locker', bytecode, idoFactory)
   return deployContract({
     abi,
     byteCode: bytecode,
-    deployArguments: [],
+    deployArguments: [idoFactory],
     library,
     onHash,
   });
@@ -83,6 +202,7 @@ export const deployLaunchpadContracts = async ({
     const LockerFactory = await deployLockerFactory({
       onHash: onLockerFactoryHash,
       library,
+      idoFactory: IDOFactory.options.address,
     });
 
     if (typeof onSuccessfulDeploy === 'function') {

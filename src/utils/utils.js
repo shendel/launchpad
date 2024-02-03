@@ -3,9 +3,11 @@ import { getAddress } from '@ethersproject/address';
 import { Contract } from '@ethersproject/contracts';
 import ERC20 from "../contracts/ERC20.json";
 import IDOPool from "../contracts/IDOPool.json";
+import IDOPoolERC20 from "../contracts/IDOERC20Pool.json";
 import Locker from "../contracts/TokenLocker.json";
 import { networks, chainRouter } from '../constants/networksInfo';
 import { ZERO_ADDRESS } from '../constants';
+import { loadPoolInfoByMC } from "./multicall"
 
 export function randomIntFromInterval(min, max) {
   // min and max included
@@ -24,6 +26,19 @@ export function getRouterName(router, factory, weth, chainId) {
 
 export function timeout(delay) {
   return new Promise((res) => setTimeout(res, delay));
+}
+
+export function isZeroAddress(address) {
+  return address == '0x0000000000000000000000000000000000000000'
+}
+
+export function tokenAmountToWei(amount, decimals) {
+  return new BigNumber(amount).multipliedBy(10 ** decimals).toFixed()
+}
+
+export function tokenAmountFromWei(amount, decimals) {
+  const t = new BigNumber(amount).div(new BigNumber(10).pow(decimals)).toFixed()
+  return t
 }
 
 export var typewatch = (function () {
@@ -96,32 +111,70 @@ export const isValidToken = (_tokenInfo) => {
   }
 };
 
+
+export const loadPoolDataMulticall = ({
+  idoAddress,
+  web3,
+  account,
+  chainId,
+  infuraDedicatedGateway
+}) => {
+  return new Promise((resolve, reject) => {
+    loadPoolInfoByMC({
+      chainId,
+      account,
+      idoAddress
+    }).then((poolInfo) => {
+      getTokenURI(
+        poolInfo.metadataURL,
+        infuraDedicatedGateway
+      ).then((metadata) => {
+        resolve({
+          ...poolInfo,
+          metadata
+        })
+      }).catch((err) => {
+        reject(err)
+      })
+    }).catch((err) => {
+      reject(err)
+    })
+  })
+}
+  
 export const loadPoolData = async (idoAddress, web3, account, infuraDedicatedGateway) => {
+  console.log('>>> CALL DEPRECATED >>> loadPoolData')
   try {
     const idoPool = await new web3.eth.Contract(IDOPool.abi, idoAddress);
-    let metadataURL = await idoPool.methods.metadataURL().call();
+    const idoPoolErc20 = await  new web3.eth.Contract(IDOPoolERC20.abi, idoAddress)
+    
+    let poolType = await idoPool.methods.contractType().call() //
+
+    let metadataURL = await idoPool.methods.metadataURL().call(); // 
     let balance = await web3.eth.getBalance(idoAddress);
-    let tokenAddress = await idoPool.methods.rewardToken().call();
-    const token = new web3.eth.Contract(ERC20.abi, tokenAddress);
+    let tokenAddress = await idoPool.methods.rewardToken().call(); //
+    const token = new web3.eth.Contract(ERC20.abi, tokenAddress); //
     let metadata = await getTokenURI(metadataURL, infuraDedicatedGateway);
-    let owner = await idoPool.methods.owner().call();
+    let owner = await idoPool.methods.owner().call(); //
 
-    const userData = await loadUserData(idoAddress, web3, account)
+    const userData = await loadUserData(idoAddress, web3, account) //
 
-    let tokenName = await token.methods.name().call();
-    let tokenSymbol = await token.methods.symbol().call();
-    let tokenDecimals = await token.methods.decimals().call();
-    let totalSupply = await token.methods.totalSupply().call();
-    let finInfo = await idoPool.methods.finInfo().call();
+    let tokenName = await token.methods.name().call(); //
+    let tokenSymbol = await token.methods.symbol().call(); //
+    let tokenDecimals = await token.methods.decimals().call(); //
+    let totalSupply = await token.methods.totalSupply().call(); //
+    let finInfo = await idoPool.methods.finInfo().call(); //
 
     // TODO: make a check for withdraw tokens from the contract if the Soft Cap is not collected
     let unsold = 0;
-    try { unsold = await idoPool.methods.getNotSoldToken().call(); }
+    try { unsold = await idoPool.methods.getNotSoldToken().call(); } //
     catch (e) { console.log(e); }
 
-    const timestamps = await idoPool.methods.timestamps().call();
-    const dexInfo = await idoPool.methods.dexInfo().call();
-    const totalInvestedETH = await idoPool.methods.totalInvestedETH().call();
+    const timestamps = await idoPool.methods.timestamps().call(); // 
+    const dexInfo = (poolType == 1) ? await idoPool.methods.dexInfo().call() : {} //
+    const totalInvestedETH = (poolType == 1)
+      ? await idoPool.methods.totalInvestedETH().call()
+      : await idoPoolErc20.methods.totalInvested().call() //
 
     const {
       startTimestamp,
@@ -146,6 +199,7 @@ export const loadPoolData = async (idoAddress, web3, account, infuraDedicatedGat
     );
 
     let result = {
+      idoType: (poolType == 1) ? 'NATIVE' : 'ERC20',
       tokenAddress: tokenAddress,
       metadata: metadata,
       tokenName: tokenName,
@@ -172,12 +226,49 @@ export const loadPoolData = async (idoAddress, web3, account, infuraDedicatedGat
       metadataURL,
       userData: userData,
     };
+    if (poolType == 2) {
+      let payTokenAddress = await idoPoolErc20.methods.payToken().call()
+      const payToken = new web3.eth.Contract(ERC20.abi, payTokenAddress)
+      const payTokenName = await payToken.methods.name().call()
+      const payTokenSymbol = await payToken.methods.symbol().call()
+      const payTokenDecimals = await payToken.methods.decimals().call()
+      const payAllowance = await payToken.methods.allowance(account, idoAddress).call()
+      const payTokenBalance = await payToken.methods.balanceOf(idoAddress).call()
+
+      result = {
+        ...result,
+        balance: payTokenBalance,
+        payToken: {
+          address: payTokenAddress,
+          symbol: payTokenSymbol,
+          name: payTokenName,
+          decimals: payTokenDecimals,
+          allowance: payAllowance,
+        }
+      }
+    }
     return result;
   } catch (e) {
     console.log(e);
     throw e;
   }
 };
+
+export const getTokenAllowance = async (opts) => {
+  const {
+    tokenAddress,
+    web3,
+    owner,
+    spender
+  } = opts
+  console.log('>>> opts', opts)
+  if (!isAddress(tokenAddress)) {
+    return null;
+  }
+  const token = new web3.eth.Contract(ERC20.abi, tokenAddress);
+  const allowance = await token.methods.allowance(owner, spender).call()
+  return allowance
+}
 
 export const getTokenData = async (tokenAddress, web3) => {
   if (!isAddress(tokenAddress)) {
@@ -381,7 +472,7 @@ export function getContract(address, ABI, library, account = '') {
 }
 
 export const getCurrentDomain = () => {
-  //return 'eneeseene-launchpad'// 
+  if (process.env.REACT_APP_DEV_DOMAIN) return process.env.REACT_APP_DEV_DOMAIN
   return window.location.hostname || document.location.host || ''; // 'dev-launchpad'
 }
 

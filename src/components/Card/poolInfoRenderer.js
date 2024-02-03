@@ -32,20 +32,27 @@ const PoolInfoRenderer = (props) => {
     return null;
   }
 
+  const {
+    idoType,
+    payToken,
+  } = idoInfo
+  
   const startDate = new Date(parseInt(idoInfo.start) * 1000);
   const endDate = new Date(parseInt(idoInfo.end) * 1000);
   const claimDate = new Date(parseInt(idoInfo.claim) * 1000);
 
   const isAddLiquidityEnabled = idoInfo.listingRate > 0 && idoInfo.lpPercentage > 0;
 
-  const formatWei = (weiValue, dp = 10) => {
+  const payCurrency = (idoType === `ERC20`) ? payToken.symbol : baseCurrencySymbol
+
+  const formatWei = (weiValue, dp = 0) => {
     return BigNumber(
       BigNumber(
-        Web3Utils.fromWei(
-          weiValue, "ether"
-        )
-      ).toFormat(dp)
-    ).toNumber() + " " + baseCurrencySymbol
+        (idoType === `ERC20`)
+          ? utils.tokenAmountFromWei(weiValue, payToken.decimals)
+          : Web3Utils.fromWei(weiValue, "ether")
+      ).toNumber()
+    ).toFormat(dp) + " " + payCurrency
   }
 
   return (
@@ -71,13 +78,19 @@ const PoolInfoRenderer = (props) => {
         <s.SpacerSmall />
         <s.Container fd="row" jc="space-between">
           <s.TextID fw="700">Token rate</s.TextID>
-          {`${ETHER.div(idoInfo.tokenRate)} ${idoInfo.tokenSymbol}/${baseCurrencySymbol}`}
+          {idoType == `ERC20` ? (
+            <>{idoInfo.tokenRate}</>
+          ) : (
+            <>{ETHER.div(idoInfo.tokenRate).toString()}</>
+          )}
+          {` `}
+          {`${idoInfo.tokenSymbol}/${payCurrency}`}
         </s.Container>
         <s.SpacerSmall />
         {
           isAddLiquidityEnabled && <s.Container fd="row" jc="space-between">
             <s.TextID fw="700">Listing rate</s.TextID>
-            {`${ETHER.div(idoInfo.listingRate)} ${idoInfo.tokenSymbol}/${baseCurrencySymbol}`}
+            {`${ETHER.div(idoInfo.listingRate)} ${idoInfo.tokenSymbol}/${payCurrency}`}
           </s.Container>
         }
         <s.SpacerSmall />
@@ -132,11 +145,15 @@ const PoolInfoRenderer = (props) => {
           {endDate.toString()}
         </s.Container>
         <s.SpacerSmall />
-        <s.Container fd="row" jc="space-between">
-          <s.TextID fw="700">Lock LP until</s.TextID>
-          {claimDate.toString()}
-        </s.Container>
-        <s.SpacerSmall />
+        {idoType === `NATIVE` && (
+          <>
+            <s.Container fd="row" jc="space-between">
+              <s.TextID fw="700">Lock LP until</s.TextID>
+              {claimDate.toString()}
+            </s.Container>
+            <s.SpacerSmall />
+          </>
+        )}
       </s.Card>
       <s.SpacerMedium />
       <TokenInfo idoAddress={idoAddress} />

@@ -1,11 +1,18 @@
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "./openzeppelin/contracts/access/Ownable.sol";
+import "./openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "./openzeppelin/contracts/utils/math/SafeMath.sol";
+import "./openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "./openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "./TokenLocker.sol";
+
+
+interface IDOFactoryInterface {
+    function isIdoAddress(address _address) external view returns (bool);
+}
+
 
 contract TokenLockerFactory is Ownable {
     using SafeMath for uint256;
@@ -13,6 +20,12 @@ contract TokenLockerFactory is Ownable {
 
     uint256 public lockerCount = 0;
     uint256 public fee = 0;
+
+    bool public onlyOwnerCreate = false;
+
+    function setOnlyOwnerCreate(bool newVal) public onlyOwner {
+        onlyOwnerCreate = newVal;
+    }
 
     struct lockerInfo {
         uint256 lockerId;
@@ -27,11 +40,21 @@ contract TokenLockerFactory is Ownable {
 
     event LockerCreated(uint256 lockerId, address indexed lockerAddress, address tokenAddress);
 
-    constructor(
-    ){
+    IDOFactoryInterface public idoFactory;
 
+    constructor(address _idoFactory){
+        idoFactory = IDOFactoryInterface(_idoFactory);
+    }
+    function setIDOFactory(address _idoFactory) public onlyOwner {
+        idoFactory = IDOFactoryInterface(_idoFactory);
     }
 
+    function canCreateIdo() private view returns (bool) {
+        if (!onlyOwnerCreate) return true;
+        if (msg.sender == this.owner()) return true;
+        if (idoFactory.isIdoAddress(msg.sender)) return true;
+        return false;
+    }
     function getLockerAddresses() public view returns (address[] memory) {
       return lockerAddresses;
     }
@@ -42,7 +65,8 @@ contract TokenLockerFactory is Ownable {
         uint256 _lockAmount,
         address _withdrawer,
         uint256 _withdrawTime
-        ) payable public returns(address){
+    ) payable public returns(address){
+        require(canCreateIdo() == true, 'Not allow create IDO for you');
         require(msg.value == fee, 'Fee amount is required');
 
         TokenLocker tokenLocker = new TokenLocker(_tokenAddress, _name, _withdrawer, _withdrawTime);

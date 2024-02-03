@@ -28,7 +28,7 @@ const CreateLaunchpad = () => {
             color: "var(--card)",
           }}
         >
-          Create IDO Poll
+          Create IDO Pool
         </NavLink>
       ) : null}
     </div>

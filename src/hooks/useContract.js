@@ -2,8 +2,9 @@ import { useMemo } from 'react';
 import Web3 from 'web3';
 import TokenLockerFactory from '../contracts/TokenLockerFactory.json';
 import Locker from "../contracts/TokenLocker.json";
-import IDOFactory from '../contracts/IDOFactory.json';
+import IDOFactory from '../contracts/IDOFactoryV2.json';
 import IDOPool from "../contracts/IDOPool.json";
+import IDOERC20Pool from "../contracts/IDOERC20Pool.json";
 import STORAGE from '../contracts/Storage.json';
 import ERC20 from '../contracts/ERC20.json';
 import { STORAGE_NETWORK_ID } from '../constants';
@@ -67,4 +68,8 @@ export function useTokenContract(tokenAddress, withSignerIfPossible, customChain
 
 export function useIDOPoolContract(IDOAddress, withSignerIfPossible, customChainId) {
   return useContract(IDOAddress, IDOPool.abi, withSignerIfPossible, customChainId)
+}
+
+export function useIDOERC20PoolContract(IDOAddress, withSignerIfPossible, customChainId) {
+  return useContract(IDOAddress, IDOERC20Pool.abi, withSignerIfPossible, customChainId)
 }

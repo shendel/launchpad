@@ -352,6 +352,7 @@ export default function Contracts() {
 
   return (
     <ContentWrapper disabled={isLoading || isDeployingContracts}>
+      <s.SpacerSmall />
       <Typography variant="h6">Contracts</Typography>
 
       <s.SpacerSmall />

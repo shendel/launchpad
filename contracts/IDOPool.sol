@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.18;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "./openzeppelin/contracts/access/Ownable.sol";
+import "./openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "./openzeppelin/contracts/utils/math/SafeMath.sol";
+import "./openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "./openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 import "./IUniswapV2Router02.sol";
 import "./IUniswapV2Factory.sol";
@@ -69,6 +69,10 @@ contract IDOPool is Ownable, ReentrancyGuard {
 
     event TokensWithdrawn(address indexed holder, uint256 amount);
 
+    uint256 public contractType = 1;
+
+    address public factory;
+
     constructor(
         ERC20 _rewardToken,
         FinInfo memory _finInfo,
@@ -77,7 +81,8 @@ contract IDOPool is Ownable, ReentrancyGuard {
         address _lockerFactoryAddress,
         string memory _metadataURL
     ) {
-
+        factory = msg.sender;
+        
         rewardToken = _rewardToken;
         decimals = rewardToken.decimals();
         lockerFactory = TokenLockerFactory(_lockerFactoryAddress);
