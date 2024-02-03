@@ -99,6 +99,26 @@ export const networks = {
       symbol: "WSCAI"
     }
   },
+  487417: {
+    name: "xCapital",
+    rpc: "https://mainnet-rpc.xcscan.com/",
+    chainId: 487417,
+    explorer: "https://xcscan.com/",
+    color: "#CC9B00",
+    storage: "0x83048f0Bf34FEeD8CEd419455a4320A735a92e9d",
+    multicall: "0x5Bf02dD843629d7a3710b7e44a69308AD0bf70db",
+    fromBlock: 499712,
+    baseCurrency: {
+      decimals: 18,
+      name: "XCBC",
+      symbol: "XCBC"
+    },
+    wrappedToken: {
+      address: "0xD5F0646B093322877a8369B0A05266D1fA7B77ce",
+      name: "Wrapped XCBC",
+      symbol: "WXCBC"
+    }
+  },
 }
 
 export const chainRouter = {
@@ -140,6 +160,14 @@ export const chainRouter = {
       FACTORY: "0xd4a711333C41cC01B005dBE5389BcFb99D4f5d64",
       WETH: "0xe30E2F0aFD56dacF8b8D4afBc594f63eE21B9441",
       ROUTER: "0xC3B6Bb923Cd49661563956730432c7aA97eF7f9B",
+    },
+  ],
+  487417: [
+    {
+      name: "LaunchpadSwap",
+      FACTORY: "0x809F55B913094eDD168cE23fCe1288Efe94a6500",
+      WETH: "0xD5F0646B093322877a8369B0A05266D1fA7B77ce",
+      ROUTER: "0x663A8a85FaB794f95F8C098A0806bdc1D9D33d76",
     },
   ],
 };

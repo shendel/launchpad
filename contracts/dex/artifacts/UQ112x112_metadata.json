@@ -1,0 +1,37 @@
+{
+	"compiler": {
+		"version": "0.5.16+commit.9c3226ce"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [],
+		"devdoc": {
+			"methods": {}
+		},
+		"userdoc": {
+			"methods": {}
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"dex/LaunchpadSwapFactory.sol": "UQ112x112"
+		},
+		"evmVersion": "istanbul",
+		"libraries": {},
+		"optimizer": {
+			"enabled": true,
+			"runs": 99999
+		},
+		"remappings": []
+	},
+	"sources": {
+		"dex/LaunchpadSwapFactory.sol": {
+			"keccak256": "0x60e9dc7aac928e86b701ba787188016e94d5690e44affe1b95754733bf41a61a",
+			"urls": [
+				"bzz-raw://9db70b3b5f9f9dd87ceb9ffb541504b8e6749dc30cd1ff51a4a01740491011fb",
+				"dweb:/ipfs/QmWaAhCPYcfBNrghGa4uHefK9dMXYt7KNU7uYYQkEYyWiV"
+			]
+		}
+	},
+	"version": 1
+}
