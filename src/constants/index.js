@@ -7,7 +7,9 @@ const GOERLI_ID = 5;
 const SCAI_ID = 34;
 const XCAPITAL_ID = 487417;
 
-export const STORAGE_NETWORK_ID = SCAI_ID // process.env.NODE_ENV === 'production' ? BSC_ID : GOERLI_ID;
+
+export const STORAGE_NETWORK_ID = XCAPITAL_ID //process.env.NODE_ENV === 'production' ? BSC_ID : GOERLI_ID;
+
 export const STORAGE_NETWORK_NAME = networks[STORAGE_NETWORK_ID.toString()].name;
 export const STORAGE = networks[STORAGE_NETWORK_ID.toString()].storage;
 

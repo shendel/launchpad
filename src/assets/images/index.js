@@ -1,10 +1,12 @@
 import ETH from './eth.png'
 import BNB from './bnb.png'
+import SCAI from './scai.png'
 
 export const CURRENCY = {
   ETH,
   BNB,
-
+  SCAI,
+  
   // ------------
 
   1: ETH,
@@ -14,4 +16,6 @@ export const CURRENCY = {
   42: ETH,
   56: BNB,
   97: BNB,
+  
+  34: SCAI, // https://securechain.ai/
 }
