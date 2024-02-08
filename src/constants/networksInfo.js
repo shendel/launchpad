@@ -119,6 +119,27 @@ export const networks = {
       symbol: "WXCBC"
     }
   },
+  137: {
+    name: "Polygon",
+    rpc: "https://polygon-rpc.com/",
+    chainId: 137,
+    explorer: "https://polygonscan.com/",
+    color: "#CC9B00",
+    storage: "0x92f0605CB1D54266e848060bF96A90daC8869f01",
+    multicall: "0xD51ab99DC2d305dc4e673A5b90D9695830360CB3",
+    fromBlock: 53271573,
+    baseCurrency: {
+      decimals: 18,
+      name: "MATIC",
+      symbol: "MATIC"
+    },
+    wrappedToken: {
+      address: "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270",
+      name: "Wrapped Matic",
+      symbol: "WMATIC"
+    }
+  },
+  
 }
 
 export const chainRouter = {
@@ -165,9 +186,17 @@ export const chainRouter = {
   487417: [
     {
       name: "LaunchpadSwap",
-      FACTORY: "0x809F55B913094eDD168cE23fCe1288Efe94a6500",
+      FACTORY: "0x66269C3b29236bE7Db061aE1C7EcE74f9a4377EE",
       WETH: "0xD5F0646B093322877a8369B0A05266D1fA7B77ce",
-      ROUTER: "0x663A8a85FaB794f95F8C098A0806bdc1D9D33d76",
+      ROUTER: "0x00a5Dc07A0F8061e896F0Acdd47d352e49FD1a2c",
+    },
+  ],
+  137: [
+    {
+      name: "LaunchpadSwap",
+      FACTORY: "0x5E232567d91C2116C113a9ECCDD2487A7F846959",
+      WETH: "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270",
+      ROUTER: "0xAcf15259F8B99094b7051679a9e60B2F270558ce",
     },
   ],
 };
