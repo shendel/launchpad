@@ -8,7 +8,7 @@ const SCAI_ID = 34;
 const XCAPITAL_ID = 487417;
 
 
-export const STORAGE_NETWORK_ID = XCAPITAL_ID //process.env.NODE_ENV === 'production' ? BSC_ID : GOERLI_ID;
+export const STORAGE_NETWORK_ID = process.env.NODE_ENV === 'production' ? BSC_ID : GOERLI_ID;
 
 export const STORAGE_NETWORK_NAME = networks[STORAGE_NETWORK_ID.toString()].name;
 export const STORAGE = networks[STORAGE_NETWORK_ID.toString()].storage;
@@ -26,7 +26,7 @@ export const SUPPORTED_WALLETS = {
   INJECTED: {
     connector: injected,
     name: WALLET_NAMES.INJECTED,
-    iconName: 'arrow-right.svg',
+    iconName: 'injected.svg',
     description: 'Injected web3 provider.',
     href: null,
     color: '#010101',
@@ -40,6 +40,7 @@ export const SUPPORTED_WALLETS = {
     href: null,
     color: '#E8831D',
   },
+  /*
   WALLET_CONNECT: {
     connector: newWalletConnect(STORAGE_NETWORK_ID),
     name: WALLET_NAMES.WALLET_CONNECT,
@@ -49,6 +50,7 @@ export const SUPPORTED_WALLETS = {
     color: '#4196FC',
     mobile: true,
   },
+  */
 //   WALLET_LINK: {
 //     connector: newWalletlink(STORAGE_NETWORK_ID),
 //     name: WALLET_NAMES.WALLET_LINK,
