@@ -1,5 +1,7 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+.idea
+
 # dependencies
 /.pnp
 .pnp.js
@@ -28,6 +30,5 @@ yarn-error.log*
 .secret
 node_modules
 wp_temp_build/
-build/
 contracts/artifacts/
 wordpress_vendor/static/
