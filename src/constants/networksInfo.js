@@ -19,6 +19,27 @@ export const networks = {
       symbol: "WETH"
     }
   },
+  11155111: {
+    name: "Ethereum Sepolia",
+    rpc: "https://eth-sepolia.g.alchemy.com/v2/eV40AoRwFdzusyW_9htirAoRXSMssQ0E",
+    chainId: 11155111,
+    explorer: "https://sepolia.etherscan.io/",
+    color: "#f6c343",
+    storage: "0x83048f0Bf34FEeD8CEd419455a4320A735a92e9d",
+    multicall: "0x48d7ac38530697aDB91061B6D141C8c763edE565",
+    ENSRegistry: "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e",
+    fromBlock: 5583026,
+    baseCurrency: {
+      decimals: 18,
+      name: "ETH",
+      symbol: "ETH"
+    },
+    wrappedToken: {
+      address: "0xb16f35c0ae2912430dac15764477e179d9b9ebea",
+      name: "Wrapped Ether",
+      symbol: "WETH"
+    }
+  },
   5: {
     name: "Görli",
     rpc: "https://eth-goerli.g.alchemy.com/v2/wNvkA78LYEG7fb5S5z4nJIfB22dAcvuH", //"https://rpc.ankr.com/eth_goerli",
