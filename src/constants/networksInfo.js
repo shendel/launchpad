@@ -99,6 +99,25 @@ export const networks = {
       symbol: "WSCAI"
     }
   },
+  420044: {
+    name: "Vector (testnet)",
+    rpc: "https://testnet-rpc.vsgofficial.com",
+    chainId: 420044,
+    explorer: "https://testnet-scan.vsgofficial.com/",
+    color: "#CC9B00",
+    multicall: "0x8D3185295E7800FB687BA75e8F9685e3D2435676",
+    fromBlock: 366635,
+    baseCurrency: {
+      decimals: 18,
+      name: "VSG",
+      symbol: "VSG"
+    },
+    wrappedToken: {
+      address: "0xc6807ddc8DfB31c66114eFFaDe883b3C8eABBA83",
+      name: "Wrapped VSG",
+      symbol: "WVSG"
+    }
+  },
 }
 
 export const chainRouter = {
