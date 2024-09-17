@@ -161,6 +161,14 @@ export const chainRouter = {
       ROUTER: "0xC3B6Bb923Cd49661563956730432c7aA97eF7f9B",
     },
   ],
+  420044: [
+    {
+      name: "LaunchpadSwap",
+      FACTORY: "0x89f15Ae832e67EFC7e1dd08abf530EF271DCf84E",
+      WETH: "0xc6807ddc8DfB31c66114eFFaDe883b3C8eABBA83",
+      ROUTER: "0x9FE00944ec08c6fcDf7B5012DE6EAa58Ed74E13e",
+    },
+  ],
 };
 
 
