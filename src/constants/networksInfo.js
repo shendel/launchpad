@@ -40,6 +40,27 @@ export const networks = {
       symbol: "WETH"
     }
   },
+  11155111: {
+    name: "Sepolia",
+    rpc: "https://eth-sepolia.g.alchemy.com/v2/eV40AoRwFdzusyW_9htirAoRXSMssQ0E", //"https://rpc.ankr.com/eth_goerli",
+    chainId: 11155111,
+    explorer: "https://sepolia.etherscan.io/",
+    color: "#f6c343",
+    storage: "0x83048f0Bf34FEeD8CEd419455a4320A735a92e9d",
+    multicall: "0x48d7ac38530697aDB91061B6D141C8c763edE565",
+    ENSRegistry: "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e",
+    fromBlock: 7467108,
+    baseCurrency: {
+      decimals: 18,
+      name: "ETH",
+      symbol: "ETH"
+    },
+    wrappedToken: {
+      address: "0xb16f35c0ae2912430dac15764477e179d9b9ebea",
+      name: "Wrapped Ether",
+      symbol: "WETH"
+    }
+  },
   56: {
     name: "BSC",
     rpc: "https://bscrpc.com/",
@@ -118,6 +139,25 @@ export const networks = {
       symbol: "WVSG"
     }
   },
+  420042: {
+    name: "Vector",
+    rpc: "https://rpc.vscblockchain.org",
+    chainId: 420042,
+    explorer: "https://explorer.vscblockchain.org",
+    color: "#CC9B00",
+    multicall: "0x48d7ac38530697aDB91061B6D141C8c763edE565",
+    fromBlock: 796700,
+    baseCurrency: {
+      decimals: 18,
+      name: "VSG",
+      symbol: "VSG"
+    },
+    wrappedToken: {
+      address: "0x83048f0Bf34FEeD8CEd419455a4320A735a92e9d",
+      name: "Wrapped VSG",
+      symbol: "WVSG"
+    }
+  },
 }
 
 export const chainRouter = {
@@ -167,6 +207,14 @@ export const chainRouter = {
       FACTORY: "0x89f15Ae832e67EFC7e1dd08abf530EF271DCf84E",
       WETH: "0xc6807ddc8DfB31c66114eFFaDe883b3C8eABBA83",
       ROUTER: "0x9FE00944ec08c6fcDf7B5012DE6EAa58Ed74E13e",
+    },
+  ],
+  420042: [
+    {
+      name: "LaunchpadSwap",
+      FACTORY: "0x94Fea98DbaE4B7592b2e4CBA6A613B7Be0188B70",
+      WETH: "0x83048f0Bf34FEeD8CEd419455a4320A735a92e9d",
+      ROUTER: "0xD85558c4dFB8D2fcb9Bd16292622F0600de717fA",
     },
   ],
 };
